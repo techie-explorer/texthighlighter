@@ -823,6 +823,58 @@
     };
 
     /**
+     * Serializes all highlights in the element the highlighter is applied to.
+     * @returns {string} - stringified JSON with highlights definition
+     * @memberof TextHighlighter
+     */
+    TextHighlighter.prototype.serializeHighlightsCustom = function (id) {
+        var highlights = this.getHighlights(),
+            refEl = this.el,
+            hlDescriptors = [];
+
+        function getElementPath(el, refElement) {
+            var path = [],
+                childNodes;
+
+            do {
+                childNodes = Array.prototype.slice.call(el.parentNode.childNodes);
+                path.unshift(childNodes.indexOf(el));
+                el = el.parentNode;
+            } while (el !== refElement || !el);
+
+            return path;
+        }
+
+        sortByDepth(highlights, false);
+
+        highlights.forEach(function (highlight) {
+            var offset = 0, // Hl offset from previous sibling within parent node.
+                length = highlight.textContent.length,
+                hlPath = getElementPath(highlight, refEl),
+                wrapper = highlight.cloneNode(true);
+
+            wrapper.innerHTML = '';
+            wrapper = wrapper.outerHTML;
+
+            if (highlight.previousSibling && highlight.previousSibling.nodeType === NODE_TYPE.TEXT_NODE) {
+                offset = highlight.previousSibling.length;
+            }
+
+            if (wrapper.toString().indexOf(id) > -1) {
+                hlDescriptors.push([
+                    wrapper,
+                    highlight.textContent,
+                    hlPath.join(':'),
+                    offset,
+                    length
+                ]);
+            }
+        });
+
+        return JSON.stringify(hlDescriptors);
+    };
+
+    /**
      * Deserializes highlights.
      * @throws exception when can't parse JSON or JSON has invalid structure.
      * @param {object} json - JSON object with highlights definition.

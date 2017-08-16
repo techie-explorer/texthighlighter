@@ -161,7 +161,7 @@ deserializeBtn.onclick = function () {
                 deserializeBtn  = document.getElementById('deserialize');
             var sandbox = document.getElementById('sandbox');
             var colors = new ColorPicker(document.querySelector('.color-picker'));
-            var hltr = new TextHighlighter(sandbox);
+            window.hltr = new TextHighlighter(sandbox);
             var serialized = '';
 
             colors.onColorChange(function (color) {
