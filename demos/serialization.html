@@ -224,7 +224,7 @@ deserializeBtn.onclick = function () {
         serializeBtn.addEventListener("click", function() {
           serialized = hltr.serializeHighlightsCustom("highlight-test");
           console.log(JSON.parse(serialized));
-          // hltr.removeHighlights();
+          hltr.removeHighlights();
         });
 
         deserializeBtn.addEventListener("click", function() {

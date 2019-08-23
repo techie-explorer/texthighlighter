@@ -62,29 +62,31 @@
     let currentNode = parentNode;
     let currentOffset = 0;
     let offsetWithinNode = 0;
+    let locationFound = false;
 
-    // Not quite working at the moment!
-    while (currentOffset < highlight.offset && currentNode) {
-      console.log(
-        "ALSDebug23: currentOffset",
-        currentOffset,
-        "ALSDebug23: highlight.offset: ",
-        highlight.offset,
-        "currentNode: ",
-        currentNode
-      );
-      const potentialOffset = currentOffset + currentNode.textContent.length;
-      if (potentialOffset > highlight.offset) {
+    while (
+      currentNode &&
+      !locationFound &&
+      (currentOffset < highlight.offset ||
+        (currentOffset === highlight.offset &&
+          currentNode.childNodes.length > 0))
+    ) {
+      const endOfNodeOffset = currentOffset + currentNode.textContent.length;
+
+      if (endOfNodeOffset > highlight.offset) {
         if (currentNode.childNodes.length === 0) {
           offsetWithinNode = highlight.offset - currentOffset;
+          locationFound = true;
+          currentOffset = currentOffset + offsetWithinNode;
         } else {
           currentNode = currentNode.childNodes[0];
         }
       } else {
-        currentOffset = potentialOffset;
+        currentOffset = endOfNodeOffset;
         currentNode = currentNode.nextSibling;
       }
     }
+
     return { node: currentNode, offset: offsetWithinNode };
   }
 
@@ -678,12 +680,47 @@
         if (self.isHighlight(parent)) {
           if (!haveSameColor(parent, hl)) {
             if (!hl.nextSibling) {
-              dom(hl).insertBefore(parentNext || parent);
+              if (!parentNext) {
+                dom(hl).insertAfter(parent);
+              } else {
+                dom(hl).insertBefore(parentNext);
+              }
+              //dom(hl).insertBefore(parentNext || parent);
               again = true;
             }
 
             if (!hl.previousSibling) {
-              dom(hl).insertAfter(parentPrev || parent);
+              if (!parentPrev) {
+                dom(hl).insertBefore(parent);
+              } else {
+                dom(hl).insertAfter(parentPrev);
+              }
+              //dom(hl).insertAfter(parentPrev || parent);
+              again = true;
+            }
+
+            if (
+              hl.previousSibling &&
+              hl.previousSibling.nodeType == 3 &&
+              hl.nextSibling &&
+              hl.nextSibling.nodeType == 3
+            ) {
+              var spanleft = document.createElement("span");
+              spanleft.style.backgroundColor = parent.style.backgroundColor;
+              spanleft.className = parent.className;
+              var timestamp = parent.attributes[TIMESTAMP_ATTR].nodeValue;
+              spanleft.setAttribute(TIMESTAMP_ATTR, timestamp);
+              spanleft.setAttribute(DATA_ATTR, true);
+
+              var spanright = spanleft.cloneNode(true);
+
+              dom(hl.previousSibling).wrap(spanleft);
+              dom(hl.nextSibling).wrap(spanright);
+
+              var nodes = Array.prototype.slice.call(parent.childNodes);
+              nodes.forEach(function(node) {
+                dom(node).insertBefore(node.parentNode);
+              });
               again = true;
             }
 
@@ -1032,6 +1069,7 @@
 
     hlDescriptors.forEach(function(hlDescriptor) {
       try {
+        console.log("Highlight: ", hlDescriptor);
         deserializationFnCustom(hlDescriptor);
       } catch (e) {
         if (console && console.warn) {
