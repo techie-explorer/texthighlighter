@@ -1,39 +1,39 @@
 (function(global) {
-  "use strict";
+  'use strict';
 
   var /**
      * Attribute added by default to every highlight.
      * @type {string}
      */
-    DATA_ATTR = "data-highlighted",
+    DATA_ATTR = 'data-highlighted',
     /**
      * Attribute used to group highlight wrappers.
      * @type {string}
      */
-    TIMESTAMP_ATTR = "data-timestamp",
+    TIMESTAMP_ATTR = 'data-timestamp',
     NODE_TYPE = {
       ELEMENT_NODE: 1,
-      TEXT_NODE: 3
+      TEXT_NODE: 3,
     },
     /**
      * Don't highlight content of these tags.
      * @type {string[]}
      */
     IGNORE_TAGS = [
-      "SCRIPT",
-      "STYLE",
-      "SELECT",
-      "OPTION",
-      "BUTTON",
-      "OBJECT",
-      "APPLET",
-      "VIDEO",
-      "AUDIO",
-      "CANVAS",
-      "EMBED",
-      "PARAM",
-      "METER",
-      "PROGRESS"
+      'SCRIPT',
+      'STYLE',
+      'SELECT',
+      'OPTION',
+      'BUTTON',
+      'OBJECT',
+      'APPLET',
+      'VIDEO',
+      'AUDIO',
+      'CANVAS',
+      'EMBED',
+      'PARAM',
+      'METER',
+      'PROGRESS',
     ];
 
   /**
@@ -47,9 +47,7 @@
   }
 
   function extractTextNodesFromDirectChildren(childNodes) {
-    return childNodes.filter(
-      childNode => childNode.nodeType === Node.TEXT_NODE
-    );
+    return childNodes.filter((childNode) => childNode.nodeType === Node.TEXT_NODE);
   }
 
   /**
@@ -68,8 +66,7 @@
       currentNode &&
       !locationFound &&
       (currentOffset < highlight.offset ||
-        (currentOffset === highlight.offset &&
-          currentNode.childNodes.length > 0))
+        (currentOffset === highlight.offset && currentNode.childNodes.length > 0))
     ) {
       const endOfNodeOffset = currentOffset + currentNode.textContent.length;
 
@@ -131,10 +128,7 @@
       goDeeper = true;
 
     if (range.endOffset === 0) {
-      while (
-        !endContainer.previousSibling &&
-        endContainer.parentNode !== ancestor
-      ) {
+      while (!endContainer.previousSibling && endContainer.parentNode !== ancestor) {
         endContainer = endContainer.parentNode;
       }
       endContainer = endContainer.previousSibling;
@@ -164,7 +158,7 @@
     return {
       startContainer: startContainer,
       endContainer: endContainer,
-      goDeeper: goDeeper
+      goDeeper: goDeeper,
     };
   }
 
@@ -175,10 +169,7 @@
    */
   function sortByDepth(arr, descending) {
     arr.sort(function(a, b) {
-      return (
-        dom(descending ? b : a).parents().length -
-        dom(descending ? a : b).parents().length
-      );
+      return dom(descending ? b : a).parents().length - dom(descending ? a : b).parents().length;
     });
   }
 
@@ -195,7 +186,7 @@
     highlights.forEach(function(hl) {
       var timestamp = hl.getAttribute(TIMESTAMP_ATTR);
 
-      if (typeof chunks[timestamp] === "undefined") {
+      if (typeof chunks[timestamp] === 'undefined') {
         chunks[timestamp] = [];
         order.push(timestamp);
       }
@@ -214,8 +205,8 @@
             .map(function(h) {
               return h.textContent;
             })
-            .join("");
-        }
+            .join('');
+        },
       });
     });
 
@@ -237,7 +228,7 @@
         if (el.classList) {
           el.classList.add(className);
         } else {
-          el.className += " " + className;
+          el.className += ' ' + className;
         }
       },
 
@@ -250,8 +241,8 @@
           el.classList.remove(className);
         } else {
           el.className = el.className.replace(
-            new RegExp("(^|\\b)" + className + "(\\b|$)", "gi"),
-            " "
+            new RegExp('(^|\\b)' + className + '(\\b|$)', 'gi'),
+            ' ',
           );
         }
       },
@@ -374,10 +365,7 @@
         }
 
         if (el.nodeType === NODE_TYPE.TEXT_NODE) {
-          while (
-            el.nextSibling &&
-            el.nextSibling.nodeType === NODE_TYPE.TEXT_NODE
-          ) {
+          while (el.nextSibling && el.nextSibling.nodeType === NODE_TYPE.TEXT_NODE) {
             el.nodeValue += el.nextSibling.nodeValue;
             el.parentNode.removeChild(el.nextSibling);
           }
@@ -401,7 +389,7 @@
        * @returns {NodeList}
        */
       fromHTML: function(html) {
-        var div = document.createElement("div");
+        var div = document.createElement('div');
         div.innerHTML = html;
         return div.childNodes;
       },
@@ -454,18 +442,18 @@
       getDocument: function() {
         // if ownerDocument is null then el is the document itself.
         return el.ownerDocument || el;
-      }
+      },
     };
   };
 
   function bindEvents(el, scope) {
-    el.addEventListener("mouseup", scope.highlightHandler.bind(scope));
-    el.addEventListener("touchend", scope.highlightHandler.bind(scope));
+    el.addEventListener('mouseup', scope.highlightHandler.bind(scope));
+    el.addEventListener('touchend', scope.highlightHandler.bind(scope));
   }
 
   function unbindEvents(el, scope) {
-    el.removeEventListener("mouseup", scope.highlightHandler.bind(scope));
-    el.removeEventListener("touchend", scope.highlightHandler.bind(scope));
+    el.removeEventListener('mouseup', scope.highlightHandler.bind(scope));
+    el.removeEventListener('touchend', scope.highlightHandler.bind(scope));
   }
 
   /**
@@ -486,21 +474,21 @@
    */
   function TextHighlighter(element, options) {
     if (!element) {
-      throw "Missing anchor element";
+      throw 'Missing anchor element';
     }
 
     this.el = element;
     this.options = defaults(options, {
-      color: "#ffff7b",
-      highlightedClass: "highlighted",
-      contextClass: "highlighter-context",
+      color: '#ffff7b',
+      highlightedClass: 'highlighted',
+      contextClass: 'highlighter-context',
       onRemoveHighlight: function() {
         return true;
       },
       onBeforeHighlight: function() {
         return true;
       },
-      onAfterHighlight: function() {}
+      onAfterHighlight: function() {},
     });
 
     dom(this.el).addClass(this.options.contextClass);
@@ -585,10 +573,7 @@
 
     do {
       if (goDeeper && node.nodeType === NODE_TYPE.TEXT_NODE) {
-        if (
-          IGNORE_TAGS.indexOf(node.parentNode.tagName) === -1 &&
-          node.nodeValue.trim() !== ""
-        ) {
+        if (IGNORE_TAGS.indexOf(node.parentNode.tagName) === -1 && node.nodeValue.trim() !== '') {
           wrapperClone = wrapper.cloneNode(true);
           wrapperClone.setAttribute(DATA_ATTR, true);
           nodeParent = node.parentNode;
@@ -602,10 +587,7 @@
 
         goDeeper = false;
       }
-      if (
-        node === endContainer &&
-        !(endContainer.hasChildNodes() && goDeeper)
-      ) {
+      if (node === endContainer && !(endContainer.hasChildNodes() && goDeeper)) {
         done = true;
       }
 
@@ -710,7 +692,7 @@
               hl.nextSibling &&
               hl.nextSibling.nodeType == 3
             ) {
-              var spanleft = document.createElement("span");
+              var spanleft = document.createElement('span');
               spanleft.style.backgroundColor = parent.style.backgroundColor;
               spanleft.className = parent.className;
               var timestamp = parent.attributes[TIMESTAMP_ATTR].nodeValue;
@@ -861,10 +843,10 @@
     params = defaults(params, {
       container: this.el,
       andSelf: true,
-      grouped: false
+      grouped: false,
     });
 
-    var nodeList = params.container.querySelectorAll("[" + DATA_ATTR + "]"),
+    var nodeList = params.container.querySelectorAll('[' + DATA_ATTR + ']'),
       highlights = Array.prototype.slice.call(nodeList);
 
     if (params.andSelf === true && params.container.hasAttribute(DATA_ATTR)) {
@@ -886,9 +868,7 @@
    * @memberof TextHighlighter
    */
   TextHighlighter.prototype.isHighlight = function(el) {
-    return (
-      el && el.nodeType === NODE_TYPE.ELEMENT_NODE && el.hasAttribute(DATA_ATTR)
-    );
+    return el && el.nodeType === NODE_TYPE.ELEMENT_NODE && el.hasAttribute(DATA_ATTR);
   };
 
   /**
@@ -922,23 +902,14 @@
         hlPath = getElementPath(highlight, refEl),
         wrapper = highlight.cloneNode(true);
 
-      wrapper.innerHTML = "";
+      wrapper.innerHTML = '';
       wrapper = wrapper.outerHTML;
 
-      if (
-        highlight.previousSibling &&
-        highlight.previousSibling.nodeType === NODE_TYPE.TEXT_NODE
-      ) {
+      if (highlight.previousSibling && highlight.previousSibling.nodeType === NODE_TYPE.TEXT_NODE) {
         offset = highlight.previousSibling.length;
       }
 
-      hlDescriptors.push([
-        wrapper,
-        highlight.textContent,
-        hlPath.join(":"),
-        offset,
-        length
-      ]);
+      hlDescriptors.push([wrapper, highlight.textContent, hlPath.join(':'), offset, length]);
     });
 
     return JSON.stringify(hlDescriptors);
@@ -976,17 +947,12 @@
       let level = 1;
       do {
         console.log(`level ${level}`);
-        childNodes = Array.prototype.slice.call(
-          currentElement.parentNode.childNodes
-        );
+        childNodes = Array.prototype.slice.call(currentElement.parentNode.childNodes);
         const childElementIndex = childNodes.indexOf(currentElement);
         console.log(childElementIndex);
-        const offsetInCurrentParent = getTextOffsetBefore(
-          childNodes,
-          childElementIndex
-        );
-        console.log("childNodes: ", childNodes);
-        console.log("offsetInCurrentParent:", offsetInCurrentParent);
+        const offsetInCurrentParent = getTextOffsetBefore(childNodes, childElementIndex);
+        console.log('childNodes: ', childNodes);
+        console.log('offsetInCurrentParent:', offsetInCurrentParent);
         offset += offsetInCurrentParent;
         currentElement = currentElement.parentNode;
         level += 1;
@@ -1003,14 +969,11 @@
         offset = getElementOffset(highlight, refEl), // Hl offset from the root element.
         wrapper = highlight.cloneNode(true);
 
-      wrapper.innerHTML = "";
+      wrapper.innerHTML = '';
       wrapper = wrapper.outerHTML;
 
-      console.log("Highlight text offset from root node: ", offset);
-      console.log(
-        `wrapper.toString().indexOf(${id}):`,
-        wrapper.toString().indexOf(id)
-      );
+      console.log('Highlight text offset from root node: ', offset);
+      console.log(`wrapper.toString().indexOf(${id}):`, wrapper.toString().indexOf(id));
       if (wrapper.toString().indexOf(id) > -1) {
         hlDescriptors.push([wrapper, highlight.textContent, offset, length]);
       }
@@ -1047,16 +1010,13 @@
           wrapper: hlDescriptor[0],
           text: hlDescriptor[1],
           offset: hlDescriptor[2],
-          length: hlDescriptor[3]
+          length: hlDescriptor[3],
         },
         hlNode,
         highlight;
 
       const parentNode = self.el;
-      const { node, offset: offsetWithinNode } = findNodeAndOffset(
-        hl,
-        parentNode
-      );
+      const { node, offset: offsetWithinNode } = findNodeAndOffset(hl, parentNode);
 
       hlNode = node.splitText(offsetWithinNode);
       hlNode.splitText(hl.length);
@@ -1075,7 +1035,7 @@
 
     hlDescriptors.forEach(function(hlDescriptor) {
       try {
-        console.log("Highlight: ", hlDescriptor);
+        console.log('Highlight: ', hlDescriptor);
         deserializationFnCustom(hlDescriptor);
       } catch (e) {
         if (console && console.warn) {
@@ -1113,9 +1073,9 @@
       var hl = {
           wrapper: hlDescriptor[0],
           text: hlDescriptor[1],
-          path: hlDescriptor[2].split(":"),
+          path: hlDescriptor[2].split(':'),
           offset: hlDescriptor[3],
-          length: hlDescriptor[4]
+          length: hlDescriptor[4],
         },
         elIndex = hl.path.pop(),
         node = self.el,
@@ -1173,7 +1133,7 @@
     var wnd = dom(this.el).getWindow(),
       scrollX = wnd.scrollX,
       scrollY = wnd.scrollY,
-      caseSens = typeof caseSensitive === "undefined" ? true : caseSensitive;
+      caseSens = typeof caseSensitive === 'undefined' ? true : caseSensitive;
 
     dom(this.el).removeAllRanges();
 
@@ -1212,7 +1172,7 @@
    * @static
    */
   TextHighlighter.createWrapper = function(options) {
-    var span = document.createElement("span");
+    var span = document.createElement('span');
     span.style.backgroundColor = options.color;
     span.className = options.highlightedClass;
     return span;
