@@ -641,11 +641,11 @@
   TextHighlighter.prototype.normalizeHighlights = function(highlights) {
     var normalizedHighlights;
 
-    //this.flattenNestedHighlights(highlights);
-    //this.mergeSiblingHighlights(highlights);
+    // this.flattenNestedHighlights(highlights);
+    // this.mergeSiblingHighlights(highlights);
 
     //Since we're not merging or flattening, we need to normalise the text nodes.
-     highlights.forEach(function(highlight) {
+    highlights.forEach(function(highlight) {
       dom(highlight).normalizeTextNodes();
     });
 
