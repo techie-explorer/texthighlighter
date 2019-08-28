@@ -332,8 +332,8 @@
         nodes.forEach(function(node) {
           wrapper = node.parentNode;
           dom(node).insertBefore(node.parentNode);
-          dom(wrapper).remove();
         });
+        dom(wrapper).remove();
 
         return nodes;
       },
@@ -623,8 +623,8 @@
   TextHighlighter.prototype.normalizeHighlights = function(highlights) {
     var normalizedHighlights;
 
-    // this.flattenNestedHighlights(highlights);
-    // this.mergeSiblingHighlights(highlights);
+    //this.flattenNestedHighlights(highlights);
+    //this.mergeSiblingHighlights(highlights);
 
     //Since we're not merging or flattening, we need to normalise the text nodes.
     highlights.forEach(function(highlight) {
@@ -795,29 +795,42 @@
       highlights = this.getHighlights({ container: container }),
       self = this;
 
-    function mergeSiblingTextNodes(textNode) {
-      var prev = textNode.previousSibling,
-        next = textNode.nextSibling;
+    function mergeSiblings(node) {
+      var prev = node.previousSibling,
+        next = node.nextSibling;
 
-      if (prev && prev.nodeType === NODE_TYPE.TEXT_NODE) {
-        textNode.nodeValue = prev.nodeValue + textNode.nodeValue;
-        dom(prev).remove();
-      }
-      if (next && next.nodeType === NODE_TYPE.TEXT_NODE) {
-        textNode.nodeValue = textNode.nodeValue + next.nodeValue;
-        dom(next).remove();
+      if (node && node.nodeType === NODE_TYPE.TEXT_NODE) {
+        if (prev && prev.nodeType === NODE_TYPE.TEXT_NODE) {
+          node.nodeValue = prev.nodeValue + node.nodeValue;
+          dom(prev).remove();
+        }
+        if (next && next.nodeType === NODE_TYPE.TEXT_NODE) {
+          node.nodeValue = node.nodeValue + next.nodeValue;
+          dom(next).remove();
+        }
+      } else {
+        if (prev && prev.className === node.className) {
+          node.nodeValue = prev.nodeValue + node.nodeValue;
+          dom(prev).remove();
+        }
+        if (next && next.className === node.className) {
+          node.nodeValue = node.nodeValue + next.nodeValue;
+          dom(next).remove();
+        }
       }
     }
 
     function removeHighlight(highlight) {
-      var textNodes = dom(highlight).unwrap();
+      if (highlight.className === container.className) {
+        var nodes = dom(highlight).unwrap();
 
-      textNodes.forEach(function(node) {
-        mergeSiblingTextNodes(node);
-      });
+        nodes.forEach(function(node) {
+          // mergeSiblings(node);
+        });
+      }
     }
 
-    sortByDepth(highlights, true);
+    //sortByDepth(highlights, true);
 
     highlights.forEach(function(hl) {
       if (self.options.onRemoveHighlight(hl) === true) {
@@ -1009,8 +1022,8 @@
       var hl = {
           wrapper: hlDescriptor[0],
           text: hlDescriptor[1],
-          offset: hlDescriptor[2],
-          length: hlDescriptor[3],
+          offset: Number.parseInt(hlDescriptor[2]),
+          length: Number.parseInt(hlDescriptor[3]),
         },
         hlNode,
         highlight;

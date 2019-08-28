@@ -1,0 +1,1 @@
+describe("RemoveHighlights utility functions", () => {});
