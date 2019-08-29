@@ -1,461 +1,62 @@
-(function(global) {
-  "use strict";
+import dom, { NODE_TYPE } from "./utils/dom";
+import { bindEvents, unbindEvents } from "./utils/events";
+import {
+  refineRangeBoundaries,
+  sortByDepth,
+  haveSameColor,
+  groupHighlights,
+  createWrapper,
+  getElementOffset,
+  findTextNodeAtLocation,
+  findFirstNonSharedParent,
+  extractElementContentForHighlight,
+  findNodeAndOffset
+} from "./utils/highlights";
+import { unique } from "./utils/arrays";
 
-  var /**
-     * Attribute added by default to every highlight.
-     * @type {string}
-     */
-    DATA_ATTR = "data-highlighted",
-    /**
-     * Attribute used to group highlight wrappers.
-     * @type {string}
-     */
-    TIMESTAMP_ATTR = "data-timestamp",
-    START_OFFSET_ATTR = "data-start-offset",
-    END_OFFSET_ATTR = "data-end-offset",
-    NODE_TYPE = {
-      ELEMENT_NODE: 1,
-      TEXT_NODE: 3
-    },
-    /**
-     * Don't highlight content of these tags.
-     * @type {string[]}
-     */
-    IGNORE_TAGS = [
-      "SCRIPT",
-      "STYLE",
-      "SELECT",
-      "OPTION",
-      "BUTTON",
-      "OBJECT",
-      "APPLET",
-      "VIDEO",
-      "AUDIO",
-      "CANVAS",
-      "EMBED",
-      "PARAM",
-      "METER",
-      "PROGRESS"
-    ];
+/**
+ * Attribute added by default to every highlight.
+ * @type {string}
+ */
+export const DATA_ATTR = "data-highlighted";
 
-  /**
-   * Returns true if elements a i b have the same color.
-   * @param {Node} a
-   * @param {Node} b
-   * @returns {boolean}
-   */
-  function haveSameColor(a, b) {
-    return dom(a).color() === dom(b).color();
-  }
+/**
+ * Attribute used to group highlight wrappers.
+ * @type {string}
+ */
+export const TIMESTAMP_ATTR = "data-timestamp";
 
-  function extractTextNodesFromDirectChildren(childNodes) {
-    return childNodes.filter(
-      childNode => childNode.nodeType === Node.TEXT_NODE
-    );
-  }
+export const START_OFFSET_ATTR = "data-start-offset";
+export const END_OFFSET_ATTR = "data-end-offset";
 
-  function getTextOffsetBefore(childNodes, cutIndex) {
-    let textOffset = 0;
-    for (let i = 0; i < cutIndex; i++) {
-      const currentNode = childNodes[i];
-      // Use textContent and not innerHTML to account for invisible characters as well.
-      // https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent
-      const text = currentNode.textContent;
-      if (text && text.length > 0) {
-        textOffset += text.length;
-      }
-    }
-    return textOffset;
-  }
+/**
+ * Don't highlight content of these tags.
+ * @type {string[]}
+ */
+export const IGNORE_TAGS = [
+  "SCRIPT",
+  "STYLE",
+  "SELECT",
+  "OPTION",
+  "BUTTON",
+  "OBJECT",
+  "APPLET",
+  "VIDEO",
+  "AUDIO",
+  "CANVAS",
+  "EMBED",
+  "PARAM",
+  "METER",
+  "PROGRESS"
+];
 
-  /**
-   * Fills undefined values in obj with default properties with the same name from source object.
-   * @param {object} obj - target object
-   * @param {object} source - source object with default values
-   * @returns {object}
-   */
-  function defaults(obj, source) {
-    obj = obj || {};
-
-    for (var prop in source) {
-      if (source.hasOwnProperty(prop) && obj[prop] === void 0) {
-        obj[prop] = source[prop];
-      }
-    }
-
-    return obj;
-  }
-
-  /**
-   * Returns array without duplicated values.
-   * @param {Array} arr
-   * @returns {Array}
-   */
-  function unique(arr) {
-    return arr.filter(function(value, idx, self) {
-      return self.indexOf(value) === idx;
-    });
-  }
-
-  /**
-   * Takes range object as parameter and refines it boundaries
-   * @param range
-   * @returns {object} refined boundaries and initial state of highlighting algorithm.
-   */
-  function refineRangeBoundaries(range) {
-    var startContainer = range.startContainer,
-      endContainer = range.endContainer,
-      ancestor = range.commonAncestorContainer,
-      goDeeper = true;
-
-    if (range.endOffset === 0) {
-      while (
-        !endContainer.previousSibling &&
-        endContainer.parentNode !== ancestor
-      ) {
-        endContainer = endContainer.parentNode;
-      }
-      endContainer = endContainer.previousSibling;
-    } else if (endContainer.nodeType === NODE_TYPE.TEXT_NODE) {
-      if (range.endOffset < endContainer.nodeValue.length) {
-        endContainer.splitText(range.endOffset);
-      }
-    } else if (range.endOffset > 0) {
-      endContainer = endContainer.childNodes.item(range.endOffset - 1);
-    }
-
-    if (startContainer.nodeType === NODE_TYPE.TEXT_NODE) {
-      if (range.startOffset === startContainer.nodeValue.length) {
-        goDeeper = false;
-      } else if (range.startOffset > 0) {
-        startContainer = startContainer.splitText(range.startOffset);
-        if (endContainer === startContainer.previousSibling) {
-          endContainer = startContainer;
-        }
-      }
-    } else if (range.startOffset < startContainer.childNodes.length) {
-      startContainer = startContainer.childNodes.item(range.startOffset);
-    } else {
-      startContainer = startContainer.nextSibling;
-    }
-
-    return {
-      startContainer: startContainer,
-      endContainer: endContainer,
-      goDeeper: goDeeper
-    };
-  }
-
-  /**
-   * Sorts array of DOM elements by its depth in DOM tree.
-   * @param {HTMLElement[]} arr - array to sort.
-   * @param {boolean} descending - order of sort.
-   */
-  function sortByDepth(arr, descending) {
-    arr.sort(function(a, b) {
-      return (
-        dom(descending ? b : a).parents().length -
-        dom(descending ? a : b).parents().length
-      );
-    });
-  }
-
-  /**
-   * Groups given highlights by timestamp.
-   * @param {Array} highlights
-   * @returns {Array} Grouped highlights.
-   */
-  function groupHighlights(highlights) {
-    var order = [],
-      chunks = {},
-      grouped = [];
-
-    highlights.forEach(function(hl) {
-      var timestamp = hl.getAttribute(TIMESTAMP_ATTR);
-
-      if (typeof chunks[timestamp] === "undefined") {
-        chunks[timestamp] = [];
-        order.push(timestamp);
-      }
-
-      chunks[timestamp].push(hl);
-    });
-
-    order.forEach(function(timestamp) {
-      var group = chunks[timestamp];
-
-      grouped.push({
-        chunks: group,
-        timestamp: timestamp,
-        toString: function() {
-          return group
-            .map(function(h) {
-              return h.textContent;
-            })
-            .join("");
-        }
-      });
-    });
-
-    return grouped;
-  }
-
-  /**
-   * Utility functions to make DOM manipulation easier.
-   * @param {Node|HTMLElement} [el] - base DOM element to manipulate
-   * @returns {object}
-   */
-  var dom = function(el) {
-    return /** @lends dom **/ {
-      /**
-       * Adds class to element.
-       * @param {string} className
-       */
-      addClass: function(className) {
-        if (el.classList) {
-          el.classList.add(className);
-        } else {
-          el.className += " " + className;
-        }
-      },
-
-      /**
-       * Removes class from element.
-       * @param {string} className
-       */
-      removeClass: function(className) {
-        if (el.classList) {
-          el.classList.remove(className);
-        } else {
-          el.className = el.className.replace(
-            new RegExp("(^|\\b)" + className + "(\\b|$)", "gi"),
-            " "
-          );
-        }
-      },
-
-      /**
-       * Prepends child nodes to base element.
-       * @param {Node[]} nodesToPrepend
-       */
-      prepend: function(nodesToPrepend) {
-        var nodes = Array.prototype.slice.call(nodesToPrepend),
-          i = nodes.length;
-
-        while (i--) {
-          el.insertBefore(nodes[i], el.firstChild);
-        }
-      },
-
-      /**
-       * Appends child nodes to base element.
-       * @param {Node[]} nodesToAppend
-       */
-      append: function(nodesToAppend) {
-        var nodes = Array.prototype.slice.call(nodesToAppend);
-
-        for (var i = 0, len = nodes.length; i < len; ++i) {
-          el.appendChild(nodes[i]);
-        }
-      },
-
-      /**
-       * Inserts base element after refEl.
-       * @param {Node} refEl - node after which base element will be inserted
-       * @returns {Node} - inserted element
-       */
-      insertAfter: function(refEl) {
-        return refEl.parentNode.insertBefore(el, refEl.nextSibling);
-      },
-
-      /**
-       * Inserts base element before refEl.
-       * @param {Node} refEl - node before which base element will be inserted
-       * @returns {Node} - inserted element
-       */
-      insertBefore: function(refEl) {
-        return refEl.parentNode.insertBefore(el, refEl);
-      },
-
-      /**
-       * Removes base element from DOM.
-       */
-      remove: function() {
-        el.parentNode.removeChild(el);
-        el = null;
-      },
-
-      /**
-       * Returns true if base element contains given child.
-       * @param {Node|HTMLElement} child
-       * @returns {boolean}
-       */
-      contains: function(child) {
-        return el !== child && el.contains(child);
-      },
-
-      /**
-       * Wraps base element in wrapper element.
-       * @param {HTMLElement} wrapper
-       * @returns {HTMLElement} wrapper element
-       */
-      wrap: function(wrapper) {
-        if (el.parentNode) {
-          el.parentNode.insertBefore(wrapper, el);
-        }
-
-        wrapper.appendChild(el);
-        return wrapper;
-      },
-
-      /**
-       * Unwraps base element.
-       * @returns {Node[]} - child nodes of unwrapped element.
-       */
-      unwrap: function() {
-        var nodes = Array.prototype.slice.call(el.childNodes),
-          wrapper;
-
-        nodes.forEach(function(node) {
-          wrapper = node.parentNode;
-          dom(node).insertBefore(node.parentNode);
-        });
-        dom(wrapper).remove();
-
-        return nodes;
-      },
-
-      /**
-       * Returns array of base element parents.
-       * @returns {HTMLElement[]}
-       */
-      parents: function() {
-        var parent,
-          path = [];
-
-        while (!!(parent = el.parentNode)) {
-          path.push(parent);
-          el = parent;
-        }
-
-        return path;
-      },
-
-      /**
-       * Returns array of base element parents, excluding the document.
-       * @returns {HTMLElement[]}
-       */
-      parentsWithoutDocument: function() {
-        return this.parents().filter(elem => elem !== document);
-      },
-
-      /**
-       * Normalizes text nodes within base element, ie. merges sibling text nodes and assures that every
-       * element node has only one text node.
-       * It should does the same as standard element.normalize, but IE implements it incorrectly.
-       */
-      normalizeTextNodes: function() {
-        if (!el) {
-          return;
-        }
-
-        if (el.nodeType === NODE_TYPE.TEXT_NODE) {
-          while (
-            el.nextSibling &&
-            el.nextSibling.nodeType === NODE_TYPE.TEXT_NODE
-          ) {
-            el.nodeValue += el.nextSibling.nodeValue;
-            el.parentNode.removeChild(el.nextSibling);
-          }
-        } else {
-          dom(el.firstChild).normalizeTextNodes();
-        }
-        dom(el.nextSibling).normalizeTextNodes();
-      },
-
-      /**
-       * Returns element background color.
-       * @returns {CSSStyleDeclaration.backgroundColor}
-       */
-      color: function() {
-        return el.style.backgroundColor;
-      },
-
-      /**
-       * Creates dom element from given html string.
-       * @param {string} html
-       * @returns {NodeList}
-       */
-      fromHTML: function(html) {
-        var div = document.createElement("div");
-        div.innerHTML = html;
-        return div.childNodes;
-      },
-
-      /**
-       * Returns first range of the window of base element.
-       * @returns {Range}
-       */
-      getRange: function() {
-        var selection = dom(el).getSelection(),
-          range;
-
-        if (selection.rangeCount > 0) {
-          range = selection.getRangeAt(0);
-        }
-
-        return range;
-      },
-
-      /**
-       * Removes all ranges of the window of base element.
-       */
-      removeAllRanges: function() {
-        var selection = dom(el).getSelection();
-        selection.removeAllRanges();
-      },
-
-      /**
-       * Returns selection object of the window of base element.
-       * @returns {Selection}
-       */
-      getSelection: function() {
-        return dom(el)
-          .getWindow()
-          .getSelection();
-      },
-
-      /**
-       * Returns window of the base element.
-       * @returns {Window}
-       */
-      getWindow: function() {
-        return dom(el).getDocument().defaultView;
-      },
-
-      /**
-       * Returns document of the base element.
-       * @returns {HTMLDocument}
-       */
-      getDocument: function() {
-        // if ownerDocument is null then el is the document itself.
-        return el.ownerDocument || el;
-      }
-    };
-  };
-
-  function bindEvents(el, scope) {
-    el.addEventListener("mouseup", scope.highlightHandler.bind(scope));
-    el.addEventListener("touchend", scope.highlightHandler.bind(scope));
-  }
-
-  function unbindEvents(el, scope) {
-    el.removeEventListener("mouseup", scope.highlightHandler.bind(scope));
-    el.removeEventListener("touchend", scope.highlightHandler.bind(scope));
-  }
-
+/**
+ * TextHighlighter that provides text highlighting functionality to dom elements.
+ */
+class TextHighlighter {
   /**
    * Creates TextHighlighter instance and binds to given DOM elements.
+   *
    * @param {HTMLElement} element - DOM element to which highlighted will be applied.
    * @param {object} [options] - additional options.
    * @param {string} options.color - highlight color.
@@ -470,13 +71,13 @@
    * wrappers is passed as param.
    * @class TextHighlighter
    */
-  function TextHighlighter(element, options) {
+  constructor(element, options) {
     if (!element) {
-      throw "Missing anchor element";
+      throw new Error("Missing anchor element");
     }
 
     this.el = element;
-    this.options = defaults(options, {
+    this.options = {
       color: "#ffff7b",
       highlightedClass: "highlighted",
       contextClass: "highlighter-context",
@@ -486,8 +87,9 @@
       onBeforeHighlight: function() {
         return true;
       },
-      onAfterHighlight: function() {}
-    });
+      onAfterHighlight: function() {},
+      ...options
+    };
 
     dom(this.el).addClass(this.options.contextClass);
     bindEvents(this.el, this);
@@ -498,22 +100,22 @@
    * Unbinds events and remove context element class.
    * @memberof TextHighlighter
    */
-  TextHighlighter.prototype.destroy = function() {
+  destroy() {
     unbindEvents(this.el, this);
     dom(this.el).removeClass(this.options.contextClass);
-  };
+  }
 
-  TextHighlighter.prototype.highlightHandler = function() {
+  highlightHandler() {
     this.doHighlight();
-  };
+  }
 
   /**
    * Highlights current range.
    * @param {boolean} keepRange - Don't remove range after highlighting. Default: false.
    * @memberof TextHighlighter
    */
-  TextHighlighter.prototype.doHighlight = function(keepRange) {
-    var range = dom(this.el).getRange(),
+  doHighlight(keepRange) {
+    let range = dom(this.el).getRange(),
       wrapper,
       createdHighlights,
       normalizedHighlights,
@@ -525,7 +127,7 @@
 
     if (this.options.onBeforeHighlight(range) === true) {
       timestamp = +new Date();
-      wrapper = TextHighlighter.createWrapper(this.options);
+      wrapper = createWrapper(this.options);
       wrapper.setAttribute(TIMESTAMP_ATTR, timestamp);
 
       createdHighlights = this.highlightRangeCustom(range, wrapper);
@@ -537,7 +139,7 @@
     if (!keepRange) {
       dom(this.el).removeAllRanges();
     }
-  };
+  }
 
   /**
    * Custom functionality to highlight the range allowing more isolation for overlapping highlights.
@@ -554,25 +156,23 @@
    * @returns {Array} - array of created highlights.
    * @memberof TextHighlighter
    */
-  TextHighlighter.prototype.highlightRangeCustom = function(range, wrapper) {
+  highlightRangeCustom(range, wrapper) {
     if (!range || range.collapsed) {
       return [];
     }
 
     console.log("ALSDebug29: RANGE: ", range);
 
-    var highlights = [];
-    var wrapperClone = wrapper.cloneNode(true);
-    var overlapsWithExistingHighlight = false;
+    let highlights = [];
+    let wrapperClone = wrapper.cloneNode(true);
+    let overlapsWithExistingHighlight = false;
 
-    var startOffset =
-      TextHighlighter.getElementOffset(range.startContainer, this.el) +
-      range.startOffset;
-    var endOffset =
+    let startOffset =
+      getElementOffset(range.startContainer, this.el) + range.startOffset;
+    let endOffset =
       range.startContainer === range.endContainer
         ? startOffset + (range.endOffset - range.startOffset)
-        : TextHighlighter.getElementOffset(range.endContainer, this.el) +
-          range.endOffset;
+        : getElementOffset(range.endContainer, this.el) + range.endOffset;
 
     console.log(
       "ALSDebug29: startOffset: ",
@@ -584,14 +184,13 @@
     wrapperClone.setAttribute(START_OFFSET_ATTR, startOffset);
     wrapperClone.setAttribute(END_OFFSET_ATTR, endOffset);
 
-    var startContainer = TextHighlighter.findTextNodeAtLocation(
-      range.startContainer,
-      "start"
-    );
-    var endContainer = TextHighlighter.findTextNodeAtLocation(
-      range.endContainer,
-      "start"
-    );
+    console.log("\n\n\n FINDING START CONTAINER FIRST TEXT NODE ");
+    console.log("range.startContainer: ", range.startContainer);
+    let startContainer = findTextNodeAtLocation(range.startContainer, "start");
+
+    console.log("\n\n\n FINDING END CONTAINER FIRST TEXT NODE ");
+    console.log("range.endContainer: ", range.endContainer);
+    let endContainer = findTextNodeAtLocation(range.endContainer, "start");
 
     if (!startContainer || !endContainer) {
       throw new Error(
@@ -599,28 +198,36 @@
       );
     }
 
-    var afterNewHighlight = endContainer.splitText(range.endOffset);
+    let afterNewHighlight =
+      range.endOffset < endContainer.textContent.length - 1
+        ? endContainer.splitText(range.endOffset)
+        : endContainer;
+
     if (startContainer === endContainer) {
-      var startOfNewHighlight = startContainer.splitText(range.startOffset);
+      let startOfNewHighlight =
+        range.startOffset > 0
+          ? startContainer.splitText(range.startOffset)
+          : startContainer;
       // Simply wrap the selected range in the same container as a highlight.
-      var highlight = dom(startOfNewHighlight).wrap(wrapperClone);
+      console.log("startContainer === endContainer!!!!!");
+      let highlight = dom(startOfNewHighlight).wrap(wrapperClone);
       highlights.push(highlight);
     } else if (endContainer.textContent.length >= range.endOffset) {
-      var startOfNewHighlight = startContainer.splitText(range.startOffset);
-      var endOfNewHighlight = afterNewHighlight.previousSibling;
+      let startOfNewHighlight = startContainer.splitText(range.startOffset);
+      let endOfNewHighlight = afterNewHighlight.previousSibling;
       console.log(
         "Node at the start of the new highlight: ",
         startOfNewHighlight
       );
       console.log("Node at the end of new highlight: ", endOfNewHighlight);
       /* 
-      var startElementParent = TextHighlighter.findFirstNonSharedParent({
+      let startElementParent = findFirstNonSharedParent({
         childElement: startOfNewHighlight,
         otherElement: endOfNewHighlight
       });
 
       if (startElementParent) {
-        var startElementParentCopy = TextHighlighter.extractElementContentForHighlight(
+        let startElementParentCopy = extractElementContentForHighlight(
           {
             element: startOfNewHighlight,
             elementAncestor: startElementParent,
@@ -630,24 +237,32 @@
         );
       } */
 
-      var endElementParent = TextHighlighter.findFirstNonSharedParent({
+      let endElementParent = findFirstNonSharedParent({
         childElement: endOfNewHighlight,
         otherElement: startOfNewHighlight
       });
 
       if (endElementParent) {
-        var endElementParentCopy = TextHighlighter.extractElementContentForHighlight(
-          {
-            element: endOfNewHighlight,
-            elementAncestor: endElementParent,
-            options: this.options,
-            locationInSelection: "end"
-          }
-        );
+        let endElementParentCopy = extractElementContentForHighlight({
+          element: endOfNewHighlight,
+          elementAncestor: endElementParent,
+          options: this.options,
+          locationInSelection: "end"
+        });
 
         wrapperClone.appendChild(startOfNewHighlight);
         // TODO: add containers in between.
-        wrapperClone.appendChild(endElementParentCopy);
+
+        // Only copy the children of a highlighted span into our new highlight.
+        if (
+          endElementParentCopy.classList.contains(this.options.highlightedClass)
+        ) {
+          endElementParentCopy.childNodes.forEach(childNode => {
+            wrapperClone.appendChild(childNode);
+          });
+        } else {
+          wrapperClone.appendChild(endElementParentCopy);
+        }
 
         dom(wrapperClone).insertBefore(endElementParent);
 
@@ -664,7 +279,7 @@
     }
 
     return highlights;
-  };
+  }
 
   /**
    * Highlights range.
@@ -674,7 +289,7 @@
    * @returns {Array} - array of created highlights.
    * @memberof TextHighlighter
    */
-  TextHighlighter.prototype.highlightRange = function(range, wrapper) {
+  highlightRange(range, wrapper) {
     if (!range || range.collapsed) {
       return [];
     }
@@ -736,7 +351,7 @@
     } while (!done);
 
     return highlights;
-  };
+  }
 
   /**
    * Normalizes highlights. Ensures that highlighting is done with use of the smallest possible number of
@@ -747,7 +362,7 @@
    * input highlights.
    * @memberof TextHighlighter
    */
-  TextHighlighter.prototype.normalizeHighlights = function(highlights) {
+  normalizeHighlights(highlights) {
     var normalizedHighlights;
 
     //this.flattenNestedHighlights(highlights);
@@ -769,7 +384,7 @@
     });
 
     return normalizedHighlights;
-  };
+  }
 
   /**
    * Flattens highlights structure.
@@ -777,7 +392,7 @@
    * @param {Array} highlights - highlights to flatten.
    * @memberof TextHighlighter
    */
-  TextHighlighter.prototype.flattenNestedHighlights = function(highlights) {
+  flattenNestedHighlights(highlights) {
     var again,
       self = this;
 
@@ -855,7 +470,7 @@
     do {
       again = flattenOnce();
     } while (again);
-  };
+  }
 
   /**
    * Merges sibling highlights and normalizes descendant text nodes.
@@ -863,17 +478,17 @@
    * @param highlights
    * @memberof TextHighlighter
    */
-  TextHighlighter.prototype.mergeSiblingHighlights = function(highlights) {
-    var self = this;
+  mergeSiblingHighlights(highlights) {
+    let self = this;
 
     function shouldMerge(current, node) {
       return false;
-      return (
+      /*       return (
         node &&
         node.nodeType === NODE_TYPE.ELEMENT_NODE &&
         haveSameColor(current, node) &&
         self.isHighlight(node)
-      );
+      ); */
     }
 
     highlights.forEach(function(highlight) {
@@ -891,25 +506,25 @@
 
       dom(highlight).normalizeTextNodes();
     });
-  };
+  }
 
   /**
    * Sets highlighting color.
    * @param {string} color - valid CSS color.
    * @memberof TextHighlighter
    */
-  TextHighlighter.prototype.setColor = function(color) {
+  setColor(color) {
     this.options.color = color;
-  };
+  }
 
   /**
    * Returns highlighting color.
    * @returns {string}
    * @memberof TextHighlighter
    */
-  TextHighlighter.prototype.getColor = function() {
+  getColor() {
     return this.options.color;
-  };
+  }
 
   /**
    * Removes highlights from element. If element is a highlight itself, it is removed as well.
@@ -917,12 +532,12 @@
    * @param {HTMLElement} [element] - element to remove highlights from
    * @memberof TextHighlighter
    */
-  TextHighlighter.prototype.removeHighlights = function(element) {
+  removeHighlights(element) {
     var container = element || this.el,
       highlights = this.getHighlights({ container: container }),
       self = this;
 
-    function mergeSiblings(node) {
+    /*     function mergeSiblings(node) {
       var prev = node.previousSibling,
         next = node.nextSibling;
 
@@ -945,15 +560,16 @@
           dom(next).remove();
         }
       }
-    }
+    } */
 
     function removeHighlight(highlight) {
       if (highlight.className === container.className) {
-        var nodes = dom(highlight).unwrap();
+        dom(highlight).unwrap();
 
-        nodes.forEach(function(node) {
-          // mergeSiblings(node);
+        /**  nodes.forEach(function(node) {
+          mergeSiblings(node);
         });
+        */
       }
     }
 
@@ -964,7 +580,7 @@
         removeHighlight(hl);
       }
     });
-  };
+  }
 
   /**
    * Returns highlights from given container.
@@ -979,12 +595,13 @@
    * @returns {Array} - array of highlights.
    * @memberof TextHighlighter
    */
-  TextHighlighter.prototype.getHighlights = function(params) {
-    params = defaults(params, {
+  getHighlights(params) {
+    params = {
       container: this.el,
       andSelf: true,
-      grouped: false
-    });
+      grouped: false,
+      ...params
+    };
 
     var nodeList = params.container.querySelectorAll("[" + DATA_ATTR + "]"),
       highlights = Array.prototype.slice.call(nodeList);
@@ -994,11 +611,11 @@
     }
 
     if (params.grouped) {
-      highlights = groupHighlights(highlights);
+      highlights = groupHighlights(highlights, TIMESTAMP_ATTR);
     }
 
     return highlights;
-  };
+  }
 
   /**
    * Returns true if element is a highlight.
@@ -1007,18 +624,18 @@
    * @returns {boolean}
    * @memberof TextHighlighter
    */
-  TextHighlighter.prototype.isHighlight = function(el) {
+  isHighlight(el) {
     return (
       el && el.nodeType === NODE_TYPE.ELEMENT_NODE && el.hasAttribute(DATA_ATTR)
     );
-  };
+  }
 
   /**
    * Serializes all highlights in the element the highlighter is applied to.
    * @returns {string} - stringified JSON with highlights definition
    * @memberof TextHighlighter
    */
-  TextHighlighter.prototype.serializeHighlights = function() {
+  serializeHighlights() {
     var highlights = this.getHighlights(),
       refEl = this.el,
       hlDescriptors = [];
@@ -1064,14 +681,14 @@
     });
 
     return JSON.stringify(hlDescriptors);
-  };
+  }
 
   /**
    * Serializes all highlights in the element the highlighter is applied to.
    * @returns {string} - stringified JSON with highlights definition
    * @memberof TextHighlighter
    */
-  TextHighlighter.prototype.serializeHighlightsCustom = function(id) {
+  serializeHighlightsCustom(id) {
     var highlights = this.getHighlights(),
       refEl = this.el,
       hlDescriptors = [];
@@ -1081,7 +698,7 @@
     highlights.forEach(function(highlight) {
       var length = highlight.textContent.length,
         // hlPath = getElementPath(highlight, refEl),
-        offset = TextHighlighter.getElementOffset(highlight, refEl), // Hl offset from the root element.
+        offset = getElementOffset(highlight, refEl), // Hl offset from the root element.
         wrapper = highlight.cloneNode(true);
 
       wrapper.innerHTML = "";
@@ -1098,7 +715,7 @@
     });
 
     return JSON.stringify(hlDescriptors);
-  };
+  }
 
   /**
    * Deserializes the custom form of highlights.
@@ -1108,7 +725,7 @@
    * @returns {Array} - array of deserialized highlights.
    * @memberof TextHighlighter
    */
-  TextHighlighter.prototype.deserializeHighlightsCustom = function(json) {
+  deserializeHighlightsCustom(json) {
     var hlDescriptors,
       highlights = [],
       self = this;
@@ -1134,10 +751,10 @@
         highlight;
 
       const parentNode = self.el;
-      const {
-        node,
-        offset: offsetWithinNode
-      } = TextHighlighter.findNodeAndOffset(hl, parentNode);
+      const { node, offset: offsetWithinNode } = findNodeAndOffset(
+        hl,
+        parentNode
+      );
 
       hlNode = node.splitText(offsetWithinNode);
       hlNode.splitText(hl.length);
@@ -1166,7 +783,7 @@
     });
 
     return highlights;
-  };
+  }
 
   /**
    * Deserializes highlights.
@@ -1175,7 +792,7 @@
    * @returns {Array} - array of deserialized highlights.
    * @memberof TextHighlighter
    */
-  TextHighlighter.prototype.deserializeHighlights = function(json) {
+  deserializeHighlights(json) {
     var hlDescriptors,
       highlights = [],
       self = this;
@@ -1204,7 +821,7 @@
         highlight,
         idx;
 
-      while (!!(idx = hl.path.shift())) {
+      while ((idx = hl.path.shift())) {
         node = node.childNodes[idx];
       }
 
@@ -1242,7 +859,7 @@
     });
 
     return highlights;
-  };
+  }
 
   /**
    * Finds and highlights given text.
@@ -1250,7 +867,7 @@
    * @param {boolean} [caseSensitive] - if set to true, performs case sensitive search (default: true)
    * @memberof TextHighlighter
    */
-  TextHighlighter.prototype.find = function(text, caseSensitive) {
+  find(text, caseSensitive) {
     var wnd = dom(this.el).getWindow(),
       scrollX = wnd.scrollX,
       scrollY = wnd.scrollY,
@@ -1281,164 +898,7 @@
 
     dom(this.el).removeAllRanges();
     wnd.scrollTo(scrollX, scrollY);
-  };
+  }
+}
 
-  /**
-   * Creates wrapper for highlights.
-   * TextHighlighter instance calls this method each time it needs to create highlights and pass options retrieved
-   * in constructor.
-   * @param {object} options - the same object as in TextHighlighter constructor.
-   * @returns {HTMLElement}
-   * @memberof TextHighlighter
-   * @static
-   */
-  TextHighlighter.createWrapper = function(options) {
-    var span = document.createElement("span");
-    span.style.backgroundColor = options.color;
-    span.className = options.highlightedClass;
-    return span;
-  };
-
-  TextHighlighter.findTextNodeAtLocation = function(element, location) {
-    var textNodeElement = element;
-
-    while (
-      textNodeElement &&
-      textNodeElement.nodeType !== NODE_TYPE.TEXT_NODE
-    ) {
-      if (location === "start") {
-        if (textNodeElement.childNodes.length > 0) {
-          textNodeElement = textNodeElement.childNodes[0];
-        } else {
-          textNodeElement = textNodeElement.nextSibling;
-        }
-      } else if (location === "end") {
-        if (textNodeElement.childNodes.length > 0) {
-          var lastIndex = textNodeElement.childNodes.length - 1;
-          textNodeElement = textNodeElement.childNodes[lastIndex];
-        } else {
-          textNodeElement = textNodeElement.previousSibling;
-        }
-      } else {
-        textNodeElement = null;
-      }
-    }
-
-    return textNodeElement;
-  };
-
-  /**
-   * Determine where to inject a highlight based on it's offset.
-   *
-   * @param {*} highlight
-   * @param {*} parentNode
-   */
-  TextHighlighter.findNodeAndOffset = function(highlight, parentNode) {
-    let currentNode = parentNode;
-    let currentOffset = 0;
-    let offsetWithinNode = 0;
-    let locationFound = false;
-
-    while (
-      currentNode &&
-      !locationFound &&
-      (currentOffset < highlight.offset ||
-        (currentOffset === highlight.offset &&
-          currentNode.childNodes.length > 0))
-    ) {
-      const endOfNodeOffset = currentOffset + currentNode.textContent.length;
-
-      if (endOfNodeOffset > highlight.offset) {
-        if (currentNode.childNodes.length === 0) {
-          offsetWithinNode = highlight.offset - currentOffset;
-          locationFound = true;
-          currentOffset = currentOffset + offsetWithinNode;
-        } else {
-          currentNode = currentNode.childNodes[0];
-        }
-      } else {
-        currentOffset = endOfNodeOffset;
-        currentNode = currentNode.nextSibling;
-      }
-    }
-
-    return { node: currentNode, offset: offsetWithinNode };
-  };
-
-  TextHighlighter.getElementOffset = function(childElement, rootElement) {
-    let offset = 0;
-    let childNodes;
-
-    let currentElement = childElement;
-    let level = 1;
-    do {
-      childNodes = Array.prototype.slice.call(
-        currentElement.parentNode.childNodes
-      );
-      const childElementIndex = childNodes.indexOf(currentElement);
-      const offsetInCurrentParent = getTextOffsetBefore(
-        childNodes,
-        childElementIndex
-      );
-      offset += offsetInCurrentParent;
-      currentElement = currentElement.parentNode;
-      level += 1;
-    } while (currentElement !== rootElement || !currentElement);
-
-    return offset;
-  };
-
-  TextHighlighter.findFirstNonSharedParent = function(elements) {
-    var childElement = elements.childElement;
-    var otherElement = elements.otherElement;
-    var parents = dom(childElement).parentsWithoutDocument();
-    var i = 0;
-    var firstNonSharedParent = null;
-    while (!firstNonSharedParent && i < parents.length) {
-      var currentParent = parents[i];
-
-      if (currentParent.contains(otherElement) && i > 0) {
-        console.log("currentParent contains other element!", currentParent);
-        firstNonSharedParent = parents[i - 1];
-      }
-      i++;
-    }
-
-    return firstNonSharedParent;
-  };
-
-  TextHighlighter.extractElementContentForHighlight = function(params) {
-    var element = params.element;
-    var elementAncestor = params.elementAncestor;
-    var options = params.options;
-    var locationInSelection = params.locationInSelection;
-
-    var elementAncestorCopy = elementAncestor.cloneNode(true);
-
-    var elementCopy = TextHighlighter.findTextNodeAtLocation(
-      elementAncestorCopy,
-      locationInSelection
-    );
-    var elementCopyParent = elementCopy.parentNode;
-
-    var sibling = elementCopy.nextSibling;
-    while (sibling) {
-      elementCopyParent.removeChild(sibling);
-      sibling = elementCopy.nextSibling;
-    }
-
-    // Clean out any nested highlight wrappers.
-    if (elementCopyParent.classList.contains(options.highlightedClass)) {
-      dom(elementCopyParent).unwrap();
-    }
-
-    // Remove the text node that we need for the new highlight
-    // from the existing highlight or other element.
-    element.parentNode.removeChild(element);
-
-    return elementAncestorCopy;
-  };
-
-  TextHighlighter.dom = dom;
-  global.TextHighlighter = TextHighlighter;
-})(window);
+export default TextHighlighter;
