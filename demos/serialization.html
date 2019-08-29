@@ -202,12 +202,20 @@ deserializeBtn.onclick = function () {
         var colors = new ColorPicker(document.querySelector(".color-picker"));
         window.hltr = new TextHighlighter(sandbox, {
           onAfterHighlight: function(arr, element) {
+            var uniqueId =
+              Math.random()
+                .toString(36)
+                .substring(2, 15) +
+              Math.random()
+                .toString(36)
+                .substring(2, 15);
+
             if (Array.isArray(element)) {
               element.forEach(highlightDOMElem => {
-                highlightDOMElem.classList.add("highlight-test");
+                highlightDOMElem.classList.add(uniqueId);
               });
             } else {
-              element.classList.add("highlight-test");
+              element.classList.add(uniqueId);
             }
           }
         });

@@ -12,3 +12,5 @@ Object.defineProperty(document, "hidden", {
 });
 
 global.window.matchMedia = () => ({ matches: false });
+
+require("./src/TextHighlighter");

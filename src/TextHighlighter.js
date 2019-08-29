@@ -1,39 +1,41 @@
 (function(global) {
-  'use strict';
+  "use strict";
 
   var /**
      * Attribute added by default to every highlight.
      * @type {string}
      */
-    DATA_ATTR = 'data-highlighted',
+    DATA_ATTR = "data-highlighted",
     /**
      * Attribute used to group highlight wrappers.
      * @type {string}
      */
-    TIMESTAMP_ATTR = 'data-timestamp',
+    TIMESTAMP_ATTR = "data-timestamp",
+    START_OFFSET_ATTR = "data-start-offset",
+    END_OFFSET_ATTR = "data-end-offset",
     NODE_TYPE = {
       ELEMENT_NODE: 1,
-      TEXT_NODE: 3,
+      TEXT_NODE: 3
     },
     /**
      * Don't highlight content of these tags.
      * @type {string[]}
      */
     IGNORE_TAGS = [
-      'SCRIPT',
-      'STYLE',
-      'SELECT',
-      'OPTION',
-      'BUTTON',
-      'OBJECT',
-      'APPLET',
-      'VIDEO',
-      'AUDIO',
-      'CANVAS',
-      'EMBED',
-      'PARAM',
-      'METER',
-      'PROGRESS',
+      "SCRIPT",
+      "STYLE",
+      "SELECT",
+      "OPTION",
+      "BUTTON",
+      "OBJECT",
+      "APPLET",
+      "VIDEO",
+      "AUDIO",
+      "CANVAS",
+      "EMBED",
+      "PARAM",
+      "METER",
+      "PROGRESS"
     ];
 
   /**
@@ -47,44 +49,23 @@
   }
 
   function extractTextNodesFromDirectChildren(childNodes) {
-    return childNodes.filter((childNode) => childNode.nodeType === Node.TEXT_NODE);
+    return childNodes.filter(
+      childNode => childNode.nodeType === Node.TEXT_NODE
+    );
   }
 
-  /**
-   * Determine where to inject a highlight based on it's offset.
-   *
-   * @param {*} highlight
-   * @param {*} parentNode
-   */
-  function findNodeAndOffset(highlight, parentNode) {
-    let currentNode = parentNode;
-    let currentOffset = 0;
-    let offsetWithinNode = 0;
-    let locationFound = false;
-
-    while (
-      currentNode &&
-      !locationFound &&
-      (currentOffset < highlight.offset ||
-        (currentOffset === highlight.offset && currentNode.childNodes.length > 0))
-    ) {
-      const endOfNodeOffset = currentOffset + currentNode.textContent.length;
-
-      if (endOfNodeOffset > highlight.offset) {
-        if (currentNode.childNodes.length === 0) {
-          offsetWithinNode = highlight.offset - currentOffset;
-          locationFound = true;
-          currentOffset = currentOffset + offsetWithinNode;
-        } else {
-          currentNode = currentNode.childNodes[0];
-        }
-      } else {
-        currentOffset = endOfNodeOffset;
-        currentNode = currentNode.nextSibling;
+  function getTextOffsetBefore(childNodes, cutIndex) {
+    let textOffset = 0;
+    for (let i = 0; i < cutIndex; i++) {
+      const currentNode = childNodes[i];
+      // Use textContent and not innerHTML to account for invisible characters as well.
+      // https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent
+      const text = currentNode.textContent;
+      if (text && text.length > 0) {
+        textOffset += text.length;
       }
     }
-
-    return { node: currentNode, offset: offsetWithinNode };
+    return textOffset;
   }
 
   /**
@@ -128,7 +109,10 @@
       goDeeper = true;
 
     if (range.endOffset === 0) {
-      while (!endContainer.previousSibling && endContainer.parentNode !== ancestor) {
+      while (
+        !endContainer.previousSibling &&
+        endContainer.parentNode !== ancestor
+      ) {
         endContainer = endContainer.parentNode;
       }
       endContainer = endContainer.previousSibling;
@@ -158,7 +142,7 @@
     return {
       startContainer: startContainer,
       endContainer: endContainer,
-      goDeeper: goDeeper,
+      goDeeper: goDeeper
     };
   }
 
@@ -169,7 +153,10 @@
    */
   function sortByDepth(arr, descending) {
     arr.sort(function(a, b) {
-      return dom(descending ? b : a).parents().length - dom(descending ? a : b).parents().length;
+      return (
+        dom(descending ? b : a).parents().length -
+        dom(descending ? a : b).parents().length
+      );
     });
   }
 
@@ -186,7 +173,7 @@
     highlights.forEach(function(hl) {
       var timestamp = hl.getAttribute(TIMESTAMP_ATTR);
 
-      if (typeof chunks[timestamp] === 'undefined') {
+      if (typeof chunks[timestamp] === "undefined") {
         chunks[timestamp] = [];
         order.push(timestamp);
       }
@@ -205,8 +192,8 @@
             .map(function(h) {
               return h.textContent;
             })
-            .join('');
-        },
+            .join("");
+        }
       });
     });
 
@@ -228,7 +215,7 @@
         if (el.classList) {
           el.classList.add(className);
         } else {
-          el.className += ' ' + className;
+          el.className += " " + className;
         }
       },
 
@@ -241,8 +228,8 @@
           el.classList.remove(className);
         } else {
           el.className = el.className.replace(
-            new RegExp('(^|\\b)' + className + '(\\b|$)', 'gi'),
-            ' ',
+            new RegExp("(^|\\b)" + className + "(\\b|$)", "gi"),
+            " "
           );
         }
       },
@@ -355,6 +342,14 @@
       },
 
       /**
+       * Returns array of base element parents, excluding the document.
+       * @returns {HTMLElement[]}
+       */
+      parentsWithoutDocument: function() {
+        return this.parents().filter(elem => elem !== document);
+      },
+
+      /**
        * Normalizes text nodes within base element, ie. merges sibling text nodes and assures that every
        * element node has only one text node.
        * It should does the same as standard element.normalize, but IE implements it incorrectly.
@@ -365,7 +360,10 @@
         }
 
         if (el.nodeType === NODE_TYPE.TEXT_NODE) {
-          while (el.nextSibling && el.nextSibling.nodeType === NODE_TYPE.TEXT_NODE) {
+          while (
+            el.nextSibling &&
+            el.nextSibling.nodeType === NODE_TYPE.TEXT_NODE
+          ) {
             el.nodeValue += el.nextSibling.nodeValue;
             el.parentNode.removeChild(el.nextSibling);
           }
@@ -389,7 +387,7 @@
        * @returns {NodeList}
        */
       fromHTML: function(html) {
-        var div = document.createElement('div');
+        var div = document.createElement("div");
         div.innerHTML = html;
         return div.childNodes;
       },
@@ -442,18 +440,18 @@
       getDocument: function() {
         // if ownerDocument is null then el is the document itself.
         return el.ownerDocument || el;
-      },
+      }
     };
   };
 
   function bindEvents(el, scope) {
-    el.addEventListener('mouseup', scope.highlightHandler.bind(scope));
-    el.addEventListener('touchend', scope.highlightHandler.bind(scope));
+    el.addEventListener("mouseup", scope.highlightHandler.bind(scope));
+    el.addEventListener("touchend", scope.highlightHandler.bind(scope));
   }
 
   function unbindEvents(el, scope) {
-    el.removeEventListener('mouseup', scope.highlightHandler.bind(scope));
-    el.removeEventListener('touchend', scope.highlightHandler.bind(scope));
+    el.removeEventListener("mouseup", scope.highlightHandler.bind(scope));
+    el.removeEventListener("touchend", scope.highlightHandler.bind(scope));
   }
 
   /**
@@ -474,21 +472,21 @@
    */
   function TextHighlighter(element, options) {
     if (!element) {
-      throw 'Missing anchor element';
+      throw "Missing anchor element";
     }
 
     this.el = element;
     this.options = defaults(options, {
-      color: '#ffff7b',
-      highlightedClass: 'highlighted',
-      contextClass: 'highlighter-context',
+      color: "#ffff7b",
+      highlightedClass: "highlighted",
+      contextClass: "highlighter-context",
       onRemoveHighlight: function() {
         return true;
       },
       onBeforeHighlight: function() {
         return true;
       },
-      onAfterHighlight: function() {},
+      onAfterHighlight: function() {}
     });
 
     dom(this.el).addClass(this.options.contextClass);
@@ -508,12 +506,6 @@
   TextHighlighter.prototype.highlightHandler = function() {
     this.doHighlight();
   };
-
-  /**
-   * Utility function that finds the node and offset within that node
-   * to inject a highlight wrapper.
-   */
-  TextHighlighter.prototype.findNodeAndOffset = findNodeAndOffset;
 
   /**
    * Highlights current range.
@@ -536,7 +528,7 @@
       wrapper = TextHighlighter.createWrapper(this.options);
       wrapper.setAttribute(TIMESTAMP_ATTR, timestamp);
 
-      createdHighlights = this.highlightRange(range, wrapper);
+      createdHighlights = this.highlightRangeCustom(range, wrapper);
       normalizedHighlights = this.normalizeHighlights(createdHighlights);
 
       this.options.onAfterHighlight(range, normalizedHighlights, timestamp);
@@ -545,6 +537,133 @@
     if (!keepRange) {
       dom(this.el).removeAllRanges();
     }
+  };
+
+  /**
+   * Custom functionality to highlight the range allowing more isolation for overlapping highlights.
+   * This solution steals the text or other nodes in the DOM from overlapping (NOT NESTED) highlights
+   * for representation in the DOM.
+   *
+   * For the purpose of serialisation this will maintain a data attribute on the highlight wrapper
+   * with the start text and end text offsets relative to the context root element.
+   *
+   * Wraps text of given range object in wrapper element.
+   *
+   * @param {Range} range
+   * @param {HTMLElement} wrapper
+   * @returns {Array} - array of created highlights.
+   * @memberof TextHighlighter
+   */
+  TextHighlighter.prototype.highlightRangeCustom = function(range, wrapper) {
+    if (!range || range.collapsed) {
+      return [];
+    }
+
+    console.log("ALSDebug29: RANGE: ", range);
+
+    var highlights = [];
+    var wrapperClone = wrapper.cloneNode(true);
+    var overlapsWithExistingHighlight = false;
+
+    var startOffset =
+      TextHighlighter.getElementOffset(range.startContainer, this.el) +
+      range.startOffset;
+    var endOffset =
+      range.startContainer === range.endContainer
+        ? startOffset + (range.endOffset - range.startOffset)
+        : TextHighlighter.getElementOffset(range.endContainer, this.el) +
+          range.endOffset;
+
+    console.log(
+      "ALSDebug29: startOffset: ",
+      startOffset,
+      "endOffset: ",
+      endOffset
+    );
+
+    wrapperClone.setAttribute(START_OFFSET_ATTR, startOffset);
+    wrapperClone.setAttribute(END_OFFSET_ATTR, endOffset);
+
+    var startContainer = TextHighlighter.findTextNodeAtLocation(
+      range.startContainer,
+      "start"
+    );
+    var endContainer = TextHighlighter.findTextNodeAtLocation(
+      range.endContainer,
+      "start"
+    );
+
+    if (!startContainer || !endContainer) {
+      throw new Error(
+        "Failed to find the text node for the start or the end of the selected range"
+      );
+    }
+
+    var afterNewHighlight = endContainer.splitText(range.endOffset);
+    if (startContainer === endContainer) {
+      var startOfNewHighlight = startContainer.splitText(range.startOffset);
+      // Simply wrap the selected range in the same container as a highlight.
+      var highlight = dom(startOfNewHighlight).wrap(wrapperClone);
+      highlights.push(highlight);
+    } else if (endContainer.textContent.length >= range.endOffset) {
+      var startOfNewHighlight = startContainer.splitText(range.startOffset);
+      var endOfNewHighlight = afterNewHighlight.previousSibling;
+      console.log(
+        "Node at the start of the new highlight: ",
+        startOfNewHighlight
+      );
+      console.log("Node at the end of new highlight: ", endOfNewHighlight);
+      /* 
+      var startElementParent = TextHighlighter.findFirstNonSharedParent({
+        childElement: startOfNewHighlight,
+        otherElement: endOfNewHighlight
+      });
+
+      if (startElementParent) {
+        var startElementParentCopy = TextHighlighter.extractElementContentForHighlight(
+          {
+            element: startOfNewHighlight,
+            elementAncestor: startElementParent,
+            options: this.options,
+            locationInSelection: "start"
+          }
+        );
+      } */
+
+      var endElementParent = TextHighlighter.findFirstNonSharedParent({
+        childElement: endOfNewHighlight,
+        otherElement: startOfNewHighlight
+      });
+
+      if (endElementParent) {
+        var endElementParentCopy = TextHighlighter.extractElementContentForHighlight(
+          {
+            element: endOfNewHighlight,
+            elementAncestor: endElementParent,
+            options: this.options,
+            locationInSelection: "end"
+          }
+        );
+
+        wrapperClone.appendChild(startOfNewHighlight);
+        // TODO: add containers in between.
+        wrapperClone.appendChild(endElementParentCopy);
+
+        dom(wrapperClone).insertBefore(endElementParent);
+
+        console.log(
+          "Node that is the wrapper of the end of the new highlight: ",
+          endElementParent
+        );
+
+        console.log(
+          "Cloned of node that is the wrapper of the end of the new highlight after removing siblings and unwrapping highlight spans: ",
+          endElementParentCopy
+        );
+      }
+    }
+
+    return highlights;
   };
 
   /**
@@ -560,6 +679,8 @@
       return [];
     }
 
+    console.log("ALSDebug28: range before refined! ", range);
+
     var result = refineRangeBoundaries(range),
       startContainer = result.startContainer,
       endContainer = result.endContainer,
@@ -573,7 +694,10 @@
 
     do {
       if (goDeeper && node.nodeType === NODE_TYPE.TEXT_NODE) {
-        if (IGNORE_TAGS.indexOf(node.parentNode.tagName) === -1 && node.nodeValue.trim() !== '') {
+        if (
+          IGNORE_TAGS.indexOf(node.parentNode.tagName) === -1 &&
+          node.nodeValue.trim() !== ""
+        ) {
           wrapperClone = wrapper.cloneNode(true);
           wrapperClone.setAttribute(DATA_ATTR, true);
           nodeParent = node.parentNode;
@@ -587,7 +711,10 @@
 
         goDeeper = false;
       }
-      if (node === endContainer && !(endContainer.hasChildNodes() && goDeeper)) {
+      if (
+        node === endContainer &&
+        !(endContainer.hasChildNodes() && goDeeper)
+      ) {
         done = true;
       }
 
@@ -692,7 +819,7 @@
               hl.nextSibling &&
               hl.nextSibling.nodeType == 3
             ) {
-              var spanleft = document.createElement('span');
+              var spanleft = document.createElement("span");
               spanleft.style.backgroundColor = parent.style.backgroundColor;
               spanleft.className = parent.className;
               var timestamp = parent.attributes[TIMESTAMP_ATTR].nodeValue;
@@ -856,10 +983,10 @@
     params = defaults(params, {
       container: this.el,
       andSelf: true,
-      grouped: false,
+      grouped: false
     });
 
-    var nodeList = params.container.querySelectorAll('[' + DATA_ATTR + ']'),
+    var nodeList = params.container.querySelectorAll("[" + DATA_ATTR + "]"),
       highlights = Array.prototype.slice.call(nodeList);
 
     if (params.andSelf === true && params.container.hasAttribute(DATA_ATTR)) {
@@ -881,7 +1008,9 @@
    * @memberof TextHighlighter
    */
   TextHighlighter.prototype.isHighlight = function(el) {
-    return el && el.nodeType === NODE_TYPE.ELEMENT_NODE && el.hasAttribute(DATA_ATTR);
+    return (
+      el && el.nodeType === NODE_TYPE.ELEMENT_NODE && el.hasAttribute(DATA_ATTR)
+    );
   };
 
   /**
@@ -915,14 +1044,23 @@
         hlPath = getElementPath(highlight, refEl),
         wrapper = highlight.cloneNode(true);
 
-      wrapper.innerHTML = '';
+      wrapper.innerHTML = "";
       wrapper = wrapper.outerHTML;
 
-      if (highlight.previousSibling && highlight.previousSibling.nodeType === NODE_TYPE.TEXT_NODE) {
+      if (
+        highlight.previousSibling &&
+        highlight.previousSibling.nodeType === NODE_TYPE.TEXT_NODE
+      ) {
         offset = highlight.previousSibling.length;
       }
 
-      hlDescriptors.push([wrapper, highlight.textContent, hlPath.join(':'), offset, length]);
+      hlDescriptors.push([
+        wrapper,
+        highlight.textContent,
+        hlPath.join(":"),
+        offset,
+        length
+      ]);
     });
 
     return JSON.stringify(hlDescriptors);
@@ -938,55 +1076,22 @@
       refEl = this.el,
       hlDescriptors = [];
 
-    function getTextOffsetBefore(childNodes, cutIndex) {
-      let textOffset = 0;
-      for (let i = 0; i < cutIndex; i++) {
-        const currentNode = childNodes[i];
-        // Use textContent and not innerHTML to account for invisible characters as well.
-        // https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent
-        const text = currentNode.textContent;
-        if (text && text.length > 0) {
-          textOffset += text.length;
-        }
-      }
-      return textOffset;
-    }
-
-    function getElementOffset(highlight, rootElement) {
-      let offset = 0;
-      let childNodes;
-
-      let currentElement = highlight;
-      let level = 1;
-      do {
-        console.log(`level ${level}`);
-        childNodes = Array.prototype.slice.call(currentElement.parentNode.childNodes);
-        const childElementIndex = childNodes.indexOf(currentElement);
-        console.log(childElementIndex);
-        const offsetInCurrentParent = getTextOffsetBefore(childNodes, childElementIndex);
-        console.log('childNodes: ', childNodes);
-        console.log('offsetInCurrentParent:', offsetInCurrentParent);
-        offset += offsetInCurrentParent;
-        currentElement = currentElement.parentNode;
-        level += 1;
-      } while (currentElement !== rootElement || !currentElement);
-
-      return offset;
-    }
-
     sortByDepth(highlights, false);
 
     highlights.forEach(function(highlight) {
       var length = highlight.textContent.length,
         // hlPath = getElementPath(highlight, refEl),
-        offset = getElementOffset(highlight, refEl), // Hl offset from the root element.
+        offset = TextHighlighter.getElementOffset(highlight, refEl), // Hl offset from the root element.
         wrapper = highlight.cloneNode(true);
 
-      wrapper.innerHTML = '';
+      wrapper.innerHTML = "";
       wrapper = wrapper.outerHTML;
 
-      console.log('Highlight text offset from root node: ', offset);
-      console.log(`wrapper.toString().indexOf(${id}):`, wrapper.toString().indexOf(id));
+      console.log("Highlight text offset from root node: ", offset);
+      console.log(
+        `wrapper.toString().indexOf(${id}):`,
+        wrapper.toString().indexOf(id)
+      );
       if (wrapper.toString().indexOf(id) > -1) {
         hlDescriptors.push([wrapper, highlight.textContent, offset, length]);
       }
@@ -1023,13 +1128,16 @@
           wrapper: hlDescriptor[0],
           text: hlDescriptor[1],
           offset: Number.parseInt(hlDescriptor[2]),
-          length: Number.parseInt(hlDescriptor[3]),
+          length: Number.parseInt(hlDescriptor[3])
         },
         hlNode,
         highlight;
 
       const parentNode = self.el;
-      const { node, offset: offsetWithinNode } = findNodeAndOffset(hl, parentNode);
+      const {
+        node,
+        offset: offsetWithinNode
+      } = TextHighlighter.findNodeAndOffset(hl, parentNode);
 
       hlNode = node.splitText(offsetWithinNode);
       hlNode.splitText(hl.length);
@@ -1048,7 +1156,7 @@
 
     hlDescriptors.forEach(function(hlDescriptor) {
       try {
-        console.log('Highlight: ', hlDescriptor);
+        console.log("Highlight: ", hlDescriptor);
         deserializationFnCustom(hlDescriptor);
       } catch (e) {
         if (console && console.warn) {
@@ -1086,9 +1194,9 @@
       var hl = {
           wrapper: hlDescriptor[0],
           text: hlDescriptor[1],
-          path: hlDescriptor[2].split(':'),
+          path: hlDescriptor[2].split(":"),
           offset: hlDescriptor[3],
-          length: hlDescriptor[4],
+          length: hlDescriptor[4]
         },
         elIndex = hl.path.pop(),
         node = self.el,
@@ -1146,7 +1254,7 @@
     var wnd = dom(this.el).getWindow(),
       scrollX = wnd.scrollX,
       scrollY = wnd.scrollY,
-      caseSens = typeof caseSensitive === 'undefined' ? true : caseSensitive;
+      caseSens = typeof caseSensitive === "undefined" ? true : caseSensitive;
 
     dom(this.el).removeAllRanges();
 
@@ -1185,11 +1293,152 @@
    * @static
    */
   TextHighlighter.createWrapper = function(options) {
-    var span = document.createElement('span');
+    var span = document.createElement("span");
     span.style.backgroundColor = options.color;
     span.className = options.highlightedClass;
     return span;
   };
 
+  TextHighlighter.findTextNodeAtLocation = function(element, location) {
+    var textNodeElement = element;
+
+    while (
+      textNodeElement &&
+      textNodeElement.nodeType !== NODE_TYPE.TEXT_NODE
+    ) {
+      if (location === "start") {
+        if (textNodeElement.childNodes.length > 0) {
+          textNodeElement = textNodeElement.childNodes[0];
+        } else {
+          textNodeElement = textNodeElement.nextSibling;
+        }
+      } else if (location === "end") {
+        if (textNodeElement.childNodes.length > 0) {
+          var lastIndex = textNodeElement.childNodes.length - 1;
+          textNodeElement = textNodeElement.childNodes[lastIndex];
+        } else {
+          textNodeElement = textNodeElement.previousSibling;
+        }
+      } else {
+        textNodeElement = null;
+      }
+    }
+
+    return textNodeElement;
+  };
+
+  /**
+   * Determine where to inject a highlight based on it's offset.
+   *
+   * @param {*} highlight
+   * @param {*} parentNode
+   */
+  TextHighlighter.findNodeAndOffset = function(highlight, parentNode) {
+    let currentNode = parentNode;
+    let currentOffset = 0;
+    let offsetWithinNode = 0;
+    let locationFound = false;
+
+    while (
+      currentNode &&
+      !locationFound &&
+      (currentOffset < highlight.offset ||
+        (currentOffset === highlight.offset &&
+          currentNode.childNodes.length > 0))
+    ) {
+      const endOfNodeOffset = currentOffset + currentNode.textContent.length;
+
+      if (endOfNodeOffset > highlight.offset) {
+        if (currentNode.childNodes.length === 0) {
+          offsetWithinNode = highlight.offset - currentOffset;
+          locationFound = true;
+          currentOffset = currentOffset + offsetWithinNode;
+        } else {
+          currentNode = currentNode.childNodes[0];
+        }
+      } else {
+        currentOffset = endOfNodeOffset;
+        currentNode = currentNode.nextSibling;
+      }
+    }
+
+    return { node: currentNode, offset: offsetWithinNode };
+  };
+
+  TextHighlighter.getElementOffset = function(childElement, rootElement) {
+    let offset = 0;
+    let childNodes;
+
+    let currentElement = childElement;
+    let level = 1;
+    do {
+      childNodes = Array.prototype.slice.call(
+        currentElement.parentNode.childNodes
+      );
+      const childElementIndex = childNodes.indexOf(currentElement);
+      const offsetInCurrentParent = getTextOffsetBefore(
+        childNodes,
+        childElementIndex
+      );
+      offset += offsetInCurrentParent;
+      currentElement = currentElement.parentNode;
+      level += 1;
+    } while (currentElement !== rootElement || !currentElement);
+
+    return offset;
+  };
+
+  TextHighlighter.findFirstNonSharedParent = function(elements) {
+    var childElement = elements.childElement;
+    var otherElement = elements.otherElement;
+    var parents = dom(childElement).parentsWithoutDocument();
+    var i = 0;
+    var firstNonSharedParent = null;
+    while (!firstNonSharedParent && i < parents.length) {
+      var currentParent = parents[i];
+
+      if (currentParent.contains(otherElement) && i > 0) {
+        console.log("currentParent contains other element!", currentParent);
+        firstNonSharedParent = parents[i - 1];
+      }
+      i++;
+    }
+
+    return firstNonSharedParent;
+  };
+
+  TextHighlighter.extractElementContentForHighlight = function(params) {
+    var element = params.element;
+    var elementAncestor = params.elementAncestor;
+    var options = params.options;
+    var locationInSelection = params.locationInSelection;
+
+    var elementAncestorCopy = elementAncestor.cloneNode(true);
+
+    var elementCopy = TextHighlighter.findTextNodeAtLocation(
+      elementAncestorCopy,
+      locationInSelection
+    );
+    var elementCopyParent = elementCopy.parentNode;
+
+    var sibling = elementCopy.nextSibling;
+    while (sibling) {
+      elementCopyParent.removeChild(sibling);
+      sibling = elementCopy.nextSibling;
+    }
+
+    // Clean out any nested highlight wrappers.
+    if (elementCopyParent.classList.contains(options.highlightedClass)) {
+      dom(elementCopyParent).unwrap();
+    }
+
+    // Remove the text node that we need for the new highlight
+    // from the existing highlight or other element.
+    element.parentNode.removeChild(element);
+
+    return elementAncestorCopy;
+  };
+
+  TextHighlighter.dom = dom;
   global.TextHighlighter = TextHighlighter;
 })(window);
