@@ -44,10 +44,12 @@
     },
     "setupTestFrameworkScriptFile": "./setupTests.js",
     "testPathIgnorePatterns": [
-      "/node_modules/"
+      "/node_modules/",
+      "/test/specs/"
     ],
     "coveragePathIgnorePatterns": [
-      "/node_modules/"
+      "/node_modules/",
+      "/test/specs/"
     ],
     "rootDir": "."
   },
