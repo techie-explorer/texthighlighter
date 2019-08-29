@@ -6,7 +6,7 @@ import dom, { NODE_TYPE } from "./dom";
  * @returns {object} refined boundaries and initial state of highlighting algorithm.
  */
 export function refineRangeBoundaries(range) {
-  var startContainer = range.startContainer,
+  let startContainer = range.startContainer,
     endContainer = range.endContainer,
     ancestor = range.commonAncestorContainer,
     goDeeper = true;
@@ -81,7 +81,7 @@ export function haveSameColor(a, b) {
  * @returns {HTMLElement}
  */
 export function createWrapper(options) {
-  var span = document.createElement("span");
+  let span = document.createElement("span");
   span.style.backgroundColor = options.color;
   span.className = options.highlightedClass;
   return span;
@@ -89,8 +89,8 @@ export function createWrapper(options) {
 
 export function findTextNodeAtLocation(element, locationInChildNodes) {
   console.log("Element as parameter: ", element);
-  var textNodeElement = element;
-  var i = 0;
+  let textNodeElement = element;
+  let i = 0;
   while (textNodeElement && textNodeElement.nodeType !== NODE_TYPE.TEXT_NODE) {
     console.log(`textNodeElement step ${i}`, textNodeElement);
     if (locationInChildNodes === "start") {
@@ -101,7 +101,7 @@ export function findTextNodeAtLocation(element, locationInChildNodes) {
       }
     } else if (locationInChildNodes === "end") {
       if (textNodeElement.childNodes.length > 0) {
-        var lastIndex = textNodeElement.childNodes.length - 1;
+        let lastIndex = textNodeElement.childNodes.length - 1;
         textNodeElement = textNodeElement.childNodes[lastIndex];
       } else {
         textNodeElement = textNodeElement.previousSibling;
@@ -191,13 +191,13 @@ function getTextOffsetBefore(childNodes, cutIndex) {
 }
 
 export function findFirstNonSharedParent(elements) {
-  var childElement = elements.childElement;
-  var otherElement = elements.otherElement;
-  var parents = dom(childElement).parentsWithoutDocument();
-  var i = 0;
-  var firstNonSharedParent = null;
+  let childElement = elements.childElement;
+  let otherElement = elements.otherElement;
+  let parents = dom(childElement).parentsWithoutDocument();
+  let i = 0;
+  let firstNonSharedParent = null;
   while (!firstNonSharedParent && i < parents.length) {
-    var currentParent = parents[i];
+    let currentParent = parents[i];
 
     if (currentParent.contains(otherElement) && i > 0) {
       console.log("currentParent contains other element!", currentParent);
@@ -210,23 +210,23 @@ export function findFirstNonSharedParent(elements) {
 }
 
 export function extractElementContentForHighlight(params) {
-  var element = params.element;
-  var elementAncestor = params.elementAncestor;
-  var options = params.options;
-  var locationInSelection = params.locationInSelection;
+  let element = params.element;
+  let elementAncestor = params.elementAncestor;
+  let options = params.options;
+  let locationInSelection = params.locationInSelection;
 
-  var elementAncestorCopy = elementAncestor.cloneNode(true);
+  let elementAncestorCopy = elementAncestor.cloneNode(true);
 
   // Beginning of childNodes list for end container in selection
   // and end of childNodes list for start container in selection.
-  var locationInChildNodes = locationInSelection === "start" ? "end" : "start";
-  var elementCopy = findTextNodeAtLocation(
+  let locationInChildNodes = locationInSelection === "start" ? "end" : "start";
+  let elementCopy = findTextNodeAtLocation(
     elementAncestorCopy,
     locationInChildNodes
   );
-  var elementCopyParent = elementCopy.parentNode;
+  let elementCopyParent = elementCopy.parentNode;
 
-  var sibling = elementCopy.nextSibling;
+  let sibling = elementCopy.nextSibling;
   while (sibling) {
     elementCopyParent.removeChild(sibling);
     sibling = elementCopy.nextSibling;
@@ -257,12 +257,12 @@ export function extractElementContentForHighlight(params) {
  * @returns {Array} Grouped highlights.
  */
 export function groupHighlights(highlights, timestampAttr) {
-  var order = [],
+  let order = [],
     chunks = {},
     grouped = [];
 
   highlights.forEach(function(hl) {
-    var timestamp = hl.getAttribute(timestampAttr);
+    let timestamp = hl.getAttribute(timestampAttr);
 
     if (typeof chunks[timestamp] === "undefined") {
       chunks[timestamp] = [];
@@ -273,7 +273,7 @@ export function groupHighlights(highlights, timestampAttr) {
   });
 
   order.forEach(function(timestamp) {
-    var group = chunks[timestamp];
+    let group = chunks[timestamp];
 
     grouped.push({
       chunks: group,

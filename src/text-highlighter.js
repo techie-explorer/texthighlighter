@@ -296,7 +296,7 @@ class TextHighlighter {
 
     console.log("ALSDebug28: range before refined! ", range);
 
-    var result = refineRangeBoundaries(range),
+    let result = refineRangeBoundaries(range),
       startContainer = result.startContainer,
       endContainer = result.endContainer,
       goDeeper = result.goDeeper,
@@ -363,7 +363,7 @@ class TextHighlighter {
    * @memberof TextHighlighter
    */
   normalizeHighlights(highlights) {
-    var normalizedHighlights;
+    let normalizedHighlights;
 
     //this.flattenNestedHighlights(highlights);
     //this.mergeSiblingHighlights(highlights);
@@ -393,16 +393,16 @@ class TextHighlighter {
    * @memberof TextHighlighter
    */
   flattenNestedHighlights(highlights) {
-    var again,
+    let again,
       self = this;
 
     sortByDepth(highlights, true);
 
     function flattenOnce() {
-      var again = false;
+      let again = false;
 
       highlights.forEach(function(hl, i) {
-        var parent = hl.parentElement,
+        let parent = hl.parentElement,
           parentPrev = parent.previousSibling,
           parentNext = parent.nextSibling;
 
@@ -434,19 +434,19 @@ class TextHighlighter {
               hl.nextSibling &&
               hl.nextSibling.nodeType == 3
             ) {
-              var spanleft = document.createElement("span");
+              let spanleft = document.createElement("span");
               spanleft.style.backgroundColor = parent.style.backgroundColor;
               spanleft.className = parent.className;
-              var timestamp = parent.attributes[TIMESTAMP_ATTR].nodeValue;
+              let timestamp = parent.attributes[TIMESTAMP_ATTR].nodeValue;
               spanleft.setAttribute(TIMESTAMP_ATTR, timestamp);
               spanleft.setAttribute(DATA_ATTR, true);
 
-              var spanright = spanleft.cloneNode(true);
+              let spanright = spanleft.cloneNode(true);
 
               dom(hl.previousSibling).wrap(spanleft);
               dom(hl.nextSibling).wrap(spanright);
 
-              var nodes = Array.prototype.slice.call(parent.childNodes);
+              let nodes = Array.prototype.slice.call(parent.childNodes);
               nodes.forEach(function(node) {
                 dom(node).insertBefore(node.parentNode);
               });
@@ -492,7 +492,7 @@ class TextHighlighter {
     }
 
     highlights.forEach(function(highlight) {
-      var prev = highlight.previousSibling,
+      let prev = highlight.previousSibling,
         next = highlight.nextSibling;
 
       if (shouldMerge(highlight, prev)) {
@@ -533,12 +533,12 @@ class TextHighlighter {
    * @memberof TextHighlighter
    */
   removeHighlights(element) {
-    var container = element || this.el,
+    let container = element || this.el,
       highlights = this.getHighlights({ container: container }),
       self = this;
 
     /*     function mergeSiblings(node) {
-      var prev = node.previousSibling,
+      let prev = node.previousSibling,
         next = node.nextSibling;
 
       if (node && node.nodeType === NODE_TYPE.TEXT_NODE) {
@@ -603,7 +603,7 @@ class TextHighlighter {
       ...params
     };
 
-    var nodeList = params.container.querySelectorAll("[" + DATA_ATTR + "]"),
+    let nodeList = params.container.querySelectorAll("[" + DATA_ATTR + "]"),
       highlights = Array.prototype.slice.call(nodeList);
 
     if (params.andSelf === true && params.container.hasAttribute(DATA_ATTR)) {
@@ -636,12 +636,12 @@ class TextHighlighter {
    * @memberof TextHighlighter
    */
   serializeHighlights() {
-    var highlights = this.getHighlights(),
+    let highlights = this.getHighlights(),
       refEl = this.el,
       hlDescriptors = [];
 
     function getElementPath(el, refElement) {
-      var path = [],
+      let path = [],
         childNodes;
 
       do {
@@ -656,7 +656,7 @@ class TextHighlighter {
     sortByDepth(highlights, false);
 
     highlights.forEach(function(highlight) {
-      var offset = 0, // Hl offset from previous sibling within parent node.
+      let offset = 0, // Hl offset from previous sibling within parent node.
         length = highlight.textContent.length,
         hlPath = getElementPath(highlight, refEl),
         wrapper = highlight.cloneNode(true);
@@ -689,14 +689,14 @@ class TextHighlighter {
    * @memberof TextHighlighter
    */
   serializeHighlightsCustom(id) {
-    var highlights = this.getHighlights(),
+    let highlights = this.getHighlights(),
       refEl = this.el,
       hlDescriptors = [];
 
     sortByDepth(highlights, false);
 
     highlights.forEach(function(highlight) {
-      var length = highlight.textContent.length,
+      let length = highlight.textContent.length,
         // hlPath = getElementPath(highlight, refEl),
         offset = getElementOffset(highlight, refEl), // Hl offset from the root element.
         wrapper = highlight.cloneNode(true);
@@ -726,7 +726,7 @@ class TextHighlighter {
    * @memberof TextHighlighter
    */
   deserializeHighlightsCustom(json) {
-    var hlDescriptors,
+    let hlDescriptors,
       highlights = [],
       self = this;
 
@@ -741,7 +741,7 @@ class TextHighlighter {
     }
 
     function deserializationFnCustom(hlDescriptor) {
-      var hl = {
+      let hl = {
           wrapper: hlDescriptor[0],
           text: hlDescriptor[1],
           offset: Number.parseInt(hlDescriptor[2]),
@@ -793,7 +793,7 @@ class TextHighlighter {
    * @memberof TextHighlighter
    */
   deserializeHighlights(json) {
-    var hlDescriptors,
+    let hlDescriptors,
       highlights = [],
       self = this;
 
@@ -808,7 +808,7 @@ class TextHighlighter {
     }
 
     function deserializationFn(hlDescriptor) {
-      var hl = {
+      let hl = {
           wrapper: hlDescriptor[0],
           text: hlDescriptor[1],
           path: hlDescriptor[2].split(":"),
@@ -868,7 +868,7 @@ class TextHighlighter {
    * @memberof TextHighlighter
    */
   find(text, caseSensitive) {
-    var wnd = dom(this.el).getWindow(),
+    let wnd = dom(this.el).getWindow(),
       scrollX = wnd.scrollX,
       scrollY = wnd.scrollY,
       caseSens = typeof caseSensitive === "undefined" ? true : caseSensitive;
@@ -880,7 +880,7 @@ class TextHighlighter {
         this.doHighlight(true);
       }
     } else if (wnd.document.body.createTextRange) {
-      var textRange = wnd.document.body.createTextRange();
+      let textRange = wnd.document.body.createTextRange();
       textRange.moveToElementText(this.el);
       while (textRange.findText(text, 1, caseSens ? 4 : 0)) {
         if (
