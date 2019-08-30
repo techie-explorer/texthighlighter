@@ -158,7 +158,6 @@ export function getElementOffset(childElement, rootElement) {
   let childNodes;
 
   let currentElement = childElement;
-  let level = 1;
   do {
     childNodes = Array.prototype.slice.call(
       currentElement.parentNode.childNodes
@@ -170,7 +169,6 @@ export function getElementOffset(childElement, rootElement) {
     );
     offset += offsetInCurrentParent;
     currentElement = currentElement.parentNode;
-    level += 1;
   } while (currentElement !== rootElement || !currentElement);
 
   return offset;
@@ -196,18 +194,28 @@ export function findFirstNonSharedParent(elements) {
   let parents = dom(childElement).parentsWithoutDocument();
   let i = 0;
   let firstNonSharedParent = null;
-  while (!firstNonSharedParent && i < parents.length) {
-    let currentParent = parents[i];
+  let allParentsAreShared = false;
+  while (!firstNonSharedParent && !allParentsAreShared && i < parents.length) {
+    const currentParent = parents[i];
 
-    if (currentParent.contains(otherElement) && i > 0) {
+    if (currentParent.contains(otherElement)) {
       console.log("currentParent contains other element!", currentParent);
-      firstNonSharedParent = parents[i - 1];
+      if (i > 0) {
+        firstNonSharedParent = parents[i - 1];
+      } else {
+        allParentsAreShared = true;
+      }
     }
     i++;
   }
 
   return firstNonSharedParent;
 }
+
+const siblingRemovalDirections = {
+  start: "previousSibling",
+  end: "nextSibling"
+};
 
 export function extractElementContentForHighlight(params) {
   let element = params.element;
@@ -226,10 +234,11 @@ export function extractElementContentForHighlight(params) {
   );
   let elementCopyParent = elementCopy.parentNode;
 
-  let sibling = elementCopy.nextSibling;
+  const siblingRemovalDirection = siblingRemovalDirections[locationInSelection];
+  let sibling = elementCopy[siblingRemovalDirection];
   while (sibling) {
     elementCopyParent.removeChild(sibling);
-    sibling = elementCopy.nextSibling;
+    sibling = elementCopy[siblingRemovalDirection];
   }
 
   console.log("elementCopy: ", elementCopy);
@@ -248,6 +257,13 @@ export function extractElementContentForHighlight(params) {
   element.parentNode.removeChild(element);
 
   return elementAncestorCopy;
+}
+
+export function nodesInBetween(startNode, endNode) {
+  if (startNode === endNode) {
+    return [];
+  }
+  // TODO: get all nodes that are in between the two nodes across different levels in the DOM tree.
 }
 
 /**
@@ -289,4 +305,34 @@ export function groupHighlights(highlights, timestampAttr) {
   });
 
   return grouped;
+}
+
+export function retrieveHighlights(params) {
+  params = {
+    andSelf: true,
+    grouped: false,
+    ...params
+  };
+
+  let nodeList = params.container.querySelectorAll("[" + params.dataAttr + "]"),
+    highlights = Array.prototype.slice.call(nodeList);
+
+  if (
+    params.andSelf === true &&
+    params.container.hasAttribute(params.dataAttr)
+  ) {
+    highlights.push(params.container);
+  }
+
+  if (params.grouped) {
+    highlights = groupHighlights(highlights, params.timestampAttr);
+  }
+
+  return highlights;
+}
+
+export function isElementHighlight(el, dataAttr) {
+  return (
+    el && el.nodeType === NODE_TYPE.ELEMENT_NODE && el.hasAttribute(dataAttr)
+  );
 }
