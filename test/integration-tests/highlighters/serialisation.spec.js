@@ -56,7 +56,7 @@ describe("serialisation and deserialisation of highlights", () => {
   testSerialisation({
     title: "should serialise and deserialise correctly for a single highlight",
     fixturePrefix: "01.serialization",
-    id: "single-highlight",
+    id: "test-single-highlight",
     fixturePostfix: "singleHighlight",
     expectedText: ["Lorem ipsum dolor sit amet"]
   });
@@ -64,8 +64,17 @@ describe("serialisation and deserialisation of highlights", () => {
   testSerialisation({
     title: "should serialise and deserialise correctly for multiple highlights",
     fixturePrefix: "01.serialization",
-    id: "multiple-highlights",
+    id: "test-multiple-highlights",
     fixturePostfix: "multipleHighlights",
     expectedText: ["D", "Lorem ipsum dolor sit amet"]
+  });
+
+  testSerialisation({
+    title:
+      "should serialise and deserialise correctly for a highlight that overlap nodes in the DOM tree",
+    fixturePrefix: "02.serialization",
+    id: "test-overlapping-highlights",
+    fixturePostfix: "overlapping1",
+    expectedText: ["Lorem ipsum dolor sit ", "amet"]
   });
 });
