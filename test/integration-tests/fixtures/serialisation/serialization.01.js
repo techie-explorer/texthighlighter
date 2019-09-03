@@ -43,9 +43,13 @@ const fixtures = {
             "Lorem ipsum dolor sit amet"
           )
         ),
-        span("consectetur adipiscit")
+        span("consectetur adipiscit"),
+        span("elit.")
       ),
-      span("DD", highlight({ color: "blue" }, "D")),
+      span(
+        "DD",
+        highlight({ color: "blue", id: "test-multiple-highlights" }, "D")
+      ),
       "BBB"
     );
   }

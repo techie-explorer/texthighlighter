@@ -362,11 +362,6 @@ class IndependenciaHighlighter {
       wrapper.innerHTML = "";
       wrapper = wrapper.outerHTML;
 
-      console.log("Highlight text offset from root node: ", offset);
-      console.log(
-        `wrapper.toString().indexOf(${id}):`,
-        wrapper.toString().indexOf(id)
-      );
       if (wrapper.toString().indexOf(id) > -1) {
         hlDescriptors.push([wrapper, highlight.textContent, offset, length]);
       }

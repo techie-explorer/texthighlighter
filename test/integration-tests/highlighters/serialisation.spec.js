@@ -38,9 +38,9 @@ describe("serialisation and deserialisation of highlights", () => {
       const fixtureBase = fixtures[`${params.fixturePrefix}.base`];
       setContents(root, fixture());
       const htmlBefore = root.innerHTML;
-      console.log(htmlBefore);
 
       const serialised = highlighter.serializeHighlights(params.id);
+      console.log(serialised);
 
       const text = JSON.parse(serialised).map(descriptor => descriptor[1]);
       expect(text).toEqual(params.expectedText);
@@ -59,5 +59,13 @@ describe("serialisation and deserialisation of highlights", () => {
     id: "single-highlight",
     fixturePostfix: "singleHighlight",
     expectedText: ["Lorem ipsum dolor sit amet"]
+  });
+
+  testSerialisation({
+    title: "should serialise and deserialise correctly for multiple highlights",
+    fixturePrefix: "01.serialization",
+    id: "multiple-highlights",
+    fixturePostfix: "multipleHighlights",
+    expectedText: ["D", "Lorem ipsum dolor sit amet"]
   });
 });
