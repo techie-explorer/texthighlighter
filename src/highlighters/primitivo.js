@@ -282,6 +282,13 @@ class PrimitivoHighlighter {
       createdHighlights = this.highlightRange(range, wrapper);
       normalizedHighlights = this.normalizeHighlights(createdHighlights);
 
+      if (!this.options.onAfterHighlight) {
+        console.log(
+          "ALSDEbug24: Primitivo: this.options: ",
+          this.options,
+          "\n\n\n\n"
+        );
+      }
       this.options.onAfterHighlight(range, normalizedHighlights, timestamp);
     }
 

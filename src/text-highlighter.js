@@ -17,6 +17,18 @@ const highlighters = {
  */
 class TextHighlighter {
   /**
+   * Creates wrapper for highlights.
+   * TextHighlighter instance calls this method each time it needs to create highlights and pass options retrieved
+   * in constructor.
+   *
+   * @param {object} options - the same object as in TextHighlighter constructor.
+   * @returns {HTMLElement}
+   */
+  static createWrapper(options) {
+    return createWrapper(options);
+  }
+
+  /**
    * Creates TextHighlighter instance and binds to given DOM elements.
    *
    * @param {HTMLElement} element - DOM element to which highlighted will be applied.
@@ -63,6 +75,12 @@ class TextHighlighter {
       onAfterHighlight: function() {},
       ...options
     };
+
+    console.log(
+      "\n\n\n\nALSDEbug24: TextHighlighter: options constructor param: ",
+      options
+    );
+    console.log("ALSDEbug24: TextHighlighter: this.options: ", this.options);
 
     if (!highlighters[this.options.version]) {
       throw new Error(
