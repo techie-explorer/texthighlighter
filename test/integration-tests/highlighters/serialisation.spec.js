@@ -1,6 +1,6 @@
 import fixtures from "../fixtures/serialisation";
 import TextHighlighter from "../../../src/text-highlighter";
-import { setContents } from "../utils/dom-helpers";
+import { setContents } from "../../utils/dom-helpers";
 
 describe("serialisation and deserialisation of highlights", () => {
   let root, highlighter;

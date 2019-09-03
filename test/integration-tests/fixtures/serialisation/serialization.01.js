@@ -1,4 +1,4 @@
-import { span, highlight } from "../../utils/dom-elements";
+import { span, highlight } from "../../../utils/dom-elements";
 
 const fixtures = {
   "01.serialization.base": () => {
