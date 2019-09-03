@@ -194,6 +194,7 @@ new TextHighlighter(sandbox, {
         var sandbox = document.getElementById("sandbox");
         var colors = new ColorPicker(document.querySelector(".color-picker"));
         var hltr = new TextHighlighter(sandbox, {
+          version: "independencia",
           onBeforeHighlight: function(range) {
             return window.confirm(
               "Selected text: " + range + "\nReally highlight?"

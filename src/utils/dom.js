@@ -240,6 +240,29 @@ const dom = function(el) {
     getDocument: function() {
       // if ownerDocument is null then el is the document itself.
       return el.ownerDocument || el;
+    },
+    /**
+     * Returns whether the provided element comes after the base element.
+     *
+     * @param {HTMLElement} otherElement
+     *
+     * @returns {boolean}
+     */
+    isAfter: function(otherElement, rootElement) {
+      let sibling = el.nextSibling;
+      let isAfter = false;
+      while (sibling && !isAfter) {
+        if (sibling === otherElement) {
+          isAfter = true;
+        } else {
+          if (!sibling.nextSibling) {
+            sibling = el.parentNode.nextSibling;
+          } else {
+            sibling = sibling.nextSibling;
+          }
+        }
+      }
+      return isAfter;
     }
   };
 };

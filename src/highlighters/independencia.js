@@ -7,7 +7,10 @@ import {
   extractElementContentForHighlight,
   nodesInBetween,
   sortByDepth,
-  findNodeAndOffset
+  findNodeAndOffset,
+  addNodesToHighlightAfterElement,
+  createWrapper,
+  createDescriptors
 } from "../utils/highlights";
 import {
   START_OFFSET_ATTR,
@@ -24,7 +27,7 @@ import { unique } from "../utils/arrays";
  */
 class IndependenciaHighlighter {
   /**
-   * Creates a IndependenciaHighlighter instance for functionality that focuses for highlight independence.
+   * Creates an IndependenciaHighlighter instance for functionality that focuses for highlight independence.
    *
    * @param {HTMLElement} element - DOM element to which highlighted will be applied.
    * @param {object} [options] - additional options.
@@ -86,6 +89,7 @@ class IndependenciaHighlighter {
 
     wrapperClone.setAttribute(START_OFFSET_ATTR, startOffset);
     wrapperClone.setAttribute(END_OFFSET_ATTR, endOffset);
+    wrapperClone.setAttribute(DATA_ATTR, true);
 
     console.log("\n\n\n FINDING START CONTAINER FIRST TEXT NODE ");
     console.log("range.startContainer: ", range.startContainer);
@@ -129,13 +133,17 @@ class IndependenciaHighlighter {
       });
 
       let startElementParentCopy;
+      let startOfNewHighlightCopy;
       if (startElementParent) {
-        startElementParentCopy = extractElementContentForHighlight({
+        ({
+          elementAncestorCopy: startElementParentCopy,
+          elementCopy: startOfNewHighlightCopy
+        } = extractElementContentForHighlight({
           element: startOfNewHighlight,
           elementAncestor: startElementParent,
           options: this.options,
           locationInSelection: "start"
-        });
+        }));
 
         console.log("startElementParent:", startElementParent);
         console.log("startElementParentCopy: ", startElementParentCopy);
@@ -147,13 +155,17 @@ class IndependenciaHighlighter {
       });
 
       let endElementParentCopy;
+      let endOfNewHighlightCopy;
       if (endElementParent) {
-        endElementParentCopy = extractElementContentForHighlight({
+        ({
+          elementAncestorCopy: endElementParentCopy,
+          elementcopy: endOfNewHighlightCopy
+        } = extractElementContentForHighlight({
           element: endOfNewHighlight,
           elementAncestor: endElementParent,
           options: this.options,
           locationInSelection: "end"
-        });
+        }));
         console.log(
           "Node that is the wrapper of the end of the new highlight: ",
           endElementParent
@@ -165,31 +177,16 @@ class IndependenciaHighlighter {
         );
       }
 
-      if (startElementParentCopy) {
-        if (
-          startElementParentCopy.classList.contains(
-            this.options.highlightedClass
-          )
-        ) {
-          console.log(startElementParentCopy.childNodes.length);
-          startElementParentCopy.childNodes.forEach(childNode => {
-            console.log("appending child node: ", childNode.textContent);
-            wrapperClone.appendChild(childNode);
-          });
-        } else {
-          console.log(
-            "appending startElementParentCopy: ",
-            startElementParentCopy
-          );
-          wrapperClone.appendChild(startElementParentCopy);
-        }
-      } else {
-        console.log("appending startOfNewHighlight: ", startOfNewHighlight);
-        wrapperClone.appendChild(startOfNewHighlight);
-      }
+      addNodesToHighlightAfterElement({
+        element: startOfNewHighlightCopy || startOfNewHighlight,
+        elementAncestor: startElementParentCopy,
+        highlightWrapper: wrapperClone,
+        highlightedClass: this.options.highlightedClass
+      });
 
       // TODO: add containers in between.
       const containersInBetween = nodesInBetween(startContainer, endContainer);
+      console.log("CONTAINERS IN BETWEEN: ", containersInBetween);
       containersInBetween.forEach(container => {
         wrapperClone.appendChild(container);
       });
@@ -215,6 +212,47 @@ class IndependenciaHighlighter {
     }
 
     return highlights;
+  }
+
+  /**
+   * Highlights current range.
+   * @param {boolean} keepRange - Don't remove range after highlighting. Default: false.
+   * @memberof IndependenciaHighlighter
+   */
+  doHighlight(keepRange) {
+    let range = dom(this.el).getRange(),
+      wrapper,
+      timestamp;
+
+    if (!range || range.collapsed) {
+      return;
+    }
+
+    if (this.options.onBeforeHighlight(range) === true) {
+      timestamp = +new Date();
+      wrapper = createWrapper(this.options);
+      wrapper.setAttribute(TIMESTAMP_ATTR, timestamp);
+
+      const descriptors = createDescriptors({
+        rootElement: this.el,
+        range,
+        wrapper
+      });
+
+      // createdHighlights = this.highlightRange(range, wrapper);
+      // normalizedHighlights = this.normalizeHighlights(createdHighlights);
+
+      const processedDescriptors = this.options.onAfterHighlight(
+        range,
+        descriptors,
+        timestamp
+      );
+      this.deserializeHighlights(processedDescriptors);
+    }
+
+    if (!keepRange) {
+      dom(this.el).removeAllRanges();
+    }
   }
 
   /**

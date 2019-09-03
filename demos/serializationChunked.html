@@ -49,14 +49,14 @@ var hltr = new TextHighlighter(sandbox),
     serialized;
 
 serializeBtn.onclick = function () {
-    serialized = hltr.serializeHighlightsCustom();
+    serialized = hltr.serializeHighlights();
     console.log(serialized);
     hltr.removeHighlights();
 });
 
 deserializeBtn.onclick = function () {
     hltr.removeHighlights();
-    hltr.deserializeHighlightsCustom(serialized);
+    hltr.deserializeHighlights(serialized);
 });
 </code></pre>
       </div>
@@ -204,6 +204,7 @@ deserializeBtn.onclick = function () {
         var sandbox = document.getElementById("sandbox");
         var colors = new ColorPicker(document.querySelector(".color-picker"));
         window.hltr = new TextHighlighter(sandbox, {
+          version: "independencia",
           onAfterHighlight: function(arr, element) {
             if (Array.isArray(element)) {
               element.forEach(highlightDOMElem => {
@@ -225,14 +226,14 @@ deserializeBtn.onclick = function () {
         });
 
         serializeBtn.addEventListener("click", function() {
-          serialized = hltr.serializeHighlightsCustom("highlight-test");
+          serialized = hltr.serializeHighlights("highlight-test");
           console.log(JSON.parse(serialized));
           // hltr.removeHighlights();
         });
 
         deserializeBtn.addEventListener("click", function() {
           hltr.removeHighlights();
-          hltr.deserializeHighlightsCustom(serialized);
+          hltr.deserializeHighlights(serialized);
         });
       })();
     </script>

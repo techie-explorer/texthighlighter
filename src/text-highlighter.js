@@ -93,36 +93,8 @@ class TextHighlighter {
     this.doHighlight();
   }
 
-  /**
-   * Highlights current range.
-   * @param {boolean} keepRange - Don't remove range after highlighting. Default: false.
-   * @memberof TextHighlighter
-   */
   doHighlight(keepRange) {
-    let range = dom(this.el).getRange(),
-      wrapper,
-      createdHighlights,
-      normalizedHighlights,
-      timestamp;
-
-    if (!range || range.collapsed) {
-      return;
-    }
-
-    if (this.options.onBeforeHighlight(range) === true) {
-      timestamp = +new Date();
-      wrapper = createWrapper(this.options);
-      wrapper.setAttribute(TIMESTAMP_ATTR, timestamp);
-
-      createdHighlights = this.highlightRange(range, wrapper);
-      normalizedHighlights = this.normalizeHighlights(createdHighlights);
-
-      this.options.onAfterHighlight(range, normalizedHighlights, timestamp);
-    }
-
-    if (!keepRange) {
-      dom(this.el).removeAllRanges();
-    }
+    this.highlighter.doHighlight(keepRange);
   }
 
   /**

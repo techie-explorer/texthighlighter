@@ -1,4 +1,5 @@
 import dom, { NODE_TYPE } from "./dom";
+import { START_OFFSET_ATTR, END_OFFSET_ATTR, DATA_ATTR } from "../config";
 
 /**
  * Takes range object as parameter and refines it boundaries
@@ -217,6 +218,36 @@ const siblingRemovalDirections = {
   end: "nextSibling"
 };
 
+const siblingTextNodeMergeDirections = {
+  start: "nextSibling",
+  end: "previousSibling"
+};
+
+function removeSiblingsInDirection(startNode, direction) {
+  let sibling = startNode[direction];
+  while (sibling) {
+    startNode.parentNode.removeChild(sibling);
+    sibling = sibling[direction];
+  }
+}
+
+/**
+ * Merges the text of all sibling text nodes with the start node.
+ *
+ * @param {HTMLElement} startNode
+ * @param {string} direction
+ */
+function mergeSiblingTextNodesInDirection(startNode, direction) {
+  let sibling = startNode[direction];
+  while (sibling) {
+    if (sibling.nodeType === NODE_TYPE.TEXT_NODE) {
+      startNode.textContent += sibling.textContent;
+      startNode.parentNode.removeChild(sibling);
+      sibling = sibling[direction];
+    }
+  }
+}
+
 export function extractElementContentForHighlight(params) {
   let element = params.element;
   let elementAncestor = params.elementAncestor;
@@ -234,12 +265,15 @@ export function extractElementContentForHighlight(params) {
   );
   let elementCopyParent = elementCopy.parentNode;
 
-  const siblingRemovalDirection = siblingRemovalDirections[locationInSelection];
-  let sibling = elementCopy[siblingRemovalDirection];
-  while (sibling) {
-    elementCopyParent.removeChild(sibling);
-    sibling = elementCopy[siblingRemovalDirection];
-  }
+  removeSiblingsInDirection(
+    elementCopy,
+    siblingRemovalDirections[locationInSelection]
+  );
+
+  mergeSiblingTextNodesInDirection(
+    elementCopy,
+    siblingTextNodeMergeDirections[locationInSelection]
+  );
 
   console.log("elementCopy: ", elementCopy);
   console.log("elementCopyParent: ", elementCopyParent);
@@ -256,14 +290,67 @@ export function extractElementContentForHighlight(params) {
   // from the existing highlight or other element.
   element.parentNode.removeChild(element);
 
-  return elementAncestorCopy;
+  return { elementAncestorCopy, elementCopy };
 }
 
+function gatherSiblingsUpToEndNode(startNodeOrContainer, endNode) {
+  const gatheredSiblings = [];
+  let foundEndNodeSibling = false;
+
+  let currentNode = startNodeOrContainer.nextSibling;
+  while (currentNode && !foundEndNodeSibling) {
+    if (currentNode === endNode || currentNode.contains(endNode)) {
+      foundEndNodeSibling = true;
+    } else {
+      gatheredSiblings.push(currentNode);
+      currentNode = currentNode.nextSibling;
+    }
+  }
+
+  return { gatheredSiblings, foundEndNodeSibling };
+}
+
+/**
+ * Gets all the nodes in between the provided start and end.
+ *
+ * @param {HTMLElement} startNode
+ * @param {HTMLElement} endNode
+ * @returns {HTMLElement[]} Nodes that live in between the two.
+ */
 export function nodesInBetween(startNode, endNode) {
   if (startNode === endNode) {
     return [];
   }
-  // TODO: get all nodes that are in between the two nodes across different levels in the DOM tree.
+  // First attempt the easiest solution, hoping endNode will be at the same level
+  // as the start node or contained in an element at the same level.
+  const {
+    foundEndNodeSibling: foundEndNodeSiblingOnSameLevel,
+    gatheredSiblings
+  } = gatherSiblingsUpToEndNode(startNode, endNode);
+
+  if (foundEndNodeSiblingOnSameLevel) {
+    return gatheredSiblings;
+  }
+
+  // Now go for the route that goes to the highest parent of the start node in the tree
+  // that is not the parent of the end node.
+  const startNodeParent = findFirstNonSharedParent({
+    childElement: startNode,
+    otherElement: endNode
+  });
+
+  if (startNodeParent) {
+    const {
+      foundEndNodeSibling: foundEndNodeSiblingFromParentLevel,
+      gatheredSiblings: gatheredSiblingsFromParent
+    } = gatherSiblingsUpToEndNode(startNodeParent, endNode);
+
+    if (foundEndNodeSiblingFromParentLevel) {
+      return gatheredSiblingsFromParent;
+    }
+  }
+
+  return [];
 }
 
 /**
@@ -335,4 +422,64 @@ export function isElementHighlight(el, dataAttr) {
   return (
     el && el.nodeType === NODE_TYPE.ELEMENT_NODE && el.hasAttribute(dataAttr)
   );
+}
+
+export function addNodesToHighlightAfterElement({
+  element,
+  elementAncestor,
+  highlightWrapper,
+  highlightedClass
+}) {
+  if (elementAncestor) {
+    if (elementAncestor.classList.contains(highlightedClass)) {
+      // Ensure we only take the children from a parent that is a highlight.
+      elementAncestor.childNodes.forEach(childNode => {
+        if (dom(childNode).isAfter(element)) {
+        }
+        elementAncestor.appendChild(childNode);
+      });
+    } else {
+      highlightWrapper.appendChild(elementAncestor);
+    }
+  } else {
+    highlightWrapper.appendChild(element);
+  }
+}
+
+/**
+ * Collects the human-readable highlighted text for all nodes in the selected range.
+ *
+ * @param {Range} range
+ *
+ * @return {string} The human-readable highlighted text for the given range.
+ */
+export function getHighlightedText(range) {
+  const startContainerCopy = range.startContainer.clone(true);
+  return "";
+}
+
+export function createDescriptors({ rootElement, range, wrapper }) {
+  let wrapperClone = wrapper.cloneNode(true);
+
+  const startOffset =
+    getElementOffset(range.startContainer, rootElement) + range.startOffset;
+  const endOffset =
+    range.startContainer === range.endContainer
+      ? startOffset + (range.endOffset - range.startOffset)
+      : getElementOffset(range.endContainer, rootElement) + range.endOffset;
+  const length = endOffset - startOffset;
+  wrapperClone.setAttribute(DATA_ATTR, true);
+
+  wrapperClone.innerHTML = "";
+  const wrapperHTML = wrapperClone.outerHTML;
+
+  const descriptor = [
+    wrapperHTML,
+    // retrieve all the text content between the start and end offsets.
+    getHighlightedText(range),
+    startOffset,
+    length
+  ];
+  // TODO: chunk up highlights for PDFs (or any element with absolutely positioned elements).
+  return [descriptor];
 }
