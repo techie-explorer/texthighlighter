@@ -356,7 +356,6 @@ class IndependenciaHighlighter {
 
     highlights.forEach(function(highlight) {
       let length = highlight.textContent.length,
-        // hlPath = getElementPath(highlight, refEl),
         offset = getElementOffset(highlight, refEl), // Hl offset from the root element.
         wrapper = highlight.cloneNode(true);
 

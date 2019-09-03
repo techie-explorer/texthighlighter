@@ -198,11 +198,14 @@ class TextHighlighter {
 
   /**
    * Serializes all highlights in the element the highlighter is applied to.
+   * the id is not used in the initial version of the highlighter.
+   *
+   * @param {string} id - The unique identifier grouping a set of highlight elements together.
    * @returns {string} - stringified JSON with highlights definition
    * @memberof TextHighlighter
    */
-  serializeHighlights() {
-    return this.highlighter.serializeHighlights();
+  serializeHighlights(id) {
+    return this.highlighter.serializeHighlights(id);
   }
 
   /**

@@ -54,7 +54,9 @@
     "rootDir": "."
   },
   "scripts": {
-    "test": "jest test/unittests"
+    "test": "npm run test:unit",
+    "test:unit": "jest test/unit-tests",
+    "test:integration": "jest test/integration-tests"
   },
   "repository": {
     "type": "git",
