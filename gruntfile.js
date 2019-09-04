@@ -3,7 +3,7 @@ module.exports = function(grunt) {
 
   require("load-grunt-tasks")(grunt);
 
-  var BUILD_DIR = "build/",
+  var BUILD_DIR = "build/prod/",
     DOC_DIR = "doc",
     BUILD_TARGET = "TextHighlighter.min.js";
 
