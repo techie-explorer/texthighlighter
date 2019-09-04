@@ -1,7 +1,7 @@
 import { span, highlight } from "../../../utils/dom-elements";
 
 const fixtures = {
-  "01.serialization.base": () => {
+  "01.serialisation.base": () => {
     return span(
       "AAA",
       span(
@@ -14,7 +14,7 @@ const fixtures = {
       "BBB"
     );
   },
-  "01.serialization.singleHighlight": () => {
+  "01.serialisation.singleHighlight": () => {
     return span(
       "AAA",
       span(
@@ -32,7 +32,7 @@ const fixtures = {
       "BBB"
     );
   },
-  "01.serialization.multipleHighlights": () => {
+  "01.serialisation.multipleHighlights": () => {
     return span(
       "AAA",
       span(

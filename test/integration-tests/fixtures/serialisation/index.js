@@ -1,7 +1,9 @@
-import s1Fixtures from "./serialization.01";
-import s2Fixtures from "./serialization.02";
+import s1Fixtures from "./serialisation.01";
+import s2Fixtures from "./serialisation.02";
+import s3Fixtures from "./serialisation.03";
 
 export default {
   ...s1Fixtures,
-  ...s2Fixtures
+  ...s2Fixtures,
+  ...s3Fixtures
 };

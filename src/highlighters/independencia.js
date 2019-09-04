@@ -359,10 +359,11 @@ class IndependenciaHighlighter {
         offset = getElementOffset(highlight, refEl), // Hl offset from the root element.
         wrapper = highlight.cloneNode(true);
 
+      const containsIdAsClass = wrapper.classList.contains(id);
       wrapper.innerHTML = "";
       wrapper = wrapper.outerHTML;
 
-      if (wrapper.toString().indexOf(id) > -1) {
+      if (containsIdAsClass) {
         hlDescriptors.push([wrapper, highlight.textContent, offset, length]);
       }
     });
