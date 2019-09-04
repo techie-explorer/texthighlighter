@@ -3,7 +3,7 @@ module.exports = function(grunt) {
 
   require("load-grunt-tasks")(grunt);
 
-  var BUILD_DIR = "build/",
+  var BUILD_DIR = "build/dev",
     DOC_DIR = "doc",
     BUILD_TARGET = "TextHighlighter.min.js";
 
@@ -19,7 +19,7 @@ module.exports = function(grunt) {
         options: {
           transform: [["babelify"]],
           browserifyOptions: {
-            debug: false
+            debug: true
           }
         }
       }

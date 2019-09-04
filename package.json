@@ -56,7 +56,9 @@
   "scripts": {
     "test": "npm run test:unit",
     "test:unit": "jest test/unit-tests",
-    "test:integration": "jest test/integration-tests"
+    "test:integration": "jest test/integration-tests",
+    "start": "grunt --gruntfile gruntfile.dev.js watch",
+    "build": "grunt"
   },
   "repository": {
     "type": "git",
