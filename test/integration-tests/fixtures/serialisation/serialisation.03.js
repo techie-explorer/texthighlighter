@@ -25,17 +25,37 @@ const fixtures = {
         "CCC",
         span("Lorem "),
         highlight(
-          { color: "red", id: "test-overlapping-highlights-1" },
+          {
+            color: "red",
+            id: "test-overlapping-highlights-1",
+            startOffset: 11,
+            length: 16
+          },
           "ipsum",
           highlight(
-            { color: "blue", id: "test-overlapping-highlights-2" },
+            {
+              color: "blue",
+              id: "test-overlapping-highlights-2",
+              startOffset: 16,
+              length: 15
+            },
             " dolor "
           )
         ),
         highlight(
-          { color: "blue", id: "test-overlapping-highlights-1" },
+          {
+            color: "blue",
+            id: "test-overlapping-highlights-1",
+            startOffset: 16,
+            length: 15
+          },
           highlight(
-            { color: "red", id: "test-overlapping-highlights-2" },
+            {
+              color: "red",
+              id: "test-overlapping-highlights-2",
+              startOffset: 11,
+              length: 16
+            },
             b("sit ")
           ),
           b("amet")
