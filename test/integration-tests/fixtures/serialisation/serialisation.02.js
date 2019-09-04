@@ -25,13 +25,23 @@ const fixtures = {
         "CCC",
         span(
           highlight(
-            { color: "red", id: "test-overlapping-highlights" },
+            {
+              color: "red",
+              id: "test-overlapping-highlights",
+              startOffset: 6,
+              length: 21
+            },
             "Lorem ipsum dolor ",
             b("sit ")
           ),
           img(),
           highlight(
-            { color: "red", id: "test-overlapping-highlights" },
+            {
+              color: "red",
+              id: "test-overlapping-highlights",
+              startOffset: 6,
+              length: 21
+            },
             i("am"),
             "et"
           )
@@ -50,17 +60,32 @@ const fixtures = {
         "CCC",
         span(
           highlight(
-            { color: "red", id: "test-overlapping-highlights" },
+            {
+              color: "red",
+              id: "test-overlapping-highlights",
+              startOffset: 6,
+              length: 26
+            },
             "Lorem ",
             highlight(
-              { color: "blue", id: "test-overlapping-highlights-nested-1" },
+              {
+                color: "blue",
+                id: "test-overlapping-highlights-nested-1",
+                startOffset: 12,
+                length: 12
+              },
               "ipsum dolor "
             ),
             b("sit ")
           ),
           img(),
           highlight(
-            { color: "red", id: "test-overlapping-highlights" },
+            {
+              color: "red",
+              id: "test-overlapping-highlights",
+              startOffset: 6,
+              length: 26
+            },
             i("am"),
             "et"
           )

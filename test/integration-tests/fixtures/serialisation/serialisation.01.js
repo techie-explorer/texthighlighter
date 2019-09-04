@@ -21,7 +21,12 @@ const fixtures = {
         "CCC",
         span(
           highlight(
-            { color: "red", id: "test-single-highlight" },
+            {
+              color: "red",
+              id: "test-single-highlight",
+              startOffset: 6,
+              length: 26
+            },
             "Lorem ipsum dolor sit amet"
           )
         ),
@@ -39,7 +44,12 @@ const fixtures = {
         "CCC",
         span(
           highlight(
-            { color: "red", id: "test-multiple-highlights" },
+            {
+              color: "red",
+              id: "test-multiple-highlights",
+              startOffset: 6,
+              length: 26
+            },
             "Lorem ipsum dolor sit amet"
           )
         ),
@@ -48,7 +58,15 @@ const fixtures = {
       ),
       span(
         "DD",
-        highlight({ color: "blue", id: "test-multiple-highlights" }, "D")
+        highlight(
+          {
+            color: "blue",
+            id: "test-multiple-highlights",
+            startOffset: 60,
+            length: 1
+          },
+          "D"
+        )
       ),
       "BBB"
     );

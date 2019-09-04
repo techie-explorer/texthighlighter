@@ -9,13 +9,39 @@ const fixtures = {
         span("Lorem ipsum dolor "),
         b("sit amet elit"),
         img(),
-        i("am"),
+        b("am ", i("leonulla")),
         "et",
         span("consectetur ", b("adipiscit")),
         span("elit.")
       ),
       span("DDD"),
       "BBB"
+    );
+  },
+  "03.serialisation.overlapping": () => {
+    return span(
+      "AAA",
+      span(
+        "CCC",
+        span("Lorem "),
+        highlight(
+          { color: "red", id: "test-overlapping-highlights-1" },
+          "ipsum",
+          highlight(
+            { color: "blue", id: "test-overlapping-highlights-2" },
+            " dolor "
+          )
+        ),
+        highlight(
+          { color: "blue", id: "test-overlapping-highlights-1" },
+          highlight(
+            { color: "red", id: "test-overlapping-highlights-2" },
+            b("sit ")
+          ),
+          b("amet")
+        ),
+        b("elit")
+      )
     );
   }
 };

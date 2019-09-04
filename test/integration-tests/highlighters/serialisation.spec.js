@@ -90,7 +90,7 @@ describe("serialisation and deserialisation of highlights", () => {
   testSerialisation({
     title:
       "should serialise and deserialise correctly for a highlight that overlap nodes in the DOM tree" +
-      " and a highlight is nested in another (deserialising outer highlight)",
+      " and a highlight is nested in another",
     fixturePrefix: "02.serialisation",
     ids: [
       "test-overlapping-highlights",
@@ -98,5 +98,14 @@ describe("serialisation and deserialisation of highlights", () => {
     ],
     fixturePostfix: "nested",
     expectedText: ["Lorem ipsum dolor sit ", "amet"]
+  });
+
+  testSerialisation({
+    title:
+      "should serialise and deserialise correctly for highlights that overlap eachother",
+    fixturePrefix: "03.serialisation",
+    ids: ["test-overlapping-highlights-1", "test-overlapping-highlights-2"],
+    fixturePostfix: "overlapping",
+    expectedText: ["ipsum dolor ", " dolor sit amet"]
   });
 });

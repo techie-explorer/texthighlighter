@@ -14,7 +14,7 @@ import {
 } from "../utils/highlights";
 import {
   START_OFFSET_ATTR,
-  END_OFFSET_ATTR,
+  LENGTH_ATTR,
   DATA_ATTR,
   TIMESTAMP_ATTR
 } from "../config";
@@ -88,7 +88,7 @@ class IndependenciaHighlighter {
     );
 
     wrapperClone.setAttribute(START_OFFSET_ATTR, startOffset);
-    wrapperClone.setAttribute(END_OFFSET_ATTR, endOffset);
+    // wrapperClone.setAttribute(END_OFFSET_ATTR, endOffset);
     wrapperClone.setAttribute(DATA_ATTR, true);
 
     console.log("\n\n\n FINDING START CONTAINER FIRST TEXT NODE ");
@@ -349,14 +349,13 @@ class IndependenciaHighlighter {
    */
   serializeHighlights(id) {
     let highlights = this.getHighlights(),
-      refEl = this.el,
       hlDescriptors = [];
 
     sortByDepth(highlights, false);
 
     highlights.forEach(function(highlight) {
-      let length = highlight.textContent.length,
-        offset = getElementOffset(highlight, refEl), // Hl offset from the root element.
+      let length = highlight.getAttribute(LENGTH_ATTR),
+        offset = highlight.getAttribute(START_OFFSET_ATTR),
         wrapper = highlight.cloneNode(true);
 
       const containsIdAsClass = wrapper.classList.contains(id);
