@@ -48,7 +48,7 @@ describe("serialisation and deserialisation of highlights", () => {
       const text = serialised.reduce(
         (accumulatedText, serialisedString) => [
           ...accumulatedText,
-          JSON.parse(serialisedString).map(descriptor => descriptor[1])
+          ...JSON.parse(serialisedString).map(descriptor => descriptor[1])
         ],
         []
       );
