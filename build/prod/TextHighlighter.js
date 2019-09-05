@@ -1151,8 +1151,7 @@ function () {
       },
       onAfterHighlight: function onAfterHighlight() {}
     }, options);
-    console.log("\n\n\n\nALSDEbug24: TextHighlighter: options constructor param: ", options);
-    console.log("ALSDEbug24: TextHighlighter: this.options: ", this.options);
+
 
     if (!highlighters[this.options.version]) {
       throw new Error("Please provide a valid version of the text highlighting functionality");
