@@ -249,6 +249,7 @@ class IndependenciaHighlighter {
         descriptors,
         timestamp
       );
+      console.log('processedDescriptors',processedDescriptors)
       this.deserializeHighlights(processedDescriptors);
     }
 
@@ -415,6 +416,60 @@ class IndependenciaHighlighter {
     } catch (e) {
       throw "Can't parse JSON: " + e;
     }
+/*
+    function deserializationFnCustom(hlDescriptor) {
+      let hl = {
+          wrapper: hlDescriptor[0],
+          text: hlDescriptor[1],
+          offset: Number.parseInt(hlDescriptor[2]),
+          length: Number.parseInt(hlDescriptor[3])
+        },
+        hlNode,
+        highlight;
+
+      const parentNode = self.el;
+      const { node, offset: offsetWithinNode } = findNodeAndOffset(
+        hl,
+        parentNode
+      );
+
+      hlNode = node.splitText(offsetWithinNode);
+
+      let characterCount = 0;
+      let highlightComplete = false;
+      let tempNode = hlNode;
+      while(characterCount < hl.length && !highlightComplete) {
+        if(!hlNode) {
+          hlNode = tempNode.parentNode;
+          tempNode = hlNode;
+          hlNode = hlNode.nextSibling;
+        } else if(hlNode.childNodes.length !== 0) {
+          hlNode = hlNode.childNodes[0];
+          tempNode = hlNode;
+        } else {
+          if(hlNode.textContent.length >= hl.length - characterCount) {
+            hlNode.splitText(hl.length - characterCount);
+            highlightComplete = true;
+          } 
+          if (hlNode.nextSibling && !hlNode.nextSibling.nodeValue) {
+            dom(hlNode.nextSibling).remove();
+          }
+
+          if (hlNode.previousSibling && !hlNode.previousSibling.nodeValue) {
+            dom(hlNode.previousSibling).remove();
+          }
+  
+          highlight = dom(hlNode).wrap(dom().fromHTML(hl.wrapper)[0]);
+          highlights.push(highlight);
+          characterCount = characterCount + hlNode.textContent.length;
+          
+          tempNode = hlNode;
+          hlNode = hlNode.nextSibling;
+        }
+      }
+      
+    }
+    */
 
     function deserialise(hlDescriptor) {
       let hl = {
@@ -447,6 +502,7 @@ class IndependenciaHighlighter {
         }
       );
     }
+
 
     hlDescriptors.forEach(function(hlDescriptor) {
       try {

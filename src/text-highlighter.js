@@ -76,11 +76,8 @@ class TextHighlighter {
       ...options
     };
 
-    console.log(
-      "\n\n\n\nALSDEbug24: TextHighlighter: options constructor param: ",
-      options
-    );
-    console.log("ALSDEbug24: TextHighlighter: this.options: ", this.options);
+   
+
 
     if (!highlighters[this.options.version]) {
       throw new Error(

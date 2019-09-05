@@ -130,4 +130,5 @@ describe("serialisation and deserialisation of highlights", () => {
     fixturePostfix: "overlappingMultiple",
     expectedText: ["ipsum dolor sit", "sum d", "dolor sit amet"]
   });
+  
 });

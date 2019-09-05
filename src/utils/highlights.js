@@ -175,6 +175,7 @@ export function getElementOffset(childElement, rootElement) {
 
   let currentElement = childElement;
   do {
+    
     childNodes = Array.prototype.slice.call(
       currentElement.parentNode.childNodes
     );
