@@ -103,6 +103,29 @@ describe("highlighting utility functionality", () => {
       ]);
     });
 
+    it("should collect the end portion of a single node that is highlighted", () => {
+      const contents = div(
+        b("This is the start"),
+        i(" of something wonderful."),
+        div("Trust me when I say we are improving things")
+      );
+      root.appendChild(contents);
+      const nodes = findNodesAndOffsets(
+        {
+          offset: 29,
+          length: 12
+        },
+        root
+      );
+      expect(prepareNodes(nodes)).toEqual([
+        {
+          offset: 12,
+          nodeText: " of something wonderful.",
+          length: 12
+        }
+      ]);
+    });
+
     it("should collect a full single node that is highlighted", () => {
       const contents = div(
         b("This is the start"),
