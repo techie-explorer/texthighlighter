@@ -29,7 +29,7 @@ const fixtures = {
               color: "red",
               id: "test-overlapping-highlights",
               startOffset: 6,
-              length: 21
+              length: 26
             },
             "Lorem ipsum dolor ",
             b("sit ")
@@ -40,7 +40,7 @@ const fixtures = {
               color: "red",
               id: "test-overlapping-highlights",
               startOffset: 6,
-              length: 21
+              length: 26
             },
             i("am"),
             "et"

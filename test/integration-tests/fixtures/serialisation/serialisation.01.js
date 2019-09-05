@@ -46,7 +46,7 @@ const fixtures = {
           highlight(
             {
               color: "red",
-              id: "test-multiple-highlights",
+              id: "test-multiple-highlights-1",
               startOffset: 6,
               length: 26
             },
@@ -61,7 +61,7 @@ const fixtures = {
         highlight(
           {
             color: "blue",
-            id: "test-multiple-highlights",
+            id: "test-multiple-highlights-2",
             startOffset: 60,
             length: 1
           },
