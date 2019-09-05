@@ -106,7 +106,7 @@ describe("serialisation and deserialisation of highlights", () => {
       "test-overlapping-highlights-nested-1"
     ],
     fixturePostfix: "nested",
-    expectedText: ["Lorem ipsum dolor sit ", "amet"]
+    expectedText: ["Lorem ipsum dolor sit amet", "ipsum dolor "]
   });
 
   testSerialisation({
@@ -115,7 +115,7 @@ describe("serialisation and deserialisation of highlights", () => {
     fixturePrefix: "03.serialisation",
     ids: ["test-overlapping-highlights-1", "test-overlapping-highlights-2"],
     fixturePostfix: "overlapping",
-    expectedText: ["ipsum dolor ", " dolor sit amet"]
+    expectedText: ["ipsum dolor sit ", " dolor sit amet"]
   });
 
   testSerialisation({
@@ -128,6 +128,6 @@ describe("serialisation and deserialisation of highlights", () => {
       "test-overlapping-highlights-3"
     ],
     fixturePostfix: "overlappingMultiple",
-    expectedText: ["ipsum dolor sit", "sum d", "dolor sit amet"]
+    expectedText: ["ipsum dolor sit ", "sum d", " dolor sit amet"]
   });
 });

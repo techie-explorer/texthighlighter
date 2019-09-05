@@ -483,7 +483,6 @@ class IndependenciaHighlighter {
 
       const parentNode = self.el;
       const highlightNodes = findNodesAndOffsets(hl, parentNode);
-      console.log("highlightNodes: ", highlightNodes);
 
       highlightNodes.forEach(
         ({ node, offset: offsetWithinNode, length: lengthInNode }) => {
@@ -506,7 +505,6 @@ class IndependenciaHighlighter {
 
     hlDescriptors.forEach(function(hlDescriptor) {
       try {
-        console.log("Highlight: ", hlDescriptor);
         deserialise(hlDescriptor);
       } catch (e) {
         if (console && console.warn) {

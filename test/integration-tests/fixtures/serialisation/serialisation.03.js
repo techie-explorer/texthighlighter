@@ -23,45 +23,65 @@ const fixtures = {
       "AAA",
       span(
         "CCC",
-        span("Lorem "),
-        highlight(
-          {
-            color: "red",
-            id: "test-overlapping-highlights-1",
-            startOffset: 11,
-            length: 16
-          },
-          "ipsum",
-          highlight(
-            {
-              color: "blue",
-              id: "test-overlapping-highlights-2",
-              startOffset: 16,
-              length: 15
-            },
-            " dolor "
-          )
-        ),
-        highlight(
-          {
-            color: "blue",
-            id: "test-overlapping-highlights-2",
-            startOffset: 16,
-            length: 15
-          },
+        span(
+          "Lorem ",
           highlight(
             {
               color: "red",
               id: "test-overlapping-highlights-1",
-              startOffset: 11,
+              startOffset: 12,
               length: 16
             },
-            b("sit ")
-          ),
-          b("amet")
+            "ipsum",
+            highlight(
+              {
+                color: "blue",
+                id: "test-overlapping-highlights-2",
+                startOffset: 17,
+                length: 15
+              },
+              " dolor "
+            )
+          )
         ),
-        b("elit")
-      )
+        b(
+          highlight(
+            {
+              color: "red",
+              id: "test-overlapping-highlights-1",
+              startOffset: 12,
+              length: 16
+            },
+
+            highlight(
+              {
+                color: "blue",
+                id: "test-overlapping-highlights-2",
+                startOffset: 17,
+                length: 15
+              },
+              "sit "
+            )
+          ),
+          highlight(
+            {
+              color: "blue",
+              id: "test-overlapping-highlights-2",
+              startOffset: 17,
+              length: 15
+            },
+            "amet"
+          ),
+          " elit"
+        ),
+        img(),
+        b("am ", i("leonulla")),
+        "et",
+        span("consectetur ", b("adipiscit")),
+        span("elit.")
+      ),
+      span("DDD"),
+      "BBB"
     );
   },
   "03.serialisation.overlappingMultiple": () => {
@@ -70,57 +90,86 @@ const fixtures = {
       "AAA",
       span(
         "CCC",
-        span("Lorem "),
-        // highlighted text: "ipsum dolor sit"
-        highlight(
-          {
-            color: "red",
-            id: "test-overlapping-highlights-1",
-            startOffset: 11,
-            length: 16
-          },
-          "ip",
-          // highlighted text: "sum d"
-          highlight(
-            {
-              color: "green",
-              id: "test-overlapping-highlights-2",
-              startOffset: 13,
-              length: 5
-            },
-            "sum d"
-          ),
-          // highlighted text: " dolor sit amet"
-          highlight(
-            {
-              color: "blue",
-              id: "test-overlapping-highlights-3",
-              startOffset: 16,
-              length: 15
-            },
-            "olor "
-          )
-        ),
-        highlight(
-          {
-            color: "blue",
-            id: "test-overlapping-highlights-3",
-            startOffset: 16,
-            length: 15
-          },
+        span(
+          "Lorem ",
+          // red highlighted text: "ipsum dolor sit "
           highlight(
             {
               color: "red",
               id: "test-overlapping-highlights-1",
-              startOffset: 11,
+              startOffset: 12,
               length: 16
             },
-            b("sit")
-          ),
-          b("amet")
+            "ip",
+            // green highlighted text: "sum d"
+            highlight(
+              {
+                color: "green",
+                id: "test-overlapping-highlights-2",
+                startOffset: 14,
+                length: 5
+              },
+              "sum",
+              // blue highlighted text: " dolor sit amet"
+              highlight(
+                {
+                  color: "blue",
+                  id: "test-overlapping-highlights-3",
+                  startOffset: 17,
+                  length: 15
+                },
+                " d"
+              )
+            ),
+            highlight(
+              {
+                color: "blue",
+                id: "test-overlapping-highlights-3",
+                startOffset: 17,
+                length: 15
+              },
+              "olor "
+            )
+          )
         ),
-        b("elit")
-      )
+
+        b(
+          highlight(
+            {
+              color: "red",
+              id: "test-overlapping-highlights-1",
+              startOffset: 12,
+              length: 16
+            },
+            highlight(
+              {
+                color: "blue",
+                id: "test-overlapping-highlights-3",
+                startOffset: 17,
+                length: 15
+              },
+              "sit "
+            )
+          ),
+          highlight(
+            {
+              color: "blue",
+              id: "test-overlapping-highlights-3",
+              startOffset: 17,
+              length: 15
+            },
+            "amet"
+          ),
+          " elit"
+        ),
+        img(),
+        b("am ", i("leonulla")),
+        "et",
+        span("consectetur ", b("adipiscit")),
+        span("elit.")
+      ),
+      span("DDD"),
+      "BBB"
     );
   }
 };
