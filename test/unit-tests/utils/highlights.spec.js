@@ -55,22 +55,8 @@ describe("highlighting utility functionality", () => {
   describe("#getHighlightTextForRange()", () => {
     it("should extract the highlighted text from the provided range", () => {
       const range = {
-        extractContents: () => {
-          const fragment = document.createElement("div");
-          const highlightContents = span(
-            b(
-              "This really ",
-              i("is"),
-              " the ",
-              span("begin", i("ning")),
-              " of ",
-              i("something wonderful,")
-            ),
-            span(span(" improving the foundations"), " for what is to come")
-          );
-          fragment.appendChild(highlightContents);
-          return fragment;
-        }
+        toString: () =>
+          "This really is the beginning of something wonderful, improving the foundations for what is to come"
       };
 
       expect(getHighlightedTextForRange(range)).toEqual(

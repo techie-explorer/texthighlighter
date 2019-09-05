@@ -1,5 +1,5 @@
 import dom, { NODE_TYPE } from "./dom";
-import { DATA_ATTR } from "../config";
+import { DATA_ATTR, START_OFFSET_ATTR, LENGTH_ATTR } from "../config";
 
 /**
  * Takes range object as parameter and refines it boundaries
@@ -133,6 +133,7 @@ export function findNodesAndOffsets(highlight, parentNode) {
   const highlightEndOffset = highlight.offset + highlight.length;
 
   while (currentNode && currentOffset < highlightEndOffset) {
+    // TODO: Ignore style and script tags contents.
     const textLength = currentNode.textContent.length;
     const endOfCurrentNodeOffset = currentOffset + textLength;
 
@@ -180,6 +181,7 @@ export function getElementOffset(childElement, rootElement) {
 
   let currentElement = childElement;
   do {
+    // TODO: Ignore style and script tags contents.
     childNodes = Array.prototype.slice.call(
       currentElement.parentNode.childNodes
     );
@@ -199,7 +201,9 @@ function getTextOffsetBefore(childNodes, cutIndex) {
   let textOffset = 0;
   for (let i = 0; i < cutIndex; i++) {
     const currentNode = childNodes[i];
-    // Use textContent and not innerHTML to account for invisible characters as well.
+    // Use textContent and not innerText to account for invisible characters such as carriage returns as well,
+    // plus innerText forces a reflow of the layout and as we access text content of nodes
+    // a lot in the highlighting process, we don't want to take the performance hit.
     // https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent
     const text = currentNode.textContent;
     if (text && text.length > 0) {
@@ -474,8 +478,13 @@ export function addNodesToHighlightAfterElement({
  * @return {string} The human-readable highlighted text for the given range.
  */
 export function getHighlightedTextForRange(range) {
-  const documentFragment = range.extractContents();
-  return documentFragment.innerText;
+  // Strip out all carriage returns and excess html layout space.
+  return range
+    .toString()
+    .replace(/\s{2,}/g, " ")
+    .replace("\r\n", "")
+    .replace("\r", "")
+    .replace("\n", "");
 }
 
 /**
@@ -492,6 +501,7 @@ export function getHighlightedTextRelativeToRoot({
   startOffset,
   length
 }) {
+  // TODO: Ignore style and script tags contents.
   const textContent = rootElement.textContent;
   const highlightedRawText = textContent.substring(
     startOffset,
@@ -516,6 +526,8 @@ export function createDescriptors({ rootElement, range, wrapper }) {
       : getElementOffset(range.endContainer, rootElement) + range.endOffset;
   const length = endOffset - startOffset;
   wrapperClone.setAttribute(DATA_ATTR, true);
+  wrapperClone.setAttribute(START_OFFSET_ATTR, startOffset);
+  wrapperClone.setAttribute(LENGTH_ATTR, length);
 
   wrapperClone.innerHTML = "";
   const wrapperHTML = wrapperClone.outerHTML;

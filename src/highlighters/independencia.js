@@ -249,8 +249,7 @@ class IndependenciaHighlighter {
         descriptors,
         timestamp
       );
-      console.log("processedDescriptors", processedDescriptors);
-      this.deserializeHighlights(processedDescriptors);
+      this.deserializeHighlights(JSON.stringify(processedDescriptors));
     }
 
     if (!keepRange) {
@@ -288,20 +287,22 @@ class IndependenciaHighlighter {
   }
 
   /**
+   * TODO: Confirm what the best thing for removeHighlights() is going forward.
+   *
    * Removes highlights from element. If element is a highlight itself, it is removed as well.
    * If no element is given, all highlights are removed.
    * @param {HTMLElement} [element] - element to remove highlights from
    * @memberof IndependenciaHighlighter
    */
   removeHighlights(element) {
-    let container = element || this.el,
-      highlights = this.getHighlights(),
+    //let container = element || this.el,
+    let highlights = this.getHighlights(),
       self = this;
 
     function removeHighlight(highlight) {
-      if (highlight.className === container.className) {
-        dom(highlight).unwrap();
-      }
+      /*       if (highlight.className === container.className) {
+      } */
+      dom(highlight).unwrap();
     }
 
     highlights.forEach(function(hl) {
