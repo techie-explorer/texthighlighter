@@ -351,36 +351,43 @@ class IndependenciaHighlighter {
    * @memberof IndependenciaHighlighter
    */
   serializeHighlights(id) {
-    let highlights = this.getHighlights(),
-      hlDescriptors = [],
+    const highlights = this.getHighlights(),
       self = this;
 
     sortByDepth(highlights, false);
 
-    highlights.forEach(function(highlight) {
-      let length = highlight.getAttribute(LENGTH_ATTR),
-        offset = highlight.getAttribute(START_OFFSET_ATTR),
-        wrapper = highlight.cloneNode(true);
+    if (highlights.length === 0) {
+      return [];
+    }
 
-      const containsIdAsClass = wrapper.classList.contains(id);
-      wrapper.innerHTML = "";
-      wrapper = wrapper.outerHTML;
+    // Even if there are multiple elements for a given highlight, the first
+    // highlight in the DOM with the given ID in it's class name
+    // will have all the information we need.
+    const highlight = highlights.find(hl => hl.classList.contains(id));
 
-      if (containsIdAsClass) {
-        hlDescriptors.push([
-          wrapper,
-          getHighlightedTextRelativeToRoot({
-            rootElement: self.el,
-            startOffset: offset,
-            length
-          }),
-          offset,
-          length
-        ]);
-      }
-    });
+    if (!highlight) {
+      return [];
+    }
 
-    return JSON.stringify(hlDescriptors);
+    const length = highlight.getAttribute(LENGTH_ATTR);
+    const offset = highlight.getAttribute(START_OFFSET_ATTR);
+    const wrapper = highlight.cloneNode(true);
+
+    wrapper.innerHTML = "";
+    const wrapperHTML = wrapper.outerHTML;
+
+    const descriptor = [
+      wrapperHTML,
+      getHighlightedTextRelativeToRoot({
+        rootElement: self.el,
+        startOffset: offset,
+        length
+      }),
+      offset,
+      length
+    ];
+
+    return JSON.stringify([descriptor]);
   }
 
   /**
@@ -471,24 +478,25 @@ class IndependenciaHighlighter {
         highlight;
 
       const parentNode = self.el;
-      const { node, offset: offsetWithinNode } = findNodeAndOffset(
-        hl,
-        parentNode
+      const highlightNodes = findNodesAndOffsets(hl, parentNode);
+
+      highlightNodes.forEach(
+        ({ node, offset: offsetWithinNode, length: lengthInNode }) => {
+          hlNode = node.splitText(offsetWithinNode);
+          hlNode.splitText(lengthInNode);
+
+          if (hlNode.nextSibling && !hlNode.nextSibling.nodeValue) {
+            dom(hlNode.nextSibling).remove();
+          }
+
+          if (hlNode.previousSibling && !hlNode.previousSibling.nodeValue) {
+            dom(hlNode.previousSibling).remove();
+          }
+
+          highlight = dom(hlNode).wrap(dom().fromHTML(hl.wrapper)[0]);
+          highlights.push(highlight);
+        }
       );
-
-      hlNode = node.splitText(offsetWithinNode);
-      hlNode.splitText(hl.length);
-
-      if (hlNode.nextSibling && !hlNode.nextSibling.nodeValue) {
-        dom(hlNode.nextSibling).remove();
-      }
-
-      if (hlNode.previousSibling && !hlNode.previousSibling.nodeValue) {
-        dom(hlNode.previousSibling).remove();
-      }
-
-      highlight = dom(hlNode).wrap(dom().fromHTML(hl.wrapper)[0]);
-      highlights.push(highlight);
     }
 
 

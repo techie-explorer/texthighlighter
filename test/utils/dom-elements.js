@@ -32,7 +32,7 @@ const highlight = ({ color, id, startOffset, length }, ...children) => {
   docElem.setAttribute("data-highlighted", true);
   docElem.setAttribute(START_OFFSET_ATTR, startOffset);
   docElem.setAttribute(LENGTH_ATTR, length);
-  docElem.style.color = color;
+  docElem.style.backgroundColor = color;
   return docElem;
 };
 

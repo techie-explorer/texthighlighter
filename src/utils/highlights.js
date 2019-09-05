@@ -1,5 +1,5 @@
 import dom, { NODE_TYPE } from "./dom";
-import { START_OFFSET_ATTR, END_OFFSET_ATTR, DATA_ATTR } from "../config";
+import { DATA_ATTR } from "../config";
 
 /**
  * Takes range object as parameter and refines it boundaries
@@ -119,19 +119,20 @@ export function findTextNodeAtLocation(element, locationInChildNodes) {
 
 /**
  * Determine where to inject a highlight based on it's offset.
+ * A highlight can span multiple nodes, so in here we accumulate
+ * all those nodes with offset and length of the content in the node
+ * included in the highlight.
  *
  * @param {*} highlight
  * @param {*} parentNode
  */
-export function findNodeAndOffset(highlight, parentNode) {
+export function findNodesAndOffsets(highlight, parentNode) {
+  const nodesAndOffsets = [];
   let currentNode = parentNode;
   let currentOffset = 0;
-  let offsetWithinNode = 0;
-  let locationFound = false;
 
   while (
     currentNode &&
-    !locationFound &&
     (currentOffset < highlight.offset ||
       (currentOffset === highlight.offset && currentNode.childNodes.length > 0))
   ) {
@@ -139,8 +140,13 @@ export function findNodeAndOffset(highlight, parentNode) {
 
     if (endOfNodeOffset > highlight.offset) {
       if (currentNode.childNodes.length === 0) {
-        offsetWithinNode = highlight.offset - currentOffset;
-        locationFound = true;
+        const offsetWithinNode = highlight.offset - currentOffset;
+        // We have found a highlight that is included in the highlight range.
+        nodesAndOffsets.push({
+          node: currentNode,
+          offset: offsetWithinNode,
+          length: 0
+        });
         currentOffset = currentOffset + offsetWithinNode;
       } else {
         currentNode = currentNode.childNodes[0];
@@ -151,7 +157,7 @@ export function findNodeAndOffset(highlight, parentNode) {
     }
   }
 
-  return { node: currentNode, offset: offsetWithinNode };
+  return nodesAndOffsets;
 }
 
 export function getElementOffset(childElement, rootElement) {
@@ -455,8 +461,8 @@ export function addNodesToHighlightAfterElement({
  * @return {string} The human-readable highlighted text for the given range.
  */
 export function getHighlightedTextForRange(range) {
-  const startContainerCopy = range.startContainer.clone(true);
-  return "";
+  const documentFragment = range.extractContents();
+  return documentFragment.innerText;
 }
 
 /**
@@ -476,7 +482,7 @@ export function getHighlightedTextRelativeToRoot({
   const textContent = rootElement.textContent;
   const highlightedRawText = textContent.substring(
     startOffset,
-    startOffset + length
+    Number.parseInt(startOffset) + Number.parseInt(length)
   );
 
   const textNode = document.createTextNode(highlightedRawText);
@@ -508,6 +514,5 @@ export function createDescriptors({ rootElement, range, wrapper }) {
     startOffset,
     length
   ];
-  // TODO: chunk up highlights for PDFs??? (or any element with absolutely positioned elements).
   return [descriptor];
 }
