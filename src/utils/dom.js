@@ -150,6 +150,27 @@ const dom = function(el) {
     },
 
     /**
+     * Traverses up the tree to to get the next closest sibling of a node
+     * or any of it's parents.
+     *
+     * This is used in scenarios where you have already consumed the parents while
+     * traversing the tree but not the siblings of parents.
+     *
+     * @returns {HTMLElement | null}
+     */
+    nextClosestSibling: function() {
+      let current = el;
+      let nextClosestSibling;
+
+      do {
+        nextClosestSibling = current.nextSibling;
+        current = current.parentNode;
+      } while (!nextClosestSibling && current.parentNode);
+
+      return nextClosestSibling;
+    },
+
+    /**
      * Normalizes text nodes within base element, ie. merges sibling text nodes and assures that every
      * element node has only one text node.
      * It should does the same as standard element.normalize, but IE implements it incorrectly.

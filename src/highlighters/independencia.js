@@ -7,7 +7,7 @@ import {
   extractElementContentForHighlight,
   nodesInBetween,
   sortByDepth,
-  findNodeAndOffset,
+  findNodesAndOffsets,
   addNodesToHighlightAfterElement,
   createWrapper,
   createDescriptors,
@@ -308,6 +308,10 @@ class IndependenciaHighlighter {
         removeHighlight(hl);
       }
     });
+
+    // TODO: normalise the rest of the highlights after removing some.
+    // const restOfHighlights = this.getHighlights();
+    // this.normalizeHighlights(restOfHighlights);
   }
 
   /**
@@ -412,7 +416,7 @@ class IndependenciaHighlighter {
       throw "Can't parse JSON: " + e;
     }
 
-    function deserializationFnCustom(hlDescriptor) {
+    function deserialise(hlDescriptor) {
       let hl = {
           wrapper: hlDescriptor[0],
           text: hlDescriptor[1],
@@ -447,13 +451,16 @@ class IndependenciaHighlighter {
     hlDescriptors.forEach(function(hlDescriptor) {
       try {
         console.log("Highlight: ", hlDescriptor);
-        deserializationFnCustom(hlDescriptor);
+        deserialise(hlDescriptor);
       } catch (e) {
         if (console && console.warn) {
           console.warn("Can't deserialize highlight descriptor. Cause: " + e);
         }
       }
     });
+
+    // TODO: normalise at the end of deserialisation.
+    // this.normalizeHighlights(highlights);
 
     return highlights;
   }

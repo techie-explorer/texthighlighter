@@ -130,29 +130,38 @@ export function findNodesAndOffsets(highlight, parentNode) {
   const nodesAndOffsets = [];
   let currentNode = parentNode;
   let currentOffset = 0;
+  const highlightEndOffset = highlight.offset + highlight.length;
 
-  while (
-    currentNode &&
-    (currentOffset < highlight.offset ||
-      (currentOffset === highlight.offset && currentNode.childNodes.length > 0))
-  ) {
-    const endOfNodeOffset = currentOffset + currentNode.textContent.length;
+  while (currentNode && currentOffset < highlightEndOffset) {
+    const textLength = currentNode.textContent.length;
+    const endOfCurrentNodeOffset = currentOffset + textLength;
 
-    if (endOfNodeOffset > highlight.offset) {
-      if (currentNode.childNodes.length === 0) {
-        const offsetWithinNode = highlight.offset - currentOffset;
-        // We have found a highlight that is included in the highlight range.
+    if (endOfCurrentNodeOffset > highlight.offset) {
+      const isTerminalNode = currentNode.childNodes.length === 0;
+      if (isTerminalNode) {
+        const offsetWithinNode =
+          highlight.offset > currentOffset
+            ? highlight.offset - currentOffset
+            : 0;
+
+        const lengthInHighlight =
+          highlightEndOffset > endOfCurrentNodeOffset
+            ? textLength - offsetWithinNode
+            : highlightEndOffset - currentOffset - offsetWithinNode;
+
         nodesAndOffsets.push({
           node: currentNode,
           offset: offsetWithinNode,
-          length: 0
+          length: lengthInHighlight
         });
-        currentOffset = currentOffset + offsetWithinNode;
+
+        currentOffset = endOfCurrentNodeOffset;
+        currentNode = dom(currentNode).nextClosestSibling();
       } else {
         currentNode = currentNode.childNodes[0];
       }
     } else {
-      currentOffset = endOfNodeOffset;
+      currentOffset = endOfCurrentNodeOffset;
       currentNode = currentNode.nextSibling;
     }
   }
