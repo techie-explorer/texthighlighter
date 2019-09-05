@@ -126,6 +126,29 @@ describe("highlighting utility functionality", () => {
       ]);
     });
 
+    it("should collect the start portion of a single node that is highlighted", () => {
+      const contents = div(
+        b("This is the start"),
+        i(" of something wonderful."),
+        div("Trust me when I say we are improving things")
+      );
+      root.appendChild(contents);
+      const nodes = findNodesAndOffsets(
+        {
+          offset: 17,
+          length: 5
+        },
+        root
+      );
+      expect(prepareNodes(nodes)).toEqual([
+        {
+          offset: 0,
+          nodeText: " of something wonderful.",
+          length: 5
+        }
+      ]);
+    });
+
     it("should collect a full single node that is highlighted", () => {
       const contents = div(
         b("This is the start"),
