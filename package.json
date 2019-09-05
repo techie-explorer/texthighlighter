@@ -1,6 +1,6 @@
 {
   "name": "texthighlighter",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "TextHighlighter",
   "dependencies": {},
   "devDependencies": {
@@ -63,9 +63,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mir3z/texthighlighter.git"
+    "url": "https://github.com/Perlego/texthighlighter.git"
   },
   "main": "index.js",
-  "author": "mirz <mirz.hq@gmail.com>",
   "license": "MIT"
 }
