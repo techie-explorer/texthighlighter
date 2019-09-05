@@ -160,6 +160,7 @@ export function getElementOffset(childElement, rootElement) {
 
   let currentElement = childElement;
   do {
+    
     childNodes = Array.prototype.slice.call(
       currentElement.parentNode.childNodes
     );
@@ -434,8 +435,8 @@ export function addNodesToHighlightAfterElement({
     if (elementAncestor.classList.contains(highlightedClass)) {
       // Ensure we only take the children from a parent that is a highlight.
       elementAncestor.childNodes.forEach(childNode => {
-        if (dom(childNode).isAfter(element)) {
-        }
+        // if (dom(childNode).isAfter(element)) {
+        // }
         elementAncestor.appendChild(childNode);
       });
     } else {
@@ -453,9 +454,36 @@ export function addNodesToHighlightAfterElement({
  *
  * @return {string} The human-readable highlighted text for the given range.
  */
-export function getHighlightedText(range) {
+export function getHighlightedTextForRange(range) {
   const startContainerCopy = range.startContainer.clone(true);
   return "";
+}
+
+/**
+ * Collects the human-readable highlighted text for all nodes from the start text offset
+ * relative to the root element.
+ *
+ * @param {{ rootElement: HTMLElement, startOffset: number, length: number}} params
+ *  The root-relative parameters for extracting highlighted text.
+ *
+ * @return {string} The human-readable highlighted text for the given root element, offset and length.
+ */
+export function getHighlightedTextRelativeToRoot({
+  rootElement,
+  startOffset,
+  length
+}) {
+  const textContent = rootElement.textContent;
+  const highlightedRawText = textContent.substring(
+    startOffset,
+    startOffset + length
+  );
+
+  const textNode = document.createTextNode(highlightedRawText);
+  const tempContainer = document.createElement("div");
+  tempContainer.appendChild(textNode);
+  // Extract the human-readable text only.
+  return tempContainer.innerText;
 }
 
 export function createDescriptors({ rootElement, range, wrapper }) {
@@ -476,10 +504,10 @@ export function createDescriptors({ rootElement, range, wrapper }) {
   const descriptor = [
     wrapperHTML,
     // retrieve all the text content between the start and end offsets.
-    getHighlightedText(range),
+    getHighlightedTextForRange(range),
     startOffset,
     length
   ];
-  // TODO: chunk up highlights for PDFs (or any element with absolutely positioned elements).
+  // TODO: chunk up highlights for PDFs??? (or any element with absolutely positioned elements).
   return [descriptor];
 }

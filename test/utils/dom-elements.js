@@ -1,22 +1,27 @@
 import { START_OFFSET_ATTR, LENGTH_ATTR } from "../../src/config";
 
-const element = tag => (...children) => {
+const element = tag => ({id},...children) => {
   const docElem = document.createElement(tag);
   children.forEach(child => {
     if (typeof child === "string") {
+      console.log('child',child)
       docElem.appendChild(document.createTextNode(child));
     } else {
       docElem.appendChild(child);
     }
   });
+  if(id) {
+    docElem.setAttribute('id',id)
+  }
+  
   return docElem;
 };
 
-const span = (...children) => element("span")(...children);
-const div = (...children) => element("div")(...children);
-const b = (...children) => element("b")(...children);
-const i = (...children) => element("i")(...children);
-const img = (...children) => element("img")(...children);
+const span = ({id},...children) => element("span")({id},...children);
+const div = (...children) => element("div")({id:null},...children);
+const b = (...children) => element("b")({id:null},...children);
+const i = (...children) => element("i")({id:null},...children);
+const img = (...children) => element("img")({id:null},...children);
 
 const highlight = ({ color, id, startOffset, length }, ...children) => {
   const docElem = span(...children);

@@ -10,7 +10,9 @@ import {
   findNodeAndOffset,
   addNodesToHighlightAfterElement,
   createWrapper,
-  createDescriptors
+  createDescriptors,
+  getHighlightedText,
+  getHighlightedTextRelativeToRoot
 } from "../utils/highlights";
 import {
   START_OFFSET_ATTR,
@@ -247,6 +249,7 @@ class IndependenciaHighlighter {
         descriptors,
         timestamp
       );
+      console.log('processedDescriptors',processedDescriptors)
       this.deserializeHighlights(processedDescriptors);
     }
 
@@ -349,7 +352,8 @@ class IndependenciaHighlighter {
    */
   serializeHighlights(id) {
     let highlights = this.getHighlights(),
-      hlDescriptors = [];
+      hlDescriptors = [],
+      self = this;
 
     sortByDepth(highlights, false);
 
@@ -363,7 +367,16 @@ class IndependenciaHighlighter {
       wrapper = wrapper.outerHTML;
 
       if (containsIdAsClass) {
-        hlDescriptors.push([wrapper, highlight.textContent, offset, length]);
+        hlDescriptors.push([
+          wrapper,
+          getHighlightedTextRelativeToRoot({
+            rootElement: self.el,
+            startOffset: offset,
+            length
+          }),
+          offset,
+          length
+        ]);
       }
     });
 

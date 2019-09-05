@@ -4,12 +4,21 @@ import { setContents, addRange } from "../../utils/dom-helpers";
 
 describe("highlighting a given range", () => {
   let root, highlighter;
+
   beforeAll(() => {
     root = document.getElementById("root");
+    
   });
 
   beforeEach(() => {
-    highlighter = new TextHighlighter(root, { version: "independencia" });
+    highlighter = new TextHighlighter(root, { version: "independencia", onAfterHighlight: (
+        range,
+        descriptors,
+        timestamp
+      ) => {
+        return descriptors
+      }});
+    
   });
 
   afterEach(() => {
@@ -39,19 +48,47 @@ describe("highlighting a given range", () => {
       const fixture =
         fixtures[`${params.fixturePrefix}.${params.fixturePostfix}`];
       const fixtureBase = fixtures[`${params.fixturePrefix}.base`];
-      setContents(root, fixture());
+      setContents(root, fixtureBase());
       const htmlBefore = root.innerHTML;
 
-    let range = addRange(params.range.startNode, params.range.startOffset,params.range.endNode,params.range.endOffset)
+      console.log('htmlBefore',htmlBefore)
 
-     highlighter.doHighlight(true);
+      let startNode = document.getElementById(params.range.startNodeId);
+      let endNode = document.getElementById(params.range.endNodeId);
+
+      startNode.clone = () => {
+              return startNode;
+            }
+
+      let range = {
+        startContainer:startNode,
+          startOffset:params.range.startOffset,
+          endContainer:endNode,endOffset:params.range.endOffset};
+      
+      window.getSelection = () => {
+        return {
+          rangeCount: 1,
+          removeAllRanges: () => {},
+          getRangeAt: (index) => {
+            return range
+          }
+        };
+      }
+
+      highlighter.doHighlight(true);
+
+
+      const htmlDuring = root.innerHTML;
+      console.log('htmlDuring',htmlDuring)
+
+      expect(htmlDuring).toEqual(fixture());
 
       //expect(text).toEqual(params.expectedText);
 
       highlighter.removeHighlights(root);
-      const htmlAfter = root.innerHTML;
+      //const htmlAfter = root.innerHTML;
 
-      expect(htmlBefore).toEqual(htmlAfter);
+      expect(htmlBefore).toEqual(fixtureBase());
     });
   };
 
@@ -60,6 +97,7 @@ describe("highlighting a given range", () => {
     fixturePrefix: "01.highlighting",
     ids: ["test-single-highlight"],
     fixturePostfix: "singleHighlight",
-    expectedText: ["Lorem ipsum dolor sit amet"]
+    expectedText: ["Lorem ipsum dolor sit amet"],
+    range:{startNodeId: 'highlight-1-start-node', startOffset: 0, endNodeId: 'highlight-1-start-node', endOffset: 26}
   });
 });

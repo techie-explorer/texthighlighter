@@ -1,5 +1,7 @@
 require("jest-extended");
 
+const sanitizeHtml = require("sanitize-html");
+
 // Add our root div node.
 const root = global.document.createElement("div");
 root.id = "root";
@@ -12,3 +14,16 @@ Object.defineProperty(document, "hidden", {
 });
 
 global.window.matchMedia = () => ({ matches: false });
+
+// Implementation of innerText for JSDOM. (It does not come with innerText)
+Object.defineProperty(global.Element.prototype, "innerText", {
+  get() {
+    return sanitizeHtml(this.textContent, {
+      allowedTags: [], // remove all tags and return text content only
+      allowedAttributes: {} // remove all tags and return text content only
+    });
+  },
+  configurable: true // make it so that it doesn't blow chunks on re-running tests with things like --watch
+});
+
+
