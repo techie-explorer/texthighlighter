@@ -1,6 +1,6 @@
 import fixtures from "../fixtures/highlighting";
 import TextHighlighter from "../../../src/text-highlighter";
-import { setContents, addRange } from "../../utils/dom-helpers";
+import { setContents } from "../../utils/dom-helpers";
 
 describe("highlighting a given range", () => {
   let root, highlighter;
