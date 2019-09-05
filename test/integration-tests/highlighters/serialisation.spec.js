@@ -70,7 +70,7 @@ describe("serialisation and deserialisation of highlights", () => {
       expect(htmlBefore).toEqual(htmlAfter);
     });
   };
-/*
+
   testSerialisation({
     title: "should serialise and deserialise correctly for a single highlight",
     fixturePrefix: "01.serialisation",
@@ -130,5 +130,5 @@ describe("serialisation and deserialisation of highlights", () => {
     fixturePostfix: "overlappingMultiple",
     expectedText: ["ipsum dolor sit", "sum d", "dolor sit amet"]
   });
-  */
+  
 });
