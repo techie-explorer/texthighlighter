@@ -3,7 +3,7 @@ import {
   getHighlightedTextForRange,
   findNodesAndOffsets
 } from "../../../src/utils/highlights";
-import { span, b, i, div } from "../../utils/dom-elements";
+import { span, b, i, div, img } from "../../utils/dom-elements";
 
 /**
  * Extracts text from nodes so we can do equality comparisons
@@ -172,11 +172,12 @@ describe("highlighting utility functionality", () => {
       ]);
     });
 
-    it("should collect multiple nodes that form a part of a single highlight", () => {
+    it("should collect multiple nodes that form a part of a single highlight and ignore terminal element nodes", () => {
       const contents = div(
         b("This is the beginning "),
         "of something ",
         div("That is very unusual."),
+        img(),
         span(" We are not ", i("very happy with ")),
         div(div(span(b("what went before.")))),
         div(

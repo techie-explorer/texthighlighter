@@ -249,7 +249,7 @@ class IndependenciaHighlighter {
         descriptors,
         timestamp
       );
-      console.log('processedDescriptors',processedDescriptors)
+      console.log("processedDescriptors", processedDescriptors);
       this.deserializeHighlights(processedDescriptors);
     }
 
@@ -416,7 +416,7 @@ class IndependenciaHighlighter {
     } catch (e) {
       throw "Can't parse JSON: " + e;
     }
-/*
+    /*
     function deserializationFnCustom(hlDescriptor) {
       let hl = {
           wrapper: hlDescriptor[0],
@@ -483,6 +483,7 @@ class IndependenciaHighlighter {
 
       const parentNode = self.el;
       const highlightNodes = findNodesAndOffsets(hl, parentNode);
+      console.log("highlightNodes: ", highlightNodes);
 
       highlightNodes.forEach(
         ({ node, offset: offsetWithinNode, length: lengthInNode }) => {
@@ -502,7 +503,6 @@ class IndependenciaHighlighter {
         }
       );
     }
-
 
     hlDescriptors.forEach(function(hlDescriptor) {
       try {

@@ -4,7 +4,6 @@ const element = tag => (...children) => ({ id } = {}) => {
   const docElem = document.createElement(tag);
   children.forEach(child => {
     if (typeof child === "string") {
-      console.log("child", child);
       docElem.appendChild(document.createTextNode(child));
     } else {
       docElem.appendChild(child);

@@ -139,23 +139,28 @@ export function findNodesAndOffsets(highlight, parentNode) {
     if (endOfCurrentNodeOffset > highlight.offset) {
       const isTerminalNode = currentNode.childNodes.length === 0;
       if (isTerminalNode) {
-        const offsetWithinNode =
-          highlight.offset > currentOffset
-            ? highlight.offset - currentOffset
-            : 0;
+        if (currentNode.nodeType === NODE_TYPE.TEXT_NODE) {
+          const offsetWithinNode =
+            highlight.offset > currentOffset
+              ? highlight.offset - currentOffset
+              : 0;
 
-        const lengthInHighlight =
-          highlightEndOffset > endOfCurrentNodeOffset
-            ? textLength - offsetWithinNode
-            : highlightEndOffset - currentOffset - offsetWithinNode;
+          const lengthInHighlight =
+            highlightEndOffset > endOfCurrentNodeOffset
+              ? textLength - offsetWithinNode
+              : highlightEndOffset - currentOffset - offsetWithinNode;
 
-        nodesAndOffsets.push({
-          node: currentNode,
-          offset: offsetWithinNode,
-          length: lengthInHighlight
-        });
+          nodesAndOffsets.push({
+            node: currentNode,
+            offset: offsetWithinNode,
+            length: lengthInHighlight
+          });
 
-        currentOffset = endOfCurrentNodeOffset;
+          currentOffset = endOfCurrentNodeOffset;
+        }
+
+        // It doesn't matter if it is a text node or not at this point,
+        // we still need to get the next sibling of the node or it's ancestors.
         currentNode = dom(currentNode).nextClosestSibling();
       } else {
         currentNode = currentNode.childNodes[0];

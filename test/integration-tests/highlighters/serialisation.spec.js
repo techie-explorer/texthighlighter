@@ -67,7 +67,7 @@ describe("serialisation and deserialisation of highlights", () => {
       highlighter.deserializeHighlights(JSON.stringify(descriptors));
       const htmlAfter = root.innerHTML;
 
-      expect(htmlBefore).toEqual(htmlAfter);
+      expect(htmlAfter).toEqual(htmlBefore);
     });
   };
 
@@ -89,7 +89,7 @@ describe("serialisation and deserialisation of highlights", () => {
 
   testSerialisation({
     title:
-      "should serialise and deserialise correctly for a highlight that overlap nodes in the DOM tree",
+      "should serialise and deserialise correctly for a highlight that overlaps nodes in the DOM tree",
     fixturePrefix: "02.serialisation",
     ids: ["test-overlapping-highlights"],
     fixturePostfix: "overlapping",
@@ -98,7 +98,7 @@ describe("serialisation and deserialisation of highlights", () => {
 
   testSerialisation({
     title:
-      "should serialise and deserialise correctly for a highlight that overlap nodes in the DOM tree" +
+      "should serialise and deserialise correctly for a highlight that overlaps nodes in the DOM tree" +
       " and a highlight is nested in another",
     fixturePrefix: "02.serialisation",
     ids: [
@@ -130,5 +130,4 @@ describe("serialisation and deserialisation of highlights", () => {
     fixturePostfix: "overlappingMultiple",
     expectedText: ["ipsum dolor sit", "sum d", "dolor sit amet"]
   });
-  
 });
