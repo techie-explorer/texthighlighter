@@ -116,8 +116,8 @@ class IndependenciaHighlighter {
     }
 
     highlights.forEach(function(hl) {
-      if (self.options.onRemoveHighlight(hl) === true) {
-        if(!id || (id && hl.classList.contains(id))) {
+      if(!id || (id && hl.classList.contains(id))) {
+        if (self.options.onRemoveHighlight(hl) === true) {
           removeHighlight(hl);
         }
       }
