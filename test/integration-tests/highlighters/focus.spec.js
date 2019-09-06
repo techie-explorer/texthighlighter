@@ -2,7 +2,7 @@ import fixtures from "../fixtures/focus";
 import TextHighlighter from "../../../src/text-highlighter";
 import { setContents } from "../../utils/dom-helpers";
 
-describe("highlighting a given range", () => {
+describe("focusing on different highlights", () => {
   let root, highlighter;
 
   beforeAll(() => {
@@ -22,10 +22,12 @@ describe("highlighting a given range", () => {
   /**
    * Tests focusing on overlapping highlights
    * Procedure:
-   * [1] Load fixture named: params.fixturePrefix + '.base' (fixture without focus).
-   * [2] Load fixture named: params.fixturePrefix + '.' + params.fixturePostfix (fixture with highlight in focus).
-   * [3] Focus on a highlight given an ID.
+   * [1] Load fixture named: params.fixturePrefix + '.' + params.fixturePostfixBeforeFocus (fixture with highlight id 2 in focus) and set that to the root element.
+   * [2] Load fixture named: params.fixturePrefix + '.' + params.fixturePostfixAfterFocus (fixture with highlight id 1 in focus).
+   * [3] Focus on highlight using params.ids[0].
    * [4] Compare HTML of result with fixture from step [2].
+   * [5] Focus on a second ID using params.ids[1] if it exists (this is the highlight that was originally focused in the params.fixturePostfixBeforeFocus)
+   * [6] Compare HTML of result with fixture from step [1].
    * @param params
    * @param {string} params.title - test title
    * @param {string[]} params.ids - The unique identifier for collections of highlight elements representing the same highlight that we are to focus on.

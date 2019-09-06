@@ -269,21 +269,22 @@ class IndependenciaHighlighter {
   normalizeHighlights(highlights) {
     let normalizedHighlights;
 
-    //Since we're not merging or flattening, we need to normalise the text nodes.
-    highlights.forEach(function(highlight) {
-      dom(highlight).normalizeTextNodes();
-    });
+    if(highlights && highlights.length > 0) {
+      //Since we're not merging or flattening, we need to normalise the text nodes.
+      highlights.forEach(function(highlight) {
+        dom(highlight).normalizeTextNodes();
+      });
 
-    // omit removed nodes
-    normalizedHighlights = highlights.filter(function(hl) {
-      return hl.parentElement ? hl : null;
-    });
+      // omit removed nodes
+      normalizedHighlights = highlights.filter(function(hl) {
+        return hl.parentElement ? hl : null;
+      });
 
-    normalizedHighlights = unique(normalizedHighlights);
-    normalizedHighlights.sort(function(a, b) {
-      return a.offsetTop - b.offsetTop || a.offsetLeft - b.offsetLeft;
-    });
-
+      normalizedHighlights = unique(normalizedHighlights);
+      normalizedHighlights.sort(function(a, b) {
+        return a.offsetTop - b.offsetTop || a.offsetLeft - b.offsetLeft;
+      });
+    }
     return normalizedHighlights;
   }
 
@@ -506,7 +507,6 @@ class IndependenciaHighlighter {
 
     hlDescriptors.forEach(function(hlDescriptor) {
       try {
-        console.log("Highlight: ", hlDescriptor);
         deserialise(hlDescriptor);
       } catch (e) {
         if (console && console.warn) {
