@@ -41,13 +41,15 @@ describe("highlighting a given range", () => {
   /**
    * Tests highlighting of ranges and removing highlights
    * Procedure:
-   * [1] Load fixture named: params.fixturePrefix + '.' + params.fixturePostfix (fixture with highlights).
-   * [2] Create range.
-   * [3] Highlight range
-   * [4] Compare JSON form of highlight with params.expectedText
-   * [4] Load fixture named: params.fixturePrefix + '.base' (fixture with highlights removed).
-   * [5] Remove previously created highlight.
-   * [6] Compare HTML of result with fixture from step [1].
+   * [1] Load fixture named: params.fixturePrefix + '.' + params.fixturePostfixAfterHighlight (fixture with new highlight).
+   * [2] Load fixtureBase named: params.fixturePrefix + '.' + params.fixturePostfixBeforeHighlight (fixture before new highlight).
+   * [3] Load fixtureAfterRemoval named: params.fixturePrefix + '.' + params.fixturePostfixRemovedHighlight (fixture after highlights have been removed).
+   * [4] Create range.
+   * [5] Set the base to the root
+   * [6] Highlight range 
+   * [7] Compare the html with the expected fixture
+   * [8] Remove previously created highlight.
+   * [9] Compare HTML of result with expected fixtureAfterRemoval.
    * @param params
    * @param {string} params.title - test title
    * @param {JSON} params.range - the range object for the highlight
@@ -370,6 +372,39 @@ describe("highlighting a given range", () => {
     colour: 'green',
     highlightId: '3',
     highlightIdToRemove: '1',
+    cloneContents: () => {
+      return docFrag(
+        highlight(
+          {
+            color: "red",
+            id: "test-overlapping-highlights-1",
+            startOffset: 12,
+            length: 16
+          },
+          "ipsum",
+          highlight(
+            {
+              color: "blue",
+              id: "test-overlapping-highlights-2",
+              startOffset: 17,
+              length: 15
+            },
+            " dolor "
+          )
+        )
+      );
+    }
+  });
+
+  testHighlighting({
+    title: "Should create a third highlight nested amongst 2 others, then correctly remove all the highlights",
+    fixturePrefix: "03.highlighting",
+    fixturePostfixAfterHighlight: "highlight1ThenHighlight2ThenHighlight3",
+    fixturePostfixBeforeHighlight: "highlight1ThenHighlight2",
+    fixturePostfixRemovedHighlight: "base",
+    range:{startNodeId: 'highlight-1-start-node', startOffset: 8, endNodeId: 'highlight-1-start-node', endOffset: 13},
+    colour: 'green',
+    highlightId: '3',
     cloneContents: () => {
       return docFrag(
         highlight(
