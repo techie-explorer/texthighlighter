@@ -1,14 +1,18 @@
 import { START_OFFSET_ATTR, LENGTH_ATTR, TIMESTAMP_ATTR } from "../../src/config";
 
-const element = tag => (...children) => ({ id } = {}) => {
-  const docElem = document.createElement(tag);
+const appendChildren = (elem, ...children) => {
   children.forEach(child => {
     if (typeof child === "string") {
-      docElem.appendChild(document.createTextNode(child));
+      elem.appendChild(document.createTextNode(child));
     } else {
-      docElem.appendChild(child);
+      elem.appendChild(child);
     }
   });
+};
+
+const element = tag => (...children) => ({ id } = {}) => {
+  const docElem = document.createElement(tag);
+  appendChildren(docElem, ...children);
   if (id) {
     docElem.setAttribute("id", id);
   }
@@ -21,6 +25,8 @@ const div = (...children) => element("div")(...children)();
 const b = (...children) => element("b")(...children)();
 const i = (...children) => element("i")(...children)();
 const img = (...children) => element("img")(...children)();
+const style = (...children) => element("style")(...children)();
+const script = (...children) => element("script")(...children)();
 
 const spanWithAttrs = attrs => (...children) =>
   element("span")(...children)(attrs);
@@ -30,6 +36,16 @@ const bWithAttrs = attrs => (...children) => element("b")(...children)(attrs);
 const iWithAttrs = attrs => (...children) => element("i")(...children)(attrs);
 const imgWithAttrs = attrs => (...children) =>
   element("img")(...children)(attrs);
+const styleWithAttrs = attrs => (...children) =>
+  element("style")(...children)(attrs);
+const scriptWithAttrs = attrs => (...children) =>
+  element("script")(...children)(attrs);
+
+const docFrag = (...children) => {
+  const frag = document.createDocumentFragment();
+  appendChildren(frag, ...children);
+  return frag;
+};
 
 const highlight = ({ color, id, startOffset, length, time}, ...children) => {
   const docElem = span(...children);
@@ -54,9 +70,14 @@ export {
   i,
   img,
   highlight,
+  style,
+  script,
   spanWithAttrs,
   divWithAttrs,
   bWithAttrs,
   iWithAttrs,
-  imgWithAttrs
+  imgWithAttrs,
+  styleWithAttrs,
+  scriptWithAttrs,
+  docFrag
 };

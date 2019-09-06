@@ -331,6 +331,29 @@ const dom = function(el) {
         }
       }
       return isAfter;
+    },
+
+    /**
+     * Extracts all the text content for the root element excluding
+     * all the text content inside any of the provided excluded tags.
+     *
+     * @param {string[]} excludeTags lement tags to exclude
+     *
+     * @returns {string}
+     */
+    textContentExcludingTags: function(excludeTags) {
+      // Ensure we simply return the text content in the case the element is a text node.
+      if (el.nodeType !== NODE_TYPE.TEXT_NODE) {
+        const elCopy = el.cloneNode(true);
+        const elementsToBeExcluded = excludeTags.reduce((accum, tag) => {
+          return [...accum, ...elCopy.querySelectorAll(tag)];
+        }, []);
+        elementsToBeExcluded.forEach(toExcludeFromCopy => {
+          toExcludeFromCopy.remove();
+        });
+        return elCopy.textContent;
+      }
+      return el.textContent;
     }
   };
 };
