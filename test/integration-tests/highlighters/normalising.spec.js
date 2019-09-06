@@ -43,10 +43,10 @@ describe("normalising different elements", () => {
       highlighter.normalizeHighlights(highlights);
       
       const htmlAfter = root.innerHTML;
-      expect(htmlAfter).toEqual(fixture());
+      expect(htmlAfter).toEqual(fixture().outerHTML);
     });
   };
-/*
+
   testNormalising({
     title: "should merge text nodes that are next to each other in the child list",
     fixturePrefix: "01.normalising",
@@ -63,12 +63,18 @@ describe("normalising different elements", () => {
     title: "should not merge elements that are next to each other in the child list with the same ID if there is an image in the way",
     fixturePrefix: "03.normalising",
     fixturePostfix: "elementsWithSameId",
-  });*/
+  });
 
   testNormalising({
     title: "should merge highlights that are next to each other in the child list with the same ID",
     fixturePrefix: "04.normalising",
     fixturePostfix: "highlightsWithSameId",
+  });
+
+  testNormalising({
+    title: "should merge highlights that are next to each other in the child list with the same ID, but not highlights that have different IDs",
+    fixturePrefix: "05.normalising",
+    fixturePostfix: "highlightsWithDifferentIds",
   });
 
 });

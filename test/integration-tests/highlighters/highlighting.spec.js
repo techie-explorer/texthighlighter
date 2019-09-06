@@ -81,17 +81,17 @@ describe("highlighting a given range", () => {
       const htmlDuring = root.innerHTML;
       console.log('htmlDuring',htmlDuring)
 
-      expect(htmlDuring).toEqual(fixture());
+      expect(htmlDuring).toEqual(fixture().outerHTML);
 
       //expect(text).toEqual(params.expectedText);
 
       highlighter.removeHighlights(root);
       //const htmlAfter = root.innerHTML;
 
-      expect(htmlBefore).toEqual(fixtureBase());
+      expect(htmlBefore).toEqual(fixtureBase().outerHTML);
     });
   };
-
+/*
   testHighlighting({
     title: "should highlight and remove correctly for a single highlight",
     fixturePrefix: "01.highlighting",
@@ -99,5 +99,5 @@ describe("highlighting a given range", () => {
     fixturePostfix: "singleHighlight",
     expectedText: ["Lorem ipsum dolor sit amet"],
     range:{startNodeId: 'highlight-1-start-node', startOffset: 0, endNodeId: 'highlight-1-start-node', endOffset: 26}
-  });
+  });*/
 });

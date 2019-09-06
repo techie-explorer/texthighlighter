@@ -258,7 +258,8 @@ class IndependenciaHighlighter {
   }
 
   /**
-   * Normalizes highlights. Ensures text nodes within any given element node are merged together.
+   * Normalizes highlights. Ensures text nodes within any given element node are merged together, elements with the 
+   * same ID next to each other are merged together and highlights with the same ID next to each other are merged together.
    *
    * @param {Array} highlights - highlights to normalize.
    * @returns {Array} - array of normalized highlights. Order and number of returned highlights may be different than
@@ -266,14 +267,11 @@ class IndependenciaHighlighter {
    * @memberof IndependenciaHighlighter
    */
   normalizeHighlights(highlights) {
+    dom(this.el).normalizeElements();
     let normalizedHighlights;
 
     if(highlights && highlights.length > 0) {
-      //Since we're not merging or flattening, we need to normalise the text nodes.
-      highlights.forEach(function(highlight) {
-        dom(highlight).normalizeTextNodes();
-      });
-
+      
       // omit removed nodes
       normalizedHighlights = highlights.filter(function(hl) {
         return hl.parentElement ? hl : null;
@@ -283,6 +281,7 @@ class IndependenciaHighlighter {
       normalizedHighlights.sort(function(a, b) {
         return a.offsetTop - b.offsetTop || a.offsetLeft - b.offsetLeft;
       });
+      dom(this.el).normalizeElements();
     }
     return normalizedHighlights;
   }
@@ -485,6 +484,7 @@ class IndependenciaHighlighter {
 
       const parentNode = self.el;
       const highlightNodes = findNodesAndOffsets(hl, parentNode);
+      let i = 0;
 
       highlightNodes.forEach(
         ({ node, offset: offsetWithinNode, length: lengthInNode }) => {
