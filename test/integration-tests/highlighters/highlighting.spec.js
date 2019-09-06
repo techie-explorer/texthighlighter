@@ -68,8 +68,6 @@ describe("highlighting a given range", () => {
       const fixtureAfterRemoval = fixtures[`${params.fixturePrefix}.${params.fixturePostfixRemovedHighlight}`];
       setContents(root, fixtureBase());
 
-      console.log('root.innerHTML1',root.innerHTML)
-
       let startNode = document.getElementById(params.range.startNodeId);
       let endNode = document.getElementById(params.range.endNodeId);
 
@@ -98,8 +96,6 @@ describe("highlighting a given range", () => {
       highlighter.setColor(params.colour)
       highlighter.doHighlight(true);
 
-      console.log('root.innerHTML2',root.innerHTML)
-
       let highlights = Array.prototype.slice.call(document.querySelectorAll('.highlighted'));
       highlights.forEach(highlight => {
         highlight.setAttribute(TIMESTAMP_ATTR, "test");
@@ -109,7 +105,6 @@ describe("highlighting a given range", () => {
       })
 
       const htmlDuring = root.innerHTML;
-      console.log('root.innerHTML3',root.innerHTML)
 
       expect(htmlDuring).toEqual(fixture().outerHTML);
       if(params.highlightIdToRemove) {
@@ -119,7 +114,6 @@ describe("highlighting a given range", () => {
       }
       
       const htmlAfter = root.innerHTML;
-      console.log('root.innerHTML4',root.innerHTML)
 
       expect(htmlAfter).toEqual(fixtureAfterRemoval().outerHTML);
     });
@@ -366,5 +360,37 @@ describe("highlighting a given range", () => {
     }
   });
 
-
+  testHighlighting({
+    title: "Should create a third highlight nested amongst 2 others, then correctly remove the first highlight",
+    fixturePrefix: "03.highlighting",
+    fixturePostfixAfterHighlight: "highlight1ThenHighlight2ThenHighlight3",
+    fixturePostfixBeforeHighlight: "highlight1ThenHighlight2",
+    fixturePostfixRemovedHighlight: "highlight2ThenHighlight3",
+    range:{startNodeId: 'highlight-1-start-node', startOffset: 8, endNodeId: 'highlight-1-start-node', endOffset: 13},
+    colour: 'green',
+    highlightId: '3',
+    highlightIdToRemove: '1',
+    cloneContents: () => {
+      return docFrag(
+        highlight(
+          {
+            color: "red",
+            id: "test-overlapping-highlights-1",
+            startOffset: 12,
+            length: 16
+          },
+          "ipsum",
+          highlight(
+            {
+              color: "blue",
+              id: "test-overlapping-highlights-2",
+              startOffset: 17,
+              length: 15
+            },
+            " dolor "
+          )
+        )
+      );
+    }
+  });
 });

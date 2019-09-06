@@ -99,31 +99,29 @@ const fixtures = {
       "BBB"
     );
   }, 
-  "03.highlighting.highlight2ThenHighlight1": () => {
+  "03.highlighting.highlight2ThenHighlight3": () => {
+    // Add the case where three highlights overlap here!
     return span(
       "AAA",
       spanWithAttrs({id: 'highlight-2-end-node'})(
         "CCC",
         spanWithAttrs({id: 'highlight-1-start-node'})(
-          "Lorem ",
-          highlight({ color: "red", id: "1", length: 16, startOffset: 12, time: "test" },
-            "ipsum",
-          ),
-          highlight({ color: "blue", id: "2", length: 15, startOffset: 17, time: "test" },
-            highlight({ color: "red", id: "1", length: 16, startOffset: 12, time: "test" },
-              " dolor "
-            )
-          )
+          "Lorem ip",
+            // green highlighted text: "sum d"
+            highlight({ color: "green", id: "3", length: 5, startOffset: 14, time: "test" },
+                "sum",
+            ),
+            highlight({ color: "blue", id: "2", length: 15, startOffset: 17, time: "test" },
+                // blue highlighted text: " dolor sit amet"
+                highlight({ color: "green", id: "3", length: 5, startOffset: 14, time: "test" },
+                " d"
+                ),
+                "olor "
+            ),
         ),
         bWithAttrs({id: 'highlight-1-end-node'})(
-          highlight({ color: "blue", id: "2", length: 15, startOffset: 17, time: "test" },
-
-            highlight({ color: "red", id: "1", length: 16, startOffset: 12, time: "test" },
-              "sit "
-            )
-          ),
-          highlight({ color: "blue", id: "2", length: 15, startOffset: 17, time: "test" },
-            "amet"
+            highlight({ color: "blue", id: "2", length: 15, startOffset: 17, time: "test" },
+                "sit amet"
           ),
           " elit"
         ),
@@ -137,6 +135,7 @@ const fixtures = {
       "BBB"
     );
   },
+  
 };
 
 export default fixtures;
