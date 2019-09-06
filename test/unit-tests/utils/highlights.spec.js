@@ -1,9 +1,19 @@
 import {
   getHighlightedTextRelativeToRoot,
   getHighlightedTextForRange,
-  findNodesAndOffsets
+  findNodesAndOffsets,
+  getElementOffset
 } from "../../../src/utils/highlights";
-import { span, b, i, div, img } from "../../utils/dom-elements";
+import {
+  span,
+  b,
+  i,
+  div,
+  img,
+  style,
+  script,
+  docFrag
+} from "../../utils/dom-elements";
 
 /**
  * Extracts text from nodes so we can do equality comparisons
@@ -26,6 +36,23 @@ describe("highlighting utility functionality", () => {
 
   afterEach(() => {
     root.innerHTML = "";
+  });
+
+  describe("#getElementOffset()", () => {
+    it("should get the correct element offset excluding specified node types", () => {
+      const child = span("This is the child element");
+      const contents = div(
+        style(".header { background-color: #fff; }"),
+        span("a span"),
+        div(
+          div(script("function init() { alert('We have done something!') }"))
+        ),
+        child,
+        b("Some bold text after")
+      );
+      root.appendChild(contents);
+      expect(getElementOffset(child, root, ["SCRIPT", "STYLE"])).toEqual(6);
+    });
   });
 
   describe("#getHighlightedTextRelativeToRoot()", () => {
@@ -53,13 +80,20 @@ describe("highlighting utility functionality", () => {
   });
 
   describe("#getHighlightTextForRange()", () => {
-    it("should extract the highlighted text from the provided range", () => {
+    it("should extract the highlighted text from the provided range ignoring excluded tags", () => {
       const range = {
-        toString: () =>
-          "This really is the beginning of something wonderful, improving the foundations for what is to come"
+        cloneContents: () => {
+          return docFrag(
+            div("This really is the beginning"),
+            script("function init() { alert('Something!') }"),
+            div(" ", span(b("of something wonderful"))),
+            div(div(div(style(".header { background: black; }")))),
+            div(", improving the ", b(i("foundations")), " for what is to come")
+          );
+        }
       };
 
-      expect(getHighlightedTextForRange(range)).toEqual(
+      expect(getHighlightedTextForRange(range, ["script", "style"])).toEqual(
         "This really is the beginning of something wonderful, improving the foundations for what is to come"
       );
     });
@@ -202,5 +236,58 @@ describe("highlighting utility functionality", () => {
         }
       ]);
     });
+
+    it(
+      "should collect multiple nodes that form a part of a single highlight and ignore nodes " +
+        "that should be excluded as specified by the caller",
+      () => {
+        const contents = div(
+          b("This is the beginning "),
+          script("function init() { alert('Something happened!') }"),
+          "of something ",
+          div("That is very unusual."),
+          div(div(div(style(".header { position: absolute; top: 0; }")))),
+          img(),
+          span(" We are not ", i("very happy with ")),
+          div(div(span(b("what went before.")))),
+          div(
+            "We will be the revolutionaries highlighters around the world have been crying out for."
+          )
+        );
+
+        root.appendChild(contents);
+        const nodes = findNodesAndOffsets(
+          {
+            offset: 24,
+            length: 50
+          },
+          root,
+          ["SCRIPT", "STYLE"]
+        );
+
+        expect(prepareNodes(nodes)).toEqual([
+          {
+            length: 11,
+            nodeText: "of something ",
+            offset: 2
+          },
+          {
+            length: 21,
+            nodeText: "That is very unusual.",
+            offset: 0
+          },
+          {
+            length: 12,
+            nodeText: " We are not ",
+            offset: 0
+          },
+          {
+            length: 6,
+            nodeText: "very happy with ",
+            offset: 0
+          }
+        ]);
+      }
+    );
   });
 });

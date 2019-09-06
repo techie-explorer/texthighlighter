@@ -130,4 +130,14 @@ describe("serialisation and deserialisation of highlights", () => {
     fixturePostfix: "overlappingMultiple",
     expectedText: ["ipsum dolor sit ", "sum d", " dolor sit amet"]
   });
+
+  testSerialisation({
+    title:
+      "should serialise and deserialise correctly for multiple highlights " +
+      "disregarding content in style and script tags",
+    fixturePrefix: "04.serialisation",
+    ids: ["test-multiple-1", "test-multiple-2"],
+    fixturePostfix: "multiple",
+    expectedText: ["AZZZZZCCCLorem ipsum", "DD"]
+  });
 });

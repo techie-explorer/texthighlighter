@@ -1,17 +1,10 @@
 import {
   retrieveHighlights,
   isElementHighlight,
-  getElementOffset,
-  findTextNodeAtLocation,
-  findFirstNonSharedParent,
-  extractElementContentForHighlight,
-  nodesInBetween,
   sortByDepth,
   findNodesAndOffsets,
-  addNodesToHighlightAfterElement,
   createWrapper,
   createDescriptors,
-  getHighlightedText,
   getHighlightedTextRelativeToRoot
 } from "../utils/highlights";
 import {
@@ -34,6 +27,7 @@ class IndependenciaHighlighter {
    * @param {HTMLElement} element - DOM element to which highlighted will be applied.
    * @param {object} [options] - additional options.
    * @param {string} options.color - highlight color.
+   * @param {string} options.excludeNodes - Node types to exclude when calculating offsets and determining where to inject highlights.
    * @param {string} options.highlightedClass - class added to highlight, 'highlighted' by default.
    * @param {string} options.contextClass - class added to element to which highlighter is applied,
    *  'highlighter-context' by default.
@@ -48,172 +42,6 @@ class IndependenciaHighlighter {
   constructor(element, options) {
     this.el = element;
     this.options = options;
-  }
-
-  /**
-   * Highlights the range allowing isolation for overlapping highlights.
-   * This solution steals the text or other nodes in the DOM from overlapping (NOT NESTED) highlights
-   * for representation in the DOM.
-   *
-   * For the purpose of serialisation this will maintain a data attribute on the highlight wrapper
-   * with the start text and end text offsets relative to the context root element.
-   *
-   * Wraps text of given range object in wrapper element.
-   *
-   * @param {Range} range
-   * @param {HTMLElement} wrapper
-   * @returns {Array} - array of created highlights.
-   * @memberof IndependenciaHighlighter
-   */
-  highlightRange(range, wrapper) {
-    if (!range || range.collapsed) {
-      return [];
-    }
-
-    console.log("ALSDebug29: RANGE: ", range);
-
-    let highlights = [];
-    let wrapperClone = wrapper.cloneNode(true);
-
-    let startOffset =
-      getElementOffset(range.startContainer, this.el) + range.startOffset;
-    let endOffset =
-      range.startContainer === range.endContainer
-        ? startOffset + (range.endOffset - range.startOffset)
-        : getElementOffset(range.endContainer, this.el) + range.endOffset;
-
-    console.log(
-      "ALSDebug29: startOffset: ",
-      startOffset,
-      "endOffset: ",
-      endOffset
-    );
-
-    wrapperClone.setAttribute(START_OFFSET_ATTR, startOffset);
-    // wrapperClone.setAttribute(END_OFFSET_ATTR, endOffset);
-    wrapperClone.setAttribute(DATA_ATTR, true);
-
-    console.log("\n\n\n FINDING START CONTAINER FIRST TEXT NODE ");
-    console.log("range.startContainer: ", range.startContainer);
-    let startContainer = findTextNodeAtLocation(range.startContainer, "start");
-
-    console.log("\n\n\n FINDING END CONTAINER FIRST TEXT NODE ");
-    console.log("range.endContainer: ", range.endContainer);
-    let endContainer = findTextNodeAtLocation(range.endContainer, "start");
-
-    if (!startContainer || !endContainer) {
-      throw new Error(
-        "Failed to find the text node for the start or the end of the selected range"
-      );
-    }
-
-    let afterNewHighlight =
-      range.endOffset < endContainer.textContent.length - 1
-        ? endContainer.splitText(range.endOffset)
-        : endContainer;
-
-    if (startContainer === endContainer) {
-      let startOfNewHighlight =
-        range.startOffset > 0
-          ? startContainer.splitText(range.startOffset)
-          : startContainer;
-      // Simply wrap the selected range in the same container as a highlight.
-      let highlight = dom(startOfNewHighlight).wrap(wrapperClone);
-      highlights.push(highlight);
-    } else if (endContainer.textContent.length >= range.endOffset) {
-      let startOfNewHighlight = startContainer.splitText(range.startOffset);
-      let endOfNewHighlight = afterNewHighlight.previousSibling;
-      console.log(
-        "Node at the start of the new highlight: ",
-        startOfNewHighlight
-      );
-      console.log("Node at the end of new highlight: ", endOfNewHighlight);
-
-      const startElementParent = findFirstNonSharedParent({
-        childElement: startOfNewHighlight,
-        otherElement: endOfNewHighlight
-      });
-
-      let startElementParentCopy;
-      let startOfNewHighlightCopy;
-      if (startElementParent) {
-        ({
-          elementAncestorCopy: startElementParentCopy,
-          elementCopy: startOfNewHighlightCopy
-        } = extractElementContentForHighlight({
-          element: startOfNewHighlight,
-          elementAncestor: startElementParent,
-          options: this.options,
-          locationInSelection: "start"
-        }));
-
-        console.log("startElementParent:", startElementParent);
-        console.log("startElementParentCopy: ", startElementParentCopy);
-      }
-
-      const endElementParent = findFirstNonSharedParent({
-        childElement: endOfNewHighlight,
-        otherElement: startOfNewHighlight
-      });
-
-      let endElementParentCopy;
-      let endOfNewHighlightCopy;
-      if (endElementParent) {
-        ({
-          elementAncestorCopy: endElementParentCopy,
-          elementcopy: endOfNewHighlightCopy
-        } = extractElementContentForHighlight({
-          element: endOfNewHighlight,
-          elementAncestor: endElementParent,
-          options: this.options,
-          locationInSelection: "end"
-        }));
-        console.log(
-          "Node that is the wrapper of the end of the new highlight: ",
-          endElementParent
-        );
-
-        console.log(
-          "Cloned of node that is the wrapper of the end of the new highlight after removing siblings and unwrapping highlight spans: ",
-          endElementParentCopy
-        );
-      }
-
-      addNodesToHighlightAfterElement({
-        element: startOfNewHighlightCopy || startOfNewHighlight,
-        elementAncestor: startElementParentCopy,
-        highlightWrapper: wrapperClone,
-        highlightedClass: this.options.highlightedClass
-      });
-
-      // TODO: add containers in between.
-      const containersInBetween = nodesInBetween(startContainer, endContainer);
-      console.log("CONTAINERS IN BETWEEN: ", containersInBetween);
-      containersInBetween.forEach(container => {
-        wrapperClone.appendChild(container);
-      });
-
-      if (endElementParentCopy) {
-        // Only copy the children of a highlighted span into our new highlight.
-        if (
-          endElementParentCopy.classList.contains(this.options.highlightedClass)
-        ) {
-          endElementParentCopy.childNodes.forEach(childNode => {
-            wrapperClone.appendChild(childNode);
-          });
-        } else {
-          wrapperClone.appendChild(endElementParentCopy);
-        }
-      } else {
-        wrapperClone.appendChild(endOfNewHighlight);
-      }
-
-      dom(wrapperClone).insertBefore(
-        endElementParent ? endElementParent : afterNewHighlight
-      );
-    }
-
-    return highlights;
   }
 
   /**
@@ -238,7 +66,8 @@ class IndependenciaHighlighter {
       const descriptors = createDescriptors({
         rootElement: this.el,
         range,
-        wrapper
+        wrapper,
+        excludeNodeNames: this.options.excludeNodes
       });
 
       // createdHighlights = this.highlightRange(range, wrapper);
@@ -386,7 +215,8 @@ class IndependenciaHighlighter {
       getHighlightedTextRelativeToRoot({
         rootElement: self.el,
         startOffset: offset,
-        length
+        length,
+        excludeTags: this.options.excludeNodes
       }),
       offset,
       length
@@ -417,60 +247,6 @@ class IndependenciaHighlighter {
     } catch (e) {
       throw "Can't parse JSON: " + e;
     }
-    /*
-    function deserializationFnCustom(hlDescriptor) {
-      let hl = {
-          wrapper: hlDescriptor[0],
-          text: hlDescriptor[1],
-          offset: Number.parseInt(hlDescriptor[2]),
-          length: Number.parseInt(hlDescriptor[3])
-        },
-        hlNode,
-        highlight;
-
-      const parentNode = self.el;
-      const { node, offset: offsetWithinNode } = findNodeAndOffset(
-        hl,
-        parentNode
-      );
-
-      hlNode = node.splitText(offsetWithinNode);
-
-      let characterCount = 0;
-      let highlightComplete = false;
-      let tempNode = hlNode;
-      while(characterCount < hl.length && !highlightComplete) {
-        if(!hlNode) {
-          hlNode = tempNode.parentNode;
-          tempNode = hlNode;
-          hlNode = hlNode.nextSibling;
-        } else if(hlNode.childNodes.length !== 0) {
-          hlNode = hlNode.childNodes[0];
-          tempNode = hlNode;
-        } else {
-          if(hlNode.textContent.length >= hl.length - characterCount) {
-            hlNode.splitText(hl.length - characterCount);
-            highlightComplete = true;
-          } 
-          if (hlNode.nextSibling && !hlNode.nextSibling.nodeValue) {
-            dom(hlNode.nextSibling).remove();
-          }
-
-          if (hlNode.previousSibling && !hlNode.previousSibling.nodeValue) {
-            dom(hlNode.previousSibling).remove();
-          }
-  
-          highlight = dom(hlNode).wrap(dom().fromHTML(hl.wrapper)[0]);
-          highlights.push(highlight);
-          characterCount = characterCount + hlNode.textContent.length;
-          
-          tempNode = hlNode;
-          hlNode = hlNode.nextSibling;
-        }
-      }
-      
-    }
-    */
 
     function deserialise(hlDescriptor) {
       let hl = {
@@ -483,7 +259,11 @@ class IndependenciaHighlighter {
         highlight;
 
       const parentNode = self.el;
-      const highlightNodes = findNodesAndOffsets(hl, parentNode);
+      const highlightNodes = findNodesAndOffsets(
+        hl,
+        parentNode,
+        self.options.excludeNodes
+      );
 
       highlightNodes.forEach(
         ({ node, offset: offsetWithinNode, length: lengthInNode }) => {

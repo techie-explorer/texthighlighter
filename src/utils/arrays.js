@@ -8,3 +8,13 @@ export function unique(arr) {
     return self.indexOf(value) === idx;
   });
 }
+
+/**
+ * Returns array of strings with all strings converted to lower case.
+ *
+ * @param {String[]} arr
+ * @returns {String[]}
+ */
+export function arrayToLower(arr) {
+  return arr.map(Function.prototype.call, String.prototype.toLowerCase);
+}
