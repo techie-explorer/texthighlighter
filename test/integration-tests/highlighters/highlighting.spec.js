@@ -44,6 +44,7 @@ describe("highlighting a given range", () => {
    * @param {string} params.fixturePostfixAfterHighlight - fixture name postfix after highlight is made
    * @param {string} params.fixturePostfixRemovedHighlight - fixture name postfix after highlight is removed
    * @param {string} params.colour - colour of the highlighter
+   * @param {string} params.highlightId - id of the new highlight
    */
   const testHighlighting = params => {
     it(params.title, () => {
@@ -52,6 +53,8 @@ describe("highlighting a given range", () => {
       const fixtureBase = fixtures[`${params.fixturePrefix}.${params.fixturePostfixBeforeHighlight}`];
       const fixtureAfterRemoval = fixtures[`${params.fixturePrefix}.${params.fixturePostfixRemovedHighlight}`];
       setContents(root, fixtureBase());
+
+      console.log('root.innerHTML1',root.innerHTML)
 
       let startNode = document.getElementById(params.range.startNodeId);
       let endNode = document.getElementById(params.range.endNodeId);
@@ -78,17 +81,24 @@ describe("highlighting a given range", () => {
       highlighter.setColor(params.colour)
       highlighter.doHighlight(true);
 
+      console.log('root.innerHTML2',root.innerHTML)
+
       let highlights = Array.prototype.slice.call(document.querySelectorAll('.highlighted'));
       highlights.forEach(highlight => {
         highlight.setAttribute(TIMESTAMP_ATTR, "test");
+        if(params.highlightId && highlight.className === 'highlighted') {
+          highlight.classList.add(params.highlightId)
+        }
       })
 
       const htmlDuring = root.innerHTML;
+      console.log('root.innerHTML3',root.innerHTML)
 
       expect(htmlDuring).toEqual(fixture().outerHTML);
 
       highlighter.removeHighlights(root);
       const htmlAfter = root.innerHTML;
+      console.log('root.innerHTML4',root.innerHTML)
 
       expect(htmlAfter).toEqual(fixtureAfterRemoval().outerHTML);
     });
@@ -113,4 +123,59 @@ describe("highlighting a given range", () => {
     range:{startNodeId: 'highlight-2-start-node', startOffset: 2, endNodeId: 'highlight-2-start-node', endOffset: 3},
     colour: 'blue'
   });
+
+  testHighlighting({
+    title: "should highlight and remove correctly for an overlapping highlight",
+    fixturePrefix: "02.highlighting",
+    fixturePostfixAfterHighlight: "highlight1",
+    fixturePostfixBeforeHighlight: "base",
+    fixturePostfixRemovedHighlight: "base",
+    range:{startNodeId: 'highlight-1-start-node', startOffset: 0, endNodeId: 'highlight-1-end-node', endOffset: 29},
+    colour: 'red',
+    highlightId: '1',
+  });
+
+  testHighlighting({
+    title: "should highlight and remove all correctly for nested highlights",
+    fixturePrefix: "02.highlighting",
+    fixturePostfixAfterHighlight: "highlight1ThenHighlight2",
+    fixturePostfixBeforeHighlight: "highlight1",
+    fixturePostfixRemovedHighlight: "base",
+    range:{startNodeId: 'highlight-1-start-node', startOffset: 6, endNodeId: 'highlight-1-start-node', endOffset: 18},
+    colour: 'blue',
+    highlightId: '2',
+  });
+
+  testHighlighting({
+    title: "should highlight and remove correctly for nested highlights when the second highlight is bigger than the first",
+    fixturePrefix: "02.highlighting",
+    fixturePostfixAfterHighlight: "highlight2ThenHighlight1",
+    fixturePostfixBeforeHighlight: "highlight2",
+    fixturePostfixRemovedHighlight: "base",
+    range:{startNodeId: 'highlight-1-start-node', startOffset: 0, endNodeId: 'highlight-1-end-node', endOffset: 29},
+    colour: 'red',
+    highlightId: '1',
+  });
+
+  testHighlighting({
+    title: "should highlight and remove one correctly for nested highlights",
+    fixturePrefix: "02.highlighting",
+    fixturePostfixAfterHighlight: "highlight1ThenHighlight2",
+    fixturePostfixBeforeHighlight: "highlight1",
+    fixturePostfixRemovedHighlight: "highlight1",
+    range:{startNodeId: 'highlight-1-start-node', startOffset: 6, endNodeId: 'highlight-1-start-node', endOffset: 18},
+    colour: 'blue',
+    highlightId: '2',
+  });
+/*
+  testHighlighting({
+    title: "should highlight and remove one correctly for nested highlights where the second highlight is larger than the first",
+    fixturePrefix: "02.highlighting",
+    fixturePostfixAfterHighlight: "highlight2ThenHighlight1",
+    fixturePostfixBeforeHighlight: "highlight2",
+    fixturePostfixRemovedHighlight: "highlight2",
+    range:{startNodeId: 'highlight-1-start-node', startOffset: 0, endNodeId: 'highlight-1-end-node', endOffset: 29},
+    colour: 'red',
+    highlightId: '1',
+  });*/
 });
