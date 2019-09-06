@@ -21,7 +21,7 @@ const fixtures = {
         "CCC",
         spanWithAttrs({id: 'highlight-1-start-node'})(
           highlight(
-            { color: "red", id: "test-single-highlight" },
+            { color: "red", id: "", length: 26, startOffset: 6, time: "test" },
             "Lorem ipsum dolor sit amet"
           )
         ),
@@ -39,7 +39,7 @@ const fixtures = {
         "CCC",
         spanWithAttrs({id: 'highlight-1-start-node'})(
           highlight(
-            { color: "red", id: "test-multiple-highlights" },
+            { color: "red", id: "", length: 26, startOffset: 6, time: "test" },
             "Lorem ipsum dolor sit amet"
           )
         ),
@@ -48,7 +48,7 @@ const fixtures = {
       ),
       spanWithAttrs({id: 'highlight-2-start-node'})(
         "DD",
-        highlight({ color: "blue", id: "test-multiple-highlights" }, "D")
+        highlight({ color: "blue", id: "", length: 1, startOffset: 60, time: "test" }, "D")
       ),
       "BBB"
     );
