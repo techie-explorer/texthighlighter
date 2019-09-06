@@ -100,33 +100,30 @@ class IndependenciaHighlighter {
   }
 
   /**
-   * TODO: Confirm what the best thing for removeHighlights() is going forward.
    *
    * Removes highlights from element. If element is a highlight itself, it is removed as well.
    * If no element is given, all highlights are removed.
    * @param {HTMLElement} [element] - element to remove highlights from
    * @memberof IndependenciaHighlighter
    */
-  removeHighlights(element) {
-    //let container = element || this.el,
+  removeHighlights(id) {
+
     let highlights = this.getHighlights(),
       self = this;
 
     function removeHighlight(highlight) {
-      /*       if (highlight.className === container.className) {
-      } */
       dom(highlight).unwrap();
     }
 
     highlights.forEach(function(hl) {
       if (self.options.onRemoveHighlight(hl) === true) {
-        removeHighlight(hl);
+        if(!id || (id && hl.classList.contains(id))) {
+          removeHighlight(hl);
+        }
       }
     });
 
-    // TODO: normalise the rest of the highlights after removing some.
-    // this.normalizeHighlights(highlights)
-    //dom(this.el).normalizeElements();;
+     this.normalizeHighlights(highlights)
   }
 
   /**
