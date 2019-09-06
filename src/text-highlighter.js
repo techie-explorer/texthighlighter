@@ -76,9 +76,6 @@ class TextHighlighter {
       ...options
     };
 
-   
-
-
     if (!highlighters[this.options.version]) {
       throw new Error(
         "Please provide a valid version of the text highlighting functionality"

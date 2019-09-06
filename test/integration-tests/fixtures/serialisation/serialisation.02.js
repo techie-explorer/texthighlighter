@@ -31,10 +31,10 @@ const fixtures = {
               startOffset: 6,
               length: 26
             },
-            "Lorem ipsum dolor ",
-            b("sit ")
-          ),
-          img(),
+            "Lorem ipsum dolor "
+          )
+        ),
+        b(
           highlight(
             {
               color: "red",
@@ -42,9 +42,29 @@ const fixtures = {
               startOffset: 6,
               length: 26
             },
-            i("am"),
-            "et"
+            "sit "
           )
+        ),
+        img(),
+        i(
+          highlight(
+            {
+              color: "red",
+              id: "test-overlapping-highlights",
+              startOffset: 6,
+              length: 26
+            },
+            "am"
+          )
+        ),
+        highlight(
+          {
+            color: "red",
+            id: "test-overlapping-highlights",
+            startOffset: 6,
+            length: 26
+          },
+          "et"
         ),
         span("consectetur adipiscit"),
         span("elit.")
@@ -75,10 +95,10 @@ const fixtures = {
                 length: 12
               },
               "ipsum dolor "
-            ),
-            b("sit ")
-          ),
-          img(),
+            )
+          )
+        ),
+        b(
           highlight(
             {
               color: "red",
@@ -86,9 +106,29 @@ const fixtures = {
               startOffset: 6,
               length: 26
             },
-            i("am"),
-            "et"
+            "sit "
           )
+        ),
+        img(),
+        i(
+          highlight(
+            {
+              color: "red",
+              id: "test-overlapping-highlights",
+              startOffset: 6,
+              length: 26
+            },
+            "am"
+          )
+        ),
+        highlight(
+          {
+            color: "red",
+            id: "test-overlapping-highlights",
+            startOffset: 6,
+            length: 26
+          },
+          "et"
         ),
         span("consectetur adipiscit"),
         span("elit.")

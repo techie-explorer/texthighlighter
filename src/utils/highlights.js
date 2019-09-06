@@ -1,5 +1,5 @@
 import dom, { NODE_TYPE } from "./dom";
-import { DATA_ATTR } from "../config";
+import { DATA_ATTR, START_OFFSET_ATTR, LENGTH_ATTR } from "../config";
 
 /**
  * Takes range object as parameter and refines it boundaries
@@ -133,29 +133,35 @@ export function findNodesAndOffsets(highlight, parentNode) {
   const highlightEndOffset = highlight.offset + highlight.length;
 
   while (currentNode && currentOffset < highlightEndOffset) {
+    // TODO: Ignore style and script tags contents.
     const textLength = currentNode.textContent.length;
     const endOfCurrentNodeOffset = currentOffset + textLength;
 
     if (endOfCurrentNodeOffset > highlight.offset) {
       const isTerminalNode = currentNode.childNodes.length === 0;
       if (isTerminalNode) {
-        const offsetWithinNode =
-          highlight.offset > currentOffset
-            ? highlight.offset - currentOffset
-            : 0;
+        if (currentNode.nodeType === NODE_TYPE.TEXT_NODE) {
+          const offsetWithinNode =
+            highlight.offset > currentOffset
+              ? highlight.offset - currentOffset
+              : 0;
 
-        const lengthInHighlight =
-          highlightEndOffset > endOfCurrentNodeOffset
-            ? textLength - offsetWithinNode
-            : highlightEndOffset - currentOffset - offsetWithinNode;
+          const lengthInHighlight =
+            highlightEndOffset > endOfCurrentNodeOffset
+              ? textLength - offsetWithinNode
+              : highlightEndOffset - currentOffset - offsetWithinNode;
 
-        nodesAndOffsets.push({
-          node: currentNode,
-          offset: offsetWithinNode,
-          length: lengthInHighlight
-        });
+          nodesAndOffsets.push({
+            node: currentNode,
+            offset: offsetWithinNode,
+            length: lengthInHighlight
+          });
 
-        currentOffset = endOfCurrentNodeOffset;
+          currentOffset = endOfCurrentNodeOffset;
+        }
+
+        // It doesn't matter if it is a text node or not at this point,
+        // we still need to get the next sibling of the node or it's ancestors.
         currentNode = dom(currentNode).nextClosestSibling();
       } else {
         currentNode = currentNode.childNodes[0];
@@ -175,6 +181,7 @@ export function getElementOffset(childElement, rootElement) {
 
   let currentElement = childElement;
   do {
+    // TODO: Ignore style and script tags contents.
     childNodes = Array.prototype.slice.call(
       currentElement.parentNode.childNodes
     );
@@ -194,7 +201,9 @@ function getTextOffsetBefore(childNodes, cutIndex) {
   let textOffset = 0;
   for (let i = 0; i < cutIndex; i++) {
     const currentNode = childNodes[i];
-    // Use textContent and not innerHTML to account for invisible characters as well.
+    // Use textContent and not innerText to account for invisible characters such as carriage returns as well,
+    // plus innerText forces a reflow of the layout and as we access text content of nodes
+    // a lot in the highlighting process, we don't want to take the performance hit.
     // https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent
     const text = currentNode.textContent;
     if (text && text.length > 0) {
@@ -469,8 +478,13 @@ export function addNodesToHighlightAfterElement({
  * @return {string} The human-readable highlighted text for the given range.
  */
 export function getHighlightedTextForRange(range) {
-  const documentFragment = range.extractContents();
-  return documentFragment.innerText;
+  // Strip out all carriage returns and excess html layout space.
+  return range
+    .toString()
+    .replace(/\s{2,}/g, " ")
+    .replace("\r\n", "")
+    .replace("\r", "")
+    .replace("\n", "");
 }
 
 /**
@@ -487,6 +501,7 @@ export function getHighlightedTextRelativeToRoot({
   startOffset,
   length
 }) {
+  // TODO: Ignore style and script tags contents.
   const textContent = rootElement.textContent;
   const highlightedRawText = textContent.substring(
     startOffset,
@@ -511,6 +526,8 @@ export function createDescriptors({ rootElement, range, wrapper }) {
       : getElementOffset(range.endContainer, rootElement) + range.endOffset;
   const length = endOffset - startOffset;
   wrapperClone.setAttribute(DATA_ATTR, true);
+  wrapperClone.setAttribute(START_OFFSET_ATTR, startOffset);
+  wrapperClone.setAttribute(LENGTH_ATTR, length);
 
   wrapperClone.innerHTML = "";
   const wrapperHTML = wrapperClone.outerHTML;

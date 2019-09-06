@@ -16,7 +16,10 @@
     <script type="text/javascript" src="assets/rainbow-custom.min.js"></script>
 
     <script type="text/javascript" src="assets/ColorPicker.js"></script>
-    <script type="text/javascript" src="../build/dev/TextHighlighter.js"></script>
+    <script
+      type="text/javascript"
+      src="../build/dev/TextHighlighter.js"
+    ></script>
   </head>
   <body>
     <div class="view">
@@ -195,6 +198,8 @@ deserializeBtn.onclick = function () {
 
     <script type="text/javascript">
       (function() {
+        var highlightIds = [];
+
         var removeBtn = document.getElementById("remove"),
           serializeBtn = document.getElementById("serialize"),
           deserializeBtn = document.getElementById("deserialize");
@@ -202,7 +207,7 @@ deserializeBtn.onclick = function () {
         var colors = new ColorPicker(document.querySelector(".color-picker"));
         window.hltr = new TextHighlighter(sandbox, {
           version: "independencia",
-          onAfterHighlight: function(arr, element) {
+          onAfterHighlight: function(range, descriptors) {
             var uniqueId =
               Math.random()
                 .toString(36)
@@ -210,17 +215,22 @@ deserializeBtn.onclick = function () {
               Math.random()
                 .toString(36)
                 .substring(2, 15);
+            highlightIds.push(uniqueId);
 
-            if (Array.isArray(element)) {
-              element.forEach(highlightDOMElem => {
-                highlightDOMElem.classList.add(uniqueId);
-              });
-            } else {
-              element.classList.add(uniqueId);
-            }
+            var descriptorsWithIds = descriptors.map(descriptor => {
+              var [wrapper, ...rest] = descriptor;
+              return [
+                wrapper.replace(
+                  'class="highlighted"',
+                  `class="highlighted ${uniqueId}"`
+                ),
+                ...rest
+              ];
+            });
+            return descriptorsWithIds;
           }
         });
-        var serialized = "";
+        var serialized = {};
 
         colors.onColorChange(function(color) {
           hltr.setColor(color);
@@ -231,14 +241,17 @@ deserializeBtn.onclick = function () {
         });
 
         serializeBtn.addEventListener("click", function() {
-          serialized = hltr.serializeHighlights("highlight-test");
-          console.log(JSON.parse(serialized));
+          highlightIds.forEach(highlightId => {
+            serialized[highlightId] = hltr.serializeHighlights(highlightId);
+          });
           hltr.removeHighlights();
         });
 
         deserializeBtn.addEventListener("click", function() {
           hltr.removeHighlights();
-          hltr.deserializeHighlights(serialized);
+          highlightIds.forEach(highlightId => {
+            hltr.deserializeHighlights(serialized[highlightId]);
+          });
         });
       })();
     </script>
