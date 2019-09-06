@@ -5,7 +5,8 @@ import {
   findNodesAndOffsets,
   createWrapper,
   createDescriptors,
-  getHighlightedTextRelativeToRoot
+  getHighlightedTextRelativeToRoot,
+  focusHighlightElement
 } from "../utils/highlights";
 import {
   START_OFFSET_ATTR,
@@ -14,7 +15,6 @@ import {
   TIMESTAMP_ATTR
 } from "../config";
 import dom from "../utils/dom";
-import { unique } from "../utils/arrays";
 
 /**
  * IndependenciaHighlighter that provides text highlighting functionality to dom elements
@@ -107,7 +107,6 @@ class IndependenciaHighlighter {
    * @memberof IndependenciaHighlighter
    */
   removeHighlights(id) {
-
     let highlights = this.getHighlights(),
       self = this;
 
@@ -116,14 +115,14 @@ class IndependenciaHighlighter {
     }
 
     highlights.forEach(function(hl) {
-      if(!id || (id && hl.classList.contains(id))) {
+      if (!id || (id && hl.classList.contains(id))) {
         if (self.options.onRemoveHighlight(hl) === true) {
           removeHighlight(hl);
         }
       }
     });
 
-     this.normalizeHighlights(highlights)
+    this.normalizeHighlights(highlights);
   }
 
   /**
@@ -281,6 +280,33 @@ class IndependenciaHighlighter {
 
     return highlights;
   }
+
+  /**
+   * Focuses a highlight, bringing it forward in the case it is sitting behind another
+   * overlapping highlight, or a highlight it is nested inside.
+   *
+   * @param {object} id - The id of the highlight present in the class names of all elements
+   *                      in the DOM that represent the highlight.
+   *
+   * @memberof IndependenciaHighlighter
+   */
+  focusUsingId(id) {
+    const highlightElements = this.el.querySelectorAll(`.${id}`);
+    highlightElements.forEach(elem => {
+      focusHighlightElement(elem, this.el);
+    });
+  }
+
+  /**
+   * Deselects a highlight, bringing any nested highlights in the list of descriptors
+   * forward.
+   *
+   * @param {string} id  The id of the deselected highlight.
+   * @param {object} descriptors the highlight descriptors.
+   *
+   * @memberof IndependenciaHighlighter
+   */
+  deselectUsingId(id, descriptors) {}
 }
 
 export default IndependenciaHighlighter;

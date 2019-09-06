@@ -1,3 +1,5 @@
+import toDiffableHtml from "diffable-html";
+
 import fixtures from "../fixtures/normalising";
 import TextHighlighter from "../../../src/text-highlighter";
 import { setContents } from "../../utils/dom-helpers";
@@ -7,12 +9,10 @@ describe("normalising different elements", () => {
 
   beforeAll(() => {
     root = document.getElementById("root");
-    
   });
 
   beforeEach(() => {
-    highlighter = new TextHighlighter(root, { version: "independencia"});
-    
+    highlighter = new TextHighlighter(root, { version: "independencia" });
   });
 
   afterEach(() => {
@@ -38,40 +38,46 @@ describe("normalising different elements", () => {
       setContents(root, fixtureBase());
 
       highlighter.normalizeHighlights();
-      
+
       const htmlAfter = root.innerHTML;
-      expect(htmlAfter).toEqual(fixture().outerHTML);
+      expect(toDiffableHtml(htmlAfter)).toEqual(
+        toDiffableHtml(fixture().outerHTML)
+      );
     });
   };
 
   testNormalising({
-    title: "should merge text nodes that are next to each other in the child list",
+    title:
+      "should merge text nodes that are next to each other in the child list",
     fixturePrefix: "01.normalising",
-    fixturePostfix: "textNodes",
+    fixturePostfix: "textNodes"
   });
 
   testNormalising({
-    title: "should merge elements that are next to each other in the child list with the same ID",
+    title:
+      "should merge elements that are next to each other in the child list with the same ID",
     fixturePrefix: "02.normalising",
-    fixturePostfix: "elementsWithSameId",
+    fixturePostfix: "elementsWithSameId"
   });
 
   testNormalising({
-    title: "should not merge elements that are next to each other in the child list with the same ID if there is an image in the way",
+    title:
+      "should not merge elements that are next to each other in the child list with the same ID if there is an image in the way",
     fixturePrefix: "03.normalising",
-    fixturePostfix: "elementsWithSameId",
+    fixturePostfix: "elementsWithSameId"
   });
 
   testNormalising({
-    title: "should merge highlights that are next to each other in the child list with the same ID",
+    title:
+      "should merge highlights that are next to each other in the child list with the same ID",
     fixturePrefix: "04.normalising",
-    fixturePostfix: "highlightsWithSameId",
+    fixturePostfix: "highlightsWithSameId"
   });
 
   testNormalising({
-    title: "should merge highlights that are next to each other in the child list with the same ID, but not highlights that have different IDs",
+    title:
+      "should merge highlights that are next to each other in the child list with the same ID, but not highlights that have different IDs",
     fixturePrefix: "05.normalising",
-    fixturePostfix: "highlightsWithDifferentIds",
+    fixturePostfix: "highlightsWithDifferentIds"
   });
-
 });

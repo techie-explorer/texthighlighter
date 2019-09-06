@@ -1,3 +1,5 @@
+import toDiffableHtml from "diffable-html";
+
 import fixtures from "../fixtures/focus";
 import TextHighlighter from "../../../src/text-highlighter";
 import { setContents } from "../../utils/dom-helpers";
@@ -7,12 +9,10 @@ describe("focusing on different highlights", () => {
 
   beforeAll(() => {
     root = document.getElementById("root");
-    
   });
 
   beforeEach(() => {
-    highlighter = new TextHighlighter(root, { version: "independencia"});
-    
+    highlighter = new TextHighlighter(root, { version: "independencia" });
   });
 
   afterEach(() => {
@@ -37,101 +37,111 @@ describe("focusing on different highlights", () => {
    */
   const testFocus = params => {
     it(params.title, () => {
-      const fixture =
+      const fixtureAfter =
         fixtures[`${params.fixturePrefix}.${params.fixturePostfixAfterFocus}`];
-      const fixtureBase = fixtures[`${params.fixturePrefix}.${params.fixturePostfixBeforeFocus}`];
-      setContents(root, fixtureBase());
-      
-      const htmlBefore = root.innerHTML;
-      console.log('htmlBefore',htmlBefore)
+      const fixtureBefore =
+        fixtures[`${params.fixturePrefix}.${params.fixturePostfixBeforeFocus}`];
+      setContents(root, fixtureBefore());
 
       highlighter.focusUsingId(params.ids[0]);
-      
-      const htmlAfter = root.innerHTML;
-      console.log('htmlAfter',htmlAfter)
-      expect(htmlAfter).toEqual(fixture().outerHTML);
+      let htmlAfterFocus = root.innerHTML;
 
-        if(params.ids.length > 1) {
-            highlighter.focusUsingId(params.ids[1]);
-      
-            htmlBefore = root.innerHTML;
-            console.log('htmlBefore',htmlBefore)
-            expect(htmlBefore).toEqual(fixtureBase().outerHTML);
-        }
+      expect(toDiffableHtml(htmlAfterFocus)).toEqual(
+        toDiffableHtml(fixtureAfter().outerHTML)
+      );
+
+      // The second id is of the highlight that was originally focused.
+      if (params.ids.length > 1) {
+        highlighter.focusUsingId(params.ids[1]);
+        htmlAfterFocus = root.innerHTML;
+
+        expect(toDiffableHtml(htmlAfterFocus)).toEqual(
+          toDiffableHtml(fixtureBefore().outerHTML)
+        );
+      }
     });
   };
-/*
+
   testFocus({
-    title: "should focus on a single highlight that does not overlap and therefore have no difference from the original fixture",
+    title:
+      "should focus on a single highlight that does not overlap and therefore have no difference from the original fixture",
     fixturePrefix: "01.focus",
     ids: ["test-single-highlight"],
     fixturePostfixBeforeFocus: "singleHighlight",
-    fixturePostfixAfterFocus: "singleHighlight",
+    fixturePostfixAfterFocus: "singleHighlight"
   });
 
   testFocus({
-    title: "should focus on multiple highlights that do not overlap so therefore have no difference from the original fixture",
+    title:
+      "should focus on multiple highlights that do not overlap so therefore have no difference from the original fixture",
     fixturePrefix: "01.focus",
     ids: ["test-multiple-highlights-1", "test-multiple-highlights-2"],
     fixturePostfixBeforeFocus: "multipleHighlights",
-    fixturePostfixAfterFocus: "multipleHighlights",
+    fixturePostfixAfterFocus: "multipleHighlights"
   });
 
   testFocus({
-    title: "should focus on multiple highlights that do not overlap so therefore have no difference from the original fixture",
+    title:
+      "should focus on multiple highlights that do not overlap so therefore have no difference from the original fixture",
     fixturePrefix: "01.focus",
     ids: ["test-multiple-highlights-1", "test-multiple-highlights-2"],
     fixturePostfixBeforeFocus: "multipleHighlights",
-    fixturePostfixAfterFocus: "multipleHighlights",
+    fixturePostfixAfterFocus: "multipleHighlights"
   });
 
-    testFocus({
-        title: "should focus on a highlights that overlaps an image, therefore there should be no difference from the original fixture",
-        fixturePrefix: "02.focus",
-        ids: ["test-overlapping-highlights"],
-        fixturePostfixBeforeFocus: "overlapping",
-        fixturePostfixAfterFocus: "overlapping",
-    });
+  testFocus({
+    title:
+      "should focus on a highlight that overlaps an image, therefore there should be no difference from the original fixture",
+    fixturePrefix: "02.focus",
+    ids: ["test-overlapping-highlights"],
+    fixturePostfixBeforeFocus: "overlapping",
+    fixturePostfixAfterFocus: "overlapping"
+  });
 
-    testFocus({
-        title: "should focus on a nested highlights and focus on it's surrounding parent highlight",
-        fixturePrefix: "02.focus",
-        ids: ["test-overlapping-highlights", "test-overlapping-highlights-nested-1"],
-        fixturePostfixBeforeFocus: "nestedFocus",
-        fixturePostfixAfterFocus: "nestedParentFocused",
-    });
+  testFocus({
+    title:
+      "should focus on a nested highlight and focus on it's surrounding parent highlight",
+    fixturePrefix: "02.focus",
+    ids: [
+      "test-overlapping-highlights",
+      "test-overlapping-highlights-nested-1"
+    ],
+    fixturePostfixBeforeFocus: "nestedFocus",
+    fixturePostfixAfterFocus: "nestedParentFocused"
+  });
 
-    testFocus({
-        title: "should focus on 2 different overlapping highlights",
-        fixturePrefix: "03.focus",
-        ids: ["test-overlapping-highlights-2", "test-overlapping-highlights-1"],
-        fixturePostfixBeforeFocus: "overlappingFocusFirst",
-        fixturePostfixAfterFocus: "overlappingFocusSecond",
-    });
+  testFocus({
+    title: "should focus on 2 different overlapping highlights",
+    fixturePrefix: "03.focus",
+    ids: ["test-overlapping-highlights-2", "test-overlapping-highlights-1"],
+    fixturePostfixBeforeFocus: "overlappingFocusFirst",
+    fixturePostfixAfterFocus: "overlappingFocusSecond"
+  });
 
+  testFocus({
+    title:
+      "should focus on 2 different overlapping highlights which are overlapping with another, focus on highlight 1 and 2",
+    fixturePrefix: "03.focus",
+    ids: ["test-overlapping-highlights-2", "test-overlapping-highlights-1"],
+    fixturePostfixBeforeFocus: "overlappingMultipleFocusFirst",
+    fixturePostfixAfterFocus: "overlappingMultipleFocusSecond"
+  });
 
-    testFocus({
-        title: "should focus on 2 different overlapping highlights which are overlapping with another, focus on highlight 1 and 2",
-        fixturePrefix: "03.focus",
-        ids: ["test-overlapping-highlights-2", "test-overlapping-highlights-1"],
-        fixturePostfixBeforeFocus: "overlappingMultipleFocusFirst",
-        fixturePostfixAfterFocus: "overlappingMultipleFocusSecond",
-    });
+  testFocus({
+    title:
+      "should focus on 2 different overlapping highlights which are overlapping with another, focus on highlight 1 and 3",
+    fixturePrefix: "03.focus",
+    ids: ["test-overlapping-highlights-3", "test-overlapping-highlights-1"],
+    fixturePostfixBeforeFocus: "overlappingMultipleFocusFirst",
+    fixturePostfixAfterFocus: "overlappingMultipleFocusThird"
+  });
 
-    testFocus({
-        title: "should focus on 2 different overlapping highlights which are overlapping with another, focus on highlight 1 and 3",
-        fixturePrefix: "03.focus",
-        ids: ["test-overlapping-highlights-3", "test-overlapping-highlights-1"],
-        fixturePostfixBeforeFocus: "overlappingMultipleFocusFirst",
-        fixturePostfixAfterFocus: "overlappingMultipleFocusThird",
-    });
-
-    testFocus({
-        title: "should focus on 2 different overlapping highlights which are overlapping with another, focus on highlight 3 and 2",
-        fixturePrefix: "03.focus",
-        ids: ["test-overlapping-highlights-2", "test-overlapping-highlights-3"],
-        fixturePostfixBeforeFocus: "overlappingMultipleFocusThird",
-        fixturePostfixAfterFocus: "overlappingMultipleFocusSecond",
-    });*/
-
+  testFocus({
+    title:
+      "should focus on 2 different overlapping highlights which are overlapping with another, focus on highlight 3 and 2",
+    fixturePrefix: "03.focus",
+    ids: ["test-overlapping-highlights-2", "test-overlapping-highlights-3"],
+    fixturePostfixBeforeFocus: "overlappingMultipleFocusThird",
+    fixturePostfixAfterFocus: "overlappingMultipleFocusSecond"
+  });
 });

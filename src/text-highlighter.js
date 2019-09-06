@@ -253,6 +253,42 @@ class TextHighlighter {
     dom(this.el).removeAllRanges();
     wnd.scrollTo(scrollX, scrollY);
   }
+
+  /**
+   * Focuses a highlight, bringing it forward in the case it is sitting behind another
+   * overlapping highlight, or a highlight it is nested inside.
+   *
+   * This is only supported by independencia (v2-2019) and onwards.
+   * For older versions, this will simply do nothing.
+   *
+   * @param {object} id - The id of the highlight present in the class names of all elements
+   *                      in the DOM that represent the highlight.
+   *
+   * @memberof TextHighlighter
+   */
+  focusUsingId(id) {
+    if (this.highlighter.focusUsingId) {
+      this.highlighter.focusUsingId(id);
+    }
+  }
+
+  /**
+   * Deselects a highlight, bringing any nested highlights in the list of descriptors
+   * forward.
+   *
+   * This is only supported by independencia (v2-2019) and onwards.
+   * For older versions, this will simply do nothing.
+   *
+   * @param {string} id  The id of the deselected highlight.
+   * @param {object} descriptors the highlight descriptors.
+   *
+   * @memberof TextHighlighter
+   */
+  deselectUsingId(id, descriptors) {
+    if (this.highlighter.deselectUsingId) {
+      this.highlighter.deselectUsingId(id, descriptors);
+    }
+  }
 }
 
 export default TextHighlighter;

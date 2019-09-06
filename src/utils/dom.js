@@ -1,10 +1,11 @@
-import {isElementHighlight} from './highlights'
+import { isElementHighlight } from "./highlights";
 export const NODE_TYPE = { ELEMENT_NODE: 1, TEXT_NODE: 3 };
 
 /**
  * Utility functions to make DOM manipulation easier.
  * @param {Node|HTMLElement} [el] - base DOM element to manipulate
  * @returns {object}
+ *
  */
 const dom = function(el) {
   return /** @lends dom **/ {
@@ -204,14 +205,13 @@ const dom = function(el) {
       }
 
       if (el.nodeType !== NODE_TYPE.TEXT_NODE) {
-        if(isElementHighlight(el,'data-highlighted')) {
+        if (isElementHighlight(el, "data-highlighted")) {
           let className = el.className;
           while (
             className &&
             el.nextSibling &&
             el.nextSibling.nodeType !== NODE_TYPE.TEXT_NODE &&
             el.nextSibling.className === className
-
           ) {
             el.innerHTML += el.nextSibling.innerHTML;
             el.parentNode.removeChild(el.nextSibling);
@@ -224,7 +224,6 @@ const dom = function(el) {
             el.nextSibling &&
             el.nextSibling.nodeType !== NODE_TYPE.TEXT_NODE &&
             el.nextSibling.id === id
-
           ) {
             el.innerHTML += el.nextSibling.innerHTML;
             el.parentNode.removeChild(el.nextSibling);
@@ -236,10 +235,6 @@ const dom = function(el) {
       }
       dom(el.nextSibling).normalizeElements();
     },
-
-    
-
-
 
     /**
      * Returns element background color.

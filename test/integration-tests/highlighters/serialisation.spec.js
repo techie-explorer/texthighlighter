@@ -1,3 +1,5 @@
+import toDiffableHtml from "diffable-html";
+
 import fixtures from "../fixtures/serialisation";
 import TextHighlighter from "../../../src/text-highlighter";
 import { setContents } from "../../utils/dom-helpers";
@@ -67,7 +69,7 @@ describe("serialisation and deserialisation of highlights", () => {
       highlighter.deserializeHighlights(JSON.stringify(descriptors));
       const htmlAfter = root.innerHTML;
 
-      expect(htmlAfter).toEqual(htmlBefore);
+      expect(toDiffableHtml(htmlAfter)).toEqual(toDiffableHtml(htmlBefore));
     });
   };
 

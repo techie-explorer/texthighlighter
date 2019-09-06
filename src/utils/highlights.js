@@ -589,3 +589,83 @@ export function createDescriptors({
   ];
   return [descriptor];
 }
+
+/**
+ * Extracts all text nodes inside the given element.
+ *
+ * @param {HTMLElement} element
+ */
+function textNodesInside(element) {
+  let current,
+    textNodes = [],
+    walk = document.createTreeWalker(
+      element,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+  while ((current = walk.nextNode())) textNodes.push(current);
+  return textNodes;
+}
+
+/**
+ * Focuses a highlight element by ensuring if it has descendants that are highlights
+ * it is moved inside of the innermost highlight.
+ *
+ * The innermost highlight's styles will be applied and will be visible to the user
+ * and given the "focus".
+ *
+ * To focus the red highlight the following:
+ *
+ * -- <red-highlight>
+ * ---- <blue-highlight>
+ * ------ <green-highlight>
+ * ---------- Highlighted text
+ *
+ * becomes:
+ *
+ * -- <blue-highlight>
+ * ---- <green-highlight>
+ * ------ <red-highlight>
+ * -------- Highlighted text
+ *
+ * and
+ *
+ * -- <red-highlight>
+ * ---- Some text only highlighted in red
+ * ---- <blue-highlight>
+ * ------ Text in blue and red
+ * ------ <green-highlight>
+ * ---------- Rest of the highlight in red, green and blue
+ *
+ * becomes
+ *
+ * -- <red-highlight>
+ * ---- Some text only highlighted in red
+ * -- <blue-highlight>
+ * ---- <red-highlight-copy-1>
+ * ------ Text in blue and red
+ * ---- <green-highlight>
+ * ------ <red-highlight-copy-2>
+ * -------- Rest of the highlight in red, green and blue
+ *
+ * @param {HTMLElement} highlightElement  The highlight element that should be focused.
+ */
+export function focusHighlightElement(highlightElement, rootElement) {
+  const textNodes = textNodesInside(highlightElement);
+
+  textNodes.forEach(textNode => {
+    const highlightElementCopy = highlightElement.cloneNode(true);
+    highlightElementCopy.innerHTML = "";
+    dom(textNode).wrap(highlightElementCopy);
+  });
+
+  if (textNodes.length > 0) {
+    // We have wrapped all child text nodes so we can go ahead and unwrap the original highlight wrapper.
+    dom(highlightElement).unwrap();
+  }
+
+  // Ensure we normalise all nodes in the root container to merge sibling elements
+  // of the same highlight together that get copied for the purpose of focusing.
+  dom(rootElement).normalizeElements();
+}

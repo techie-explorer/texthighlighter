@@ -25,5 +25,3 @@ Object.defineProperty(global.Element.prototype, "innerText", {
   },
   configurable: true // make it so that it doesn't blow chunks on re-running tests with things like --watch
 });
-
-
