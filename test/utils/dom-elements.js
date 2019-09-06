@@ -1,4 +1,4 @@
-import { START_OFFSET_ATTR, LENGTH_ATTR } from "../../src/config";
+import { START_OFFSET_ATTR, LENGTH_ATTR, TIMESTAMP_ATTR } from "../../src/config";
 
 const appendChildren = (elem, ...children) => {
   children.forEach(child => {
@@ -47,16 +47,18 @@ const docFrag = (...children) => {
   return frag;
 };
 
-const highlight = ({ color, id, startOffset, length }, ...children) => {
+const highlight = ({ color, id, startOffset, length, time}, ...children) => {
   const docElem = span(...children);
+  docElem.style.backgroundColor = color;
   docElem.classList.add("highlighted");
   if (id) {
     docElem.classList.add(id);
   }
+  docElem.setAttribute(TIMESTAMP_ATTR, time);
   docElem.setAttribute("data-highlighted", true);
   docElem.setAttribute(START_OFFSET_ATTR, startOffset);
   docElem.setAttribute(LENGTH_ATTR, length);
-  docElem.style.backgroundColor = color;
+  
   return docElem;
 };
 

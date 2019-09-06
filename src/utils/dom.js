@@ -1,3 +1,4 @@
+import {isElementHighlight} from './highlights'
 export const NODE_TYPE = { ELEMENT_NODE: 1, TEXT_NODE: 3 };
 
 /**
@@ -193,6 +194,52 @@ const dom = function(el) {
       }
       dom(el.nextSibling).normalizeTextNodes();
     },
+
+    /**
+     * Normalizes elements that have the a same id and are next to eachother in the child list
+     */
+    normalizeElements: function() {
+      if (!el) {
+        return;
+      }
+
+      if (el.nodeType !== NODE_TYPE.TEXT_NODE) {
+        if(isElementHighlight(el,'data-highlighted')) {
+          let className = el.className;
+          while (
+            className &&
+            el.nextSibling &&
+            el.nextSibling.nodeType !== NODE_TYPE.TEXT_NODE &&
+            el.nextSibling.className === className
+
+          ) {
+            el.innerHTML += el.nextSibling.innerHTML;
+            el.parentNode.removeChild(el.nextSibling);
+          }
+          dom(el.firstChild).normalizeElements();
+        } else {
+          let id = el.id;
+          while (
+            id &&
+            el.nextSibling &&
+            el.nextSibling.nodeType !== NODE_TYPE.TEXT_NODE &&
+            el.nextSibling.id === id
+
+          ) {
+            el.innerHTML += el.nextSibling.innerHTML;
+            el.parentNode.removeChild(el.nextSibling);
+          }
+          dom(el.firstChild).normalizeElements();
+        }
+      } else {
+        dom(el).normalizeTextNodes();
+      }
+      dom(el.nextSibling).normalizeElements();
+    },
+
+    
+
+
 
     /**
      * Returns element background color.

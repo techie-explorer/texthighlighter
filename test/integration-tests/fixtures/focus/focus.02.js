@@ -15,9 +15,30 @@ const fixtures = {
               length: 26
             },
             "Lorem ipsum dolor ",
-            b("sit ")
+          ),
+          b(
+            highlight(
+              {
+                color: "red",
+                id: "test-overlapping-highlights",
+                startOffset: 6,
+                length: 26
+              },
+              "sit "
+            )
           ),
           img(),
+          i(
+            highlight(
+              {
+                color: "red",
+                id: "test-overlapping-highlights",
+                startOffset: 6,
+                length: 26
+              },
+              "am"
+            ),
+          ),
           highlight(
             {
               color: "red",
@@ -25,7 +46,6 @@ const fixtures = {
               startOffset: 6,
               length: 26
             },
-            i("am"),
             "et"
           )
         ),
@@ -58,10 +78,31 @@ const fixtures = {
                 length: 12
               },
               "ipsum dolor "
-            ),
-            b("sit ")
+            )
+          ),
+          b(
+            highlight(
+              {
+                color: "red",
+                id: "test-overlapping-highlights",
+                startOffset: 6,
+                length: 26
+              },
+              "sit "
+            )
           ),
           img(),
+          i(
+            highlight(
+              {
+                color: "red",
+                id: "test-overlapping-highlights",
+                startOffset: 6,
+                length: 26
+              },
+              "am"
+            ),
+          ),
           highlight(
             {
               color: "red",
@@ -69,7 +110,6 @@ const fixtures = {
               startOffset: 6,
               length: 26
             },
-            i("am"),
             "et"
           )
         ),
@@ -112,16 +152,29 @@ const fixtures = {
               "ipsum dolor "
             ),
           ),
-          highlight(
-            {
-              color: "red",
-              id: "test-overlapping-highlights",
-              startOffset: 6,
-              length: 26
-            },
-            b("sit ")
+          b(
+            highlight(
+              {
+                color: "red",
+                id: "test-overlapping-highlights",
+                startOffset: 6,
+                length: 26
+              },
+              "sit "
+            )
           ),
           img(),
+          i(
+            highlight(
+              {
+                color: "red",
+                id: "test-overlapping-highlights",
+                startOffset: 6,
+                length: 26
+              },
+              "am"
+            ),
+          ),
           highlight(
             {
               color: "red",
@@ -129,7 +182,6 @@ const fixtures = {
               startOffset: 6,
               length: 26
             },
-            i("am"),
             "et"
           )
         ),

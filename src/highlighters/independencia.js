@@ -87,32 +87,16 @@ class IndependenciaHighlighter {
   }
 
   /**
-   * Normalizes highlights. Ensures text nodes within any given element node are merged together.
+   * Normalizes highlights. Ensures text nodes within any given element node are merged together, elements with the
+   * same ID next to each other are merged together and highlights with the same ID next to each other are merged together.
    *
    * @param {Array} highlights - highlights to normalize.
    * @returns {Array} - array of normalized highlights. Order and number of returned highlights may be different than
    * input highlights.
    * @memberof IndependenciaHighlighter
    */
-  normalizeHighlights(highlights) {
-    let normalizedHighlights;
-
-    //Since we're not merging or flattening, we need to normalise the text nodes.
-    highlights.forEach(function(highlight) {
-      dom(highlight).normalizeTextNodes();
-    });
-
-    // omit removed nodes
-    normalizedHighlights = highlights.filter(function(hl) {
-      return hl.parentElement ? hl : null;
-    });
-
-    normalizedHighlights = unique(normalizedHighlights);
-    normalizedHighlights.sort(function(a, b) {
-      return a.offsetTop - b.offsetTop || a.offsetLeft - b.offsetLeft;
-    });
-
-    return normalizedHighlights;
+  normalizeHighlights() {
+    dom(this.el).normalizeElements();
   }
 
   /**
@@ -141,8 +125,8 @@ class IndependenciaHighlighter {
     });
 
     // TODO: normalise the rest of the highlights after removing some.
-    // const restOfHighlights = this.getHighlights();
-    // this.normalizeHighlights(restOfHighlights);
+    // this.normalizeHighlights(highlights)
+    //dom(this.el).normalizeElements();;
   }
 
   /**
@@ -296,6 +280,7 @@ class IndependenciaHighlighter {
 
     // TODO: normalise at the end of deserialisation.
     // this.normalizeHighlights(highlights);
+    //dom(this.el).normalizeElements();
 
     return highlights;
   }

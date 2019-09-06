@@ -1,6 +1,7 @@
 import fixtures from "../fixtures/highlighting";
 import TextHighlighter from "../../../src/text-highlighter";
 import { setContents } from "../../utils/dom-helpers";
+import { TIMESTAMP_ATTR } from "../../../src/config";
 
 describe("highlighting a given range", () => {
   let root, highlighter;
@@ -37,21 +38,20 @@ describe("highlighting a given range", () => {
    * [6] Compare HTML of result with fixture from step [1].
    * @param params
    * @param {string} params.title - test title
-   * @param {string[]} params.ids - The unique identifier for collections of highlight elements representing the same highlight.
    * @param {JSON} params.range - the range object for the highlight
    * @param {string} params.fixturePrefix - fixture name prefix
-   * @param {string} params.fixturePostfix - fixture name postfix
-   * @param {string} params.expectedText - expected text content of serialized highlights
+   * @param {string} params.fixturePostfixBeforeHighlight - fixture name postfix before highlight is made
+   * @param {string} params.fixturePostfixAfterHighlight - fixture name postfix after highlight is made
+   * @param {string} params.fixturePostfixRemovedHighlight - fixture name postfix after highlight is removed
+   * @param {string} params.colour - colour of the highlighter
    */
   const testHighlighting = params => {
     it(params.title, () => {
       const fixture =
-        fixtures[`${params.fixturePrefix}.${params.fixturePostfix}`];
-      const fixtureBase = fixtures[`${params.fixturePrefix}.base`];
+        fixtures[`${params.fixturePrefix}.${params.fixturePostfixAfterHighlight}`];
+      const fixtureBase = fixtures[`${params.fixturePrefix}.${params.fixturePostfixBeforeHighlight}`];
+      const fixtureAfterRemoval = fixtures[`${params.fixturePrefix}.${params.fixturePostfixRemovedHighlight}`];
       setContents(root, fixtureBase());
-      const htmlBefore = root.innerHTML;
-
-      console.log('htmlBefore',htmlBefore)
 
       let startNode = document.getElementById(params.range.startNodeId);
       let endNode = document.getElementById(params.range.endNodeId);
@@ -75,29 +75,42 @@ describe("highlighting a given range", () => {
         };
       }
 
+      highlighter.setColor(params.colour)
       highlighter.doHighlight(true);
 
+      let highlights = Array.prototype.slice.call(document.querySelectorAll('.highlighted'));
+      highlights.forEach(highlight => {
+        highlight.setAttribute(TIMESTAMP_ATTR, "test");
+      })
 
       const htmlDuring = root.innerHTML;
-      console.log('htmlDuring',htmlDuring)
 
-      expect(htmlDuring).toEqual(fixture());
-
-      //expect(text).toEqual(params.expectedText);
+      expect(htmlDuring).toEqual(fixture().outerHTML);
 
       highlighter.removeHighlights(root);
-      //const htmlAfter = root.innerHTML;
+      const htmlAfter = root.innerHTML;
 
-      expect(htmlBefore).toEqual(fixtureBase());
+      expect(htmlAfter).toEqual(fixtureAfterRemoval().outerHTML);
     });
   };
 
   testHighlighting({
     title: "should highlight and remove correctly for a single highlight",
     fixturePrefix: "01.highlighting",
-    ids: ["test-single-highlight"],
-    fixturePostfix: "singleHighlight",
-    expectedText: ["Lorem ipsum dolor sit amet"],
-    range:{startNodeId: 'highlight-1-start-node', startOffset: 0, endNodeId: 'highlight-1-start-node', endOffset: 26}
+    fixturePostfixAfterHighlight: "singleHighlight",
+    fixturePostfixBeforeHighlight: "base",
+    fixturePostfixRemovedHighlight: "base",
+    range:{startNodeId: 'highlight-1-start-node', startOffset: 0, endNodeId: 'highlight-1-start-node', endOffset: 26},
+    colour: 'red'
+  });
+
+  testHighlighting({
+    title: "should highlight and remove correctly for multiple highlights",
+    fixturePrefix: "01.highlighting",
+    fixturePostfixAfterHighlight: "multipleHighlights",
+    fixturePostfixBeforeHighlight: "singleHighlight",
+    fixturePostfixRemovedHighlight: "base",
+    range:{startNodeId: 'highlight-2-start-node', startOffset: 2, endNodeId: 'highlight-2-start-node', endOffset: 3},
+    colour: 'blue'
   });
 });
