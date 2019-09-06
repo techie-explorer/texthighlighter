@@ -266,24 +266,8 @@ class IndependenciaHighlighter {
    * input highlights.
    * @memberof IndependenciaHighlighter
    */
-  normalizeHighlights(highlights) {
+  normalizeHighlights() {
     dom(this.el).normalizeElements();
-    let normalizedHighlights;
-
-    if(highlights && highlights.length > 0) {
-      
-      // omit removed nodes
-      normalizedHighlights = highlights.filter(function(hl) {
-        return hl.parentElement ? hl : null;
-      });
-
-      normalizedHighlights = unique(normalizedHighlights);
-      normalizedHighlights.sort(function(a, b) {
-        return a.offsetTop - b.offsetTop || a.offsetLeft - b.offsetLeft;
-      });
-      dom(this.el).normalizeElements();
-    }
-    return normalizedHighlights;
   }
 
   /**
@@ -312,8 +296,8 @@ class IndependenciaHighlighter {
     });
 
     // TODO: normalise the rest of the highlights after removing some.
-    // const restOfHighlights = this.getHighlights();
-    // this.normalizeHighlights(restOfHighlights);
+    // this.normalizeHighlights(highlights)
+    //dom(this.el).normalizeElements();;
   }
 
   /**
@@ -517,6 +501,7 @@ class IndependenciaHighlighter {
 
     // TODO: normalise at the end of deserialisation.
     // this.normalizeHighlights(highlights);
+    //dom(this.el).normalizeElements();
 
     return highlights;
   }

@@ -24,8 +24,7 @@ describe("normalising different elements", () => {
    * Procedure:
    * [1] Load fixture named: params.fixturePrefix + '.base' (fixture without normalised nodes).
    * [2] Load fixture named: params.fixturePrefix + '.' + params.fixturePostfix (fixture with normalised nodes).
-   * [3] Focus on a highlight given an ID.
-   * [4] Compare HTML of result with fixture from step [2].
+   * [3] Compare HTML of result with fixture from step [2].
    * @param params
    * @param {string} params.title - test title
    * @param {string} params.fixturePrefix - fixture name prefix
@@ -38,9 +37,7 @@ describe("normalising different elements", () => {
       const fixtureBase = fixtures[`${params.fixturePrefix}.base`];
       setContents(root, fixtureBase());
 
-      let highlights = Array.prototype.slice.call(document.querySelectorAll(".highlighted"));
-
-      highlighter.normalizeHighlights(highlights);
+      highlighter.normalizeHighlights();
       
       const htmlAfter = root.innerHTML;
       expect(htmlAfter).toEqual(fixture().outerHTML);
