@@ -144,6 +144,25 @@ const dom = function(el) {
     },
 
     /**
+     * Returns array of base element parents up to the
+     * provided root element.
+     *
+     * @param {HTMLElement} rootElement
+     * @returns {HTMLElement[]}
+     */
+    parentsUpTo: function(rootElement) {
+      let parent,
+        path = [];
+
+      while ((parent = el.parentNode) && parent !== rootElement) {
+        path.push(parent);
+        el = parent;
+      }
+
+      return path;
+    },
+
+    /**
      * Returns array of base element parents, excluding the document.
      * @returns {HTMLElement[]}
      */

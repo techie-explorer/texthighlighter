@@ -6,7 +6,7 @@ import {
   createWrapper,
   createDescriptors,
   getHighlightedTextRelativeToRoot,
-  focusHighlightElement
+  focusHighlightNodes
 } from "../utils/highlights";
 import {
   START_OFFSET_ATTR,
@@ -288,13 +288,39 @@ class IndependenciaHighlighter {
    * @param {object} id - The id of the highlight present in the class names of all elements
    *                      in the DOM that represent the highlight.
    *
+   * @param {string} descriptors - Optional serialised descriptors, useful in the case a highlight has no representation in the DOM
+   *                        where empty highlight wrapper nodes are removed to use less dom elements.
+   *
    * @memberof IndependenciaHighlighter
    */
-  focusUsingId(id) {
+  focusUsingId(id, descriptors) {
     const highlightElements = this.el.querySelectorAll(`.${id}`);
-    highlightElements.forEach(elem => {
-      focusHighlightElement(elem, this.el);
-    });
+
+    // For the future, we may save by accepting the offset and length as parameters as the caller should have this data
+    // from the serialised descriptors.
+    if (highlightElements.length > 0) {
+      const firstHighlightElement = highlightElements[0];
+      const nodesAndOffsets = findNodesAndOffsets(
+        {
+          offset: Number.parseInt(
+            firstHighlightElement.getAttribute(START_OFFSET_ATTR)
+          ),
+          length: Number.parseInt(
+            firstHighlightElement.getAttribute(LENGTH_ATTR)
+          )
+        },
+        this.el,
+        this.options.excludeNodes
+      );
+
+      const highlightWrapper = firstHighlightElement.cloneNode(true);
+      highlightWrapper.innerHTML = "";
+      focusHighlightNodes(id, nodesAndOffsets, highlightWrapper, this.el);
+    } else if (descriptors) {
+      // No elements in the DOM for the highlight?
+      // let's deserialize the descriptor to bring the highlight into focus.
+      this.deserializeHighlights(descriptors);
+    }
   }
 
   /**

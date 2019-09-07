@@ -261,14 +261,17 @@ class TextHighlighter {
    * This is only supported by independencia (v2-2019) and onwards.
    * For older versions, this will simply do nothing.
    *
-   * @param {object} id - The id of the highlight present in the class names of all elements
+   * @param {string} id - The id of the highlight present in the class names of all elements
    *                      in the DOM that represent the highlight.
+   *
+   * @param {string} descriptors - Optional serialised descriptors, useful in the case a highlight has no representation in the DOM
+   *                        where empty highlight wrapper nodes are removed to use less dom elements.
    *
    * @memberof TextHighlighter
    */
-  focusUsingId(id) {
+  focusUsingId(id, descriptors) {
     if (this.highlighter.focusUsingId) {
-      this.highlighter.focusUsingId(id);
+      this.highlighter.focusUsingId(id, descriptors);
     }
   }
 
