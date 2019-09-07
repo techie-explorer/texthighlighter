@@ -22,7 +22,7 @@
   </head>
   <body>
     <div class="view" style="width: 95%;">
-      <div class="top" style="height: 340px;"></div>
+      <div class="top" style="height: 450px;"></div>
 
       <div class="side">
         <h2>TextHighlighter Serialization - Absolutely Positioned Elements</h2>
@@ -42,10 +42,19 @@
             Deserialize highlights:
             <button id="deserialize">Deserialize</button>
           </li>
+          <li>
+            Focus highlight:
+            <input
+              type="text"
+              id="focus-text-field"
+              placeholder="Highlight ID"
+            />
+            <button id="focus">Focus</button>
+          </li>
         </ul>
       </div>
 
-      <div class="code shadow">
+      <div class="code shadow" style="margin-top: 40px;">
         <pre><code data-language="javascript">
 var hltr = new TextHighlighter(sandbox),
     serialized;
@@ -681,6 +690,7 @@ deserializeBtn.onclick = function () {
         var removeBtn = document.getElementById("remove"),
           serializeBtn = document.getElementById("serialize"),
           deserializeBtn = document.getElementById("deserialize");
+        var focusBtn = document.getElementById("focus");
         var sandbox = document.getElementById("sandbox");
         var colors = new ColorPicker(document.querySelector(".color-picker"));
         window.hltr = new TextHighlighter(sandbox, {
@@ -716,6 +726,13 @@ deserializeBtn.onclick = function () {
 
         removeBtn.addEventListener("click", function() {
           hltr.removeHighlights();
+        });
+
+        focusBtn.addEventListener("click", function() {
+          var highlightId = document.getElementById("focus-text-field").value;
+          if (highlightId) {
+            hltr.focusUsingId(highlightId.trim(), serialized[highlightId]);
+          }
         });
 
         serializeBtn.addEventListener("click", function() {
