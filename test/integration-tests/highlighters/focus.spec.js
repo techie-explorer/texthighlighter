@@ -45,8 +45,8 @@ describe("focusing on different highlights", () => {
         fixtures[`${params.fixturePrefix}.${params.fixturePostfixBeforeFocus}`];
       setContents(root, fixture());
 
-      const { id, offset, length } = params.highlights[0];
-      highlighter.focusUsingId(id);
+      const { id, offset, length, descriptors } = params.highlights[0];
+      highlighter.focusUsingId(id, descriptors);
 
       expect({ id, offset, length }).toHaveFocus(root);
 
@@ -145,5 +145,21 @@ describe("focusing on different highlights", () => {
     fixturePostfixBeforeFocus: "overlappingMultipleFocusThird"
   });
 
-  // TODO: Add test cases for elements being focused that have no dom representation. (Based on descriptors)
+  testFocus({
+    title:
+      "should focus an overlapping highlight that has no representation in the DOM and then focus on the previously focused highlight",
+    fixturePrefix: "07.focus",
+    highlights: [
+      {
+        id: "test-overlapping-highlights-2",
+        offset: 13,
+        length: 5,
+        descriptors:
+          '[["<span class=\\"highlighted test-overlapping-highlights-2\\" style=\\"background-color:red;\\" ' +
+          'data-highlighted=\\"true\\" data-start-offset=\\"13\\" data-length=\\"5\\"></span>","sum d",13,5]]'
+      },
+      { id: "test-overlapping-highlights-3", offset: 16, length: 15 }
+    ],
+    fixturePostfixBeforeFocus: "overlappingMultipleFocusThird"
+  });
 });

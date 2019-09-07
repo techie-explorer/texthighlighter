@@ -66,64 +66,6 @@ const fixtures = {
         b("elit")
       )
     );
-  },
-  "03.focus.overlappingFocusSecond": () => {
-    return span(
-      "AAA",
-      span(
-        "CCC",
-        span("Lorem "),
-        highlight(
-          {
-            color: "red",
-            id: "test-overlapping-highlights-1",
-            startOffset: 12,
-            length: 16
-          },
-          "ipsum",
-          highlight(
-            {
-              color: "blue",
-              id: "test-overlapping-highlights-2",
-              startOffset: 17,
-              length: 15
-            },
-            " dolor "
-          )
-        ),
-        b(
-          highlight(
-            {
-              color: "red",
-              id: "test-overlapping-highlights-1",
-              startOffset: 12,
-              length: 16
-            },
-            highlight(
-              {
-                color: "blue",
-                id: "test-overlapping-highlights-2",
-                startOffset: 17,
-                length: 15
-              },
-              "sit "
-            )
-          )
-        ),
-        b(
-          highlight(
-            {
-              color: "blue",
-              id: "test-overlapping-highlights-2",
-              startOffset: 17,
-              length: 15
-            },
-            "amet"
-          )
-        ),
-        b("elit")
-      )
-    );
   }
 };
 

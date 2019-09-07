@@ -14,7 +14,7 @@ const fixtures = {
               startOffset: 6,
               length: 26
             },
-            "Lorem ipsum dolor ",
+            "Lorem ipsum dolor "
           ),
           b(
             highlight(
@@ -37,7 +37,7 @@ const fixtures = {
                 length: 26
               },
               "am"
-            ),
+            )
           ),
           highlight(
             {
@@ -101,79 +101,7 @@ const fixtures = {
                 length: 26
               },
               "am"
-            ),
-          ),
-          highlight(
-            {
-              color: "red",
-              id: "test-overlapping-highlights",
-              startOffset: 6,
-              length: 26
-            },
-            "et"
-          )
-        ),
-        span("consectetur adipiscit"),
-        span("elit.")
-      ),
-      span("DDD"),
-      "BBB"
-    );
-  }, 
-  "02.focus.nestedParentFocused": () => {
-    return span(
-      "AAA",
-      span(
-        "CCC",
-        span(
-          highlight(
-            {
-              color: "red",
-              id: "test-overlapping-highlights",
-              startOffset: 6,
-              length: 26
-            },
-            "Lorem "
-          ),
-          highlight(
-            {
-                color: "blue",
-                id: "test-overlapping-highlights-nested-1",
-                startOffset: 12,
-                length: 12
-            },
-            highlight(
-              {
-                color: "red",
-                id: "test-overlapping-highlights",
-                startOffset: 6,
-                length: 26
-              },
-              "ipsum dolor "
-            ),
-          ),
-          b(
-            highlight(
-              {
-                color: "red",
-                id: "test-overlapping-highlights",
-                startOffset: 6,
-                length: 26
-              },
-              "sit "
             )
-          ),
-          img(),
-          i(
-            highlight(
-              {
-                color: "red",
-                id: "test-overlapping-highlights",
-                startOffset: 6,
-                length: 26
-              },
-              "am"
-            ),
           ),
           highlight(
             {

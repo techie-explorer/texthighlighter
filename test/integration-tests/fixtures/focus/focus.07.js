@@ -1,7 +1,7 @@
 import { span, highlight, b } from "../../../utils/dom-elements";
 
 const fixtures = {
-  "06.focus.overlappingMultipleFocusThird": () => {
+  "07.focus.overlappingMultipleFocusThird": () => {
     // Add the case where three highlights overlap here!
     return span(
       "AAA",
@@ -17,16 +17,8 @@ const fixtures = {
             length: 16
           },
           "ip",
-          // highlighted text: "sum d"
-          highlight(
-            {
-              color: "green",
-              id: "test-overlapping-highlights-2",
-              startOffset: 13,
-              length: 5
-            },
-            "sum d"
-          ),
+          // green highlighted text: "sum d"
+          "sum d",
           // highlighted text: " dolor sit amet"
           highlight(
             {

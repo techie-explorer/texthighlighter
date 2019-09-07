@@ -43,6 +43,15 @@
             Deserialize highlights:
             <button id="deserialize">Deserialize</button>
           </li>
+          <li>
+            Focus highlight:
+            <input
+              type="text"
+              id="focus-text-field"
+              placeholder="Highlight ID"
+            />
+            <button id="focus">Focus</button>
+          </li>
         </ul>
       </div>
 
@@ -203,6 +212,7 @@ deserializeBtn.onclick = function () {
         var removeBtn = document.getElementById("remove"),
           serializeBtn = document.getElementById("serialize"),
           deserializeBtn = document.getElementById("deserialize");
+        var focusBtn = document.getElementById("focus");
         var sandbox = document.getElementById("sandbox");
         var colors = new ColorPicker(document.querySelector(".color-picker"));
         window.hltr = new TextHighlighter(sandbox, {
@@ -238,6 +248,13 @@ deserializeBtn.onclick = function () {
 
         removeBtn.addEventListener("click", function() {
           hltr.removeHighlights();
+        });
+
+        focusBtn.addEventListener("click", function() {
+          var highlightId = document.getElementById("focus-text-field").value;
+          if (highlightId) {
+            hltr.focusUsingId(highlightId.trim(), serialized[highlightId]);
+          }
         });
 
         serializeBtn.addEventListener("click", function() {

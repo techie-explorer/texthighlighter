@@ -4,6 +4,7 @@ import f3Fixtures from "./focus.03";
 import f4Fixtures from "./focus.04";
 import f5Fixtures from "./focus.05";
 import f6Fixtures from "./focus.06";
+import f7Fixtures from "./focus.07";
 
 export default {
   ...f1Fixtures,
@@ -11,5 +12,6 @@ export default {
   ...f3Fixtures,
   ...f4Fixtures,
   ...f5Fixtures,
-  ...f6Fixtures
+  ...f6Fixtures,
+  ...f7Fixtures
 };
