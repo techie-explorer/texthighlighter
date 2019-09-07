@@ -23,7 +23,7 @@
   </head>
   <body>
     <div class="view">
-      <div class="top"></div>
+      <div class="top" style="height: 400px;"></div>
 
       <div class="side">
         <h2>TextHighlighter Serialization</h2>
@@ -52,25 +52,16 @@
             />
             <button id="focus">Focus</button>
           </li>
+          <li>
+            Deselect highlight:
+            <input
+              type="text"
+              id="deselect-text-field"
+              placeholder="Highlight ID"
+            />
+            <button id="deselect">Deselect</button>
+          </li>
         </ul>
-      </div>
-
-      <div class="code shadow">
-        <pre><code data-language="javascript">
-var hltr = new TextHighlighter(sandbox),
-    serialized;
-
-serializeBtn.onclick = function () {
-    serialized = hltr.serializeHighlights();
-    console.log(serialized);
-    hltr.removeHighlights();
-});
-
-deserializeBtn.onclick = function () {
-    hltr.removeHighlights();
-    hltr.deserializeHighlights(serialized);
-});
-</code></pre>
       </div>
 
       <div class="card shadow">
@@ -202,7 +193,7 @@ deserializeBtn.onclick = function () {
       </div>
     </div>
     <div id="footer">
-      Copyright &copy; 2011-2014 by mirz. All Rights Reserved.
+      Copyright &copy; 2019 by Perlego Limited. All Rights Reserved.
     </div>
 
     <script type="text/javascript">
@@ -213,18 +204,18 @@ deserializeBtn.onclick = function () {
           serializeBtn = document.getElementById("serialize"),
           deserializeBtn = document.getElementById("deserialize");
         var focusBtn = document.getElementById("focus");
+        var deselectBtn = document.getElementById("deselect");
         var sandbox = document.getElementById("sandbox");
         var colors = new ColorPicker(document.querySelector(".color-picker"));
         window.hltr = new TextHighlighter(sandbox, {
           version: "independencia",
           onAfterHighlight: function(range, descriptors) {
-            var uniqueId =
+            var uniqueId = `hlt-${Math.random()
+              .toString(36)
+              .substring(2, 15) +
               Math.random()
                 .toString(36)
-                .substring(2, 15) +
-              Math.random()
-                .toString(36)
-                .substring(2, 15);
+                .substring(2, 15)}`;
             highlightIds.push(uniqueId);
 
             var descriptorsWithIds = descriptors.map(descriptor => {
@@ -254,6 +245,27 @@ deserializeBtn.onclick = function () {
           var highlightId = document.getElementById("focus-text-field").value;
           if (highlightId) {
             hltr.focusUsingId(highlightId.trim(), serialized[highlightId]);
+          }
+        });
+
+        deselectBtn.addEventListener("click", function() {
+          // Ensure all highlights are serialised first!
+          highlightIds.forEach(highlightId => {
+            serialized[highlightId] = hltr.serializeHighlights(highlightId);
+          });
+
+          var highlightId = document.getElementById("deselect-text-field")
+            .value;
+          if (highlightId) {
+            const highlightDescriptors = Object.keys(serialized)
+              .filter(currentHighlightId => currentHighlightId !== highlightId)
+              .map(currentHighlightId => {
+                return {
+                  id: currentHighlightId,
+                  serialisedDescriptor: serialized[currentHighlightId]
+                };
+              });
+            hltr.deselectUsingId(highlightId.trim(), highlightDescriptors);
           }
         });
 

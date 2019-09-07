@@ -21,11 +21,10 @@ describe("focusing on different highlights", () => {
    * Tests focusing on overlapping highlights
    * Procedure:
    * [1] Load fixture named: params.fixturePrefix + '.' + params.fixturePostfixBeforeFocus (fixture with highlight id 2 in focus) and set that to the root element.
-   * [2] Load fixture named: params.fixturePrefix + '.' + params.fixturePostfixAfterFocus (fixture with highlight id 1 in focus).
    * [3] Focus on highlight using params.ids[0].
-   * [4] Compare HTML of result with fixture from step [2].
+   * [4] Ensure the innermost highlight wrapper for the text nodes in the highlight range are for params.id[0] [2].
    * [5] Focus on a second ID using params.ids[1] if it exists (this is the highlight that was originally focused in the params.fixturePostfixBeforeFocus)
-   * [6] Compare HTML of result with fixture from step [1].
+   * [6] Ensure the innermost highlight wrapper for the text nodes in the highlight range are for params.id[1] [1].
    *
    * @typedef Highlight
    * @type {object}
@@ -40,7 +39,7 @@ describe("focusing on different highlights", () => {
    * @param {string} params.fixturePostfixBeforeFocus - fixture name postfix used as the before focus comparison
    */
   const testFocus = params => {
-    it(`${params.fixturePrefix}:before(${params.fixturePostfixAfterFocus}):after(${params.fixturePostfixBeforeFocus}): ${params.title}`, () => {
+    it(`${params.fixturePrefix}:before(${params.fixturePostfixBeforeFocus}): ${params.title}`, () => {
       const fixture =
         fixtures[`${params.fixturePrefix}.${params.fixturePostfixBeforeFocus}`];
       setContents(root, fixture());

@@ -1,6 +1,12 @@
 import dom, { NODE_TYPE } from "./dom";
-import { DATA_ATTR, START_OFFSET_ATTR, LENGTH_ATTR } from "../config";
+import {
+  DATA_ATTR,
+  START_OFFSET_ATTR,
+  LENGTH_ATTR,
+  TIMESTAMP_ATTR
+} from "../config";
 import { arrayToLower } from "./arrays";
+import { scaleFromTransformMatrix } from "./transform";
 
 /**
  * Takes range object as parameter and refines it boundaries

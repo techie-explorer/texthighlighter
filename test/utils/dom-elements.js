@@ -1,4 +1,8 @@
-import { START_OFFSET_ATTR, LENGTH_ATTR, TIMESTAMP_ATTR } from "../../src/config";
+import {
+  START_OFFSET_ATTR,
+  LENGTH_ATTR,
+  TIMESTAMP_ATTR
+} from "../../src/config";
 
 const appendChildren = (elem, ...children) => {
   children.forEach(child => {
@@ -10,11 +14,17 @@ const appendChildren = (elem, ...children) => {
   });
 };
 
-const element = tag => (...children) => ({ id } = {}) => {
+const element = tag => (...children) => ({ id, style } = {}) => {
   const docElem = document.createElement(tag);
   appendChildren(docElem, ...children);
   if (id) {
     docElem.setAttribute("id", id);
+  }
+
+  if (style) {
+    Object.keys(style).forEach(styleProperty => {
+      docElem.style[styleProperty] = style[styleProperty];
+    });
   }
 
   return docElem;
@@ -47,7 +57,7 @@ const docFrag = (...children) => {
   return frag;
 };
 
-const highlight = ({ color, id, startOffset, length, time}, ...children) => {
+const highlight = ({ color, id, startOffset, length, time }, ...children) => {
   const docElem = span(...children);
   docElem.style.backgroundColor = color;
   docElem.classList.add("highlighted");
@@ -58,7 +68,7 @@ const highlight = ({ color, id, startOffset, length, time}, ...children) => {
   docElem.setAttribute("data-highlighted", true);
   docElem.setAttribute(START_OFFSET_ATTR, startOffset);
   docElem.setAttribute(LENGTH_ATTR, length);
-  
+
   return docElem;
 };
 
