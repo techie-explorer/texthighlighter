@@ -247,19 +247,28 @@ class IndependenciaHighlighter {
 
       highlightNodes.forEach(
         ({ node, offset: offsetWithinNode, length: lengthInNode }) => {
-          hlNode = node.splitText(offsetWithinNode);
-          hlNode.splitText(lengthInNode);
+          // Don't call innerText to prevent DOM layout reflow.
+          // Visible text content may be a bit of naive name but represents
+          // everything excluding new lines and white space.
+          const visibleTextContent = node.textContent
+            .trim()
+            .replace(/(\r\n|\n|\r)/gm, "");
 
-          if (hlNode.nextSibling && !hlNode.nextSibling.nodeValue) {
-            dom(hlNode.nextSibling).remove();
+          if (visibleTextContent.length > 0) {
+            hlNode = node.splitText(offsetWithinNode);
+            hlNode.splitText(lengthInNode);
+
+            if (hlNode.nextSibling && !hlNode.nextSibling.nodeValue) {
+              dom(hlNode.nextSibling).remove();
+            }
+
+            if (hlNode.previousSibling && !hlNode.previousSibling.nodeValue) {
+              dom(hlNode.previousSibling).remove();
+            }
+
+            highlight = dom(hlNode).wrap(dom().fromHTML(hl.wrapper)[0]);
+            highlights.push(highlight);
           }
-
-          if (hlNode.previousSibling && !hlNode.previousSibling.nodeValue) {
-            dom(hlNode.previousSibling).remove();
-          }
-
-          highlight = dom(hlNode).wrap(dom().fromHTML(hl.wrapper)[0]);
-          highlights.push(highlight);
         }
       );
     }
