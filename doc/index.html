@@ -143,6 +143,74 @@ const highlighter = new TextHighlighter(document.getElementById(&quot;sandbox&qu
 <li>Keeps DOM clean.</li>
 <li>No dependencies. No jQuery or other libraries needed.</li>
 </ul>
+<h2>Using the library</h2>
+<p>You can find the <a href="http://perlego.github.io/texthighlighter/doc/index.html">API reference here</a><br>
+which details the interface for the highlighter and the utility functionality that you could also make use<br>
+of in your project.</p>
+<h3>Simple example</h3>
+<pre class="prettyprint source lang-javascript"><code>import TextHighlighter from 'text-highlighter';
+import { isDuplicate } from './utils'; 
+import highlightsApi from './services/highlights-api';
+
+class ArticleView {
+  constructor(data) {
+    this.data = data;
+    const pageElement = document.getElementById(&quot;article&quot;);
+    this.highlighter = new TextHighlighter(
+      pageElement, 
+      {
+        version: &quot;independencia&quot;,
+        onBeforeHighlight: this.onBeforeHighlight,
+        onAfterHighlight: this.onAfterHighlight,
+        onRemoveHighlight: this.onRemoveHighlight
+    });
+  }
+
+  onBeforeHighlight = (range) => {
+    return !isDuplicate(range)
+  }
+
+  onRemoveHighlight = (highlightElement) => {
+    const proceed = window.confirm(&quot;Are you sure you want to remove this highlight?&quot;);
+    return proceed;
+  }
+
+  onAfterHighlight = (range, descriptors, timestamp) => {
+    // Add an ID to the class list to identify each highlight 
+    // (A highlight can be represented by a group of elements in the DOM).
+    const uniqueId = `hlt-${Math.random()
+      .toString(36)
+      .substring(2, 15) +
+      Math.random()
+      .toString(36)
+      .substring(2, 15)}`;
+    
+    const descriptorsWithIds = descriptors.map(descriptor => {
+      const [wrapper, ...rest] = descriptor;
+      return [
+        wrapper.replace(
+          'class=&quot;highlighted&quot;',
+          `class=&quot;highlighted ${uniqueId}&quot;`
+        ),
+        ...rest
+      ];
+    });
+
+    highlightsApi.saveBatch(descriptorsWithIds)
+      .then((result) => {
+        // Do something with the highlights that have been saved.
+      })
+      .catch((err) => console.error(err));
+
+    return descriptorsWithIds;
+  }
+
+  render = () => {
+    // Code that takes the data for the article and adds it to the DOM
+    // based on a html template here.
+  }
+}
+</code></pre>
 <h2>Compatibility</h2>
 <p>Should work in all decent browsers and IE 11.</p>
 <h2>Running the tests</h2>
@@ -184,6 +252,7 @@ along with pure utility pieces.</p>
 <li><a href="http://perlego.github.io/texthighlighter/demos/simple.html">Simple demo</a></li>
 <li><a href="http://perlego.github.io/texthighlighter/demos/callbacks.html">Callbacks</a></li>
 <li><a href="http://perlego.github.io/texthighlighter/demos/serialization.html">Serialization</a></li>
+<li><a href="http://perlego.github.io/texthighlighter/demos/serialization-absolute-positioning.html">Serialization (Absolutely positioned elements)</a></li>
 <li><a href="http://perlego.github.io/texthighlighter/demos/iframe.html">Iframe</a></li>
 </ul>
 <h2>Documentation</h2>
