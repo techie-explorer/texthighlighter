@@ -1,0 +1,17 @@
+test
+demos
+coverage
+gruntfile.js
+gruntfile.dev.js
+index.html
+jsdoc.conf.json
+setupTests.js
+testserver.js
+lib
+hlbg.png
+.babelrc
+.eslintignore
+.eslintrc.js
+.prettierrc
+.pretterignore
+build/dev
