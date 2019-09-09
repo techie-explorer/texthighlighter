@@ -9,7 +9,6 @@ export const DATA_ATTR = "data-highlighted";
  * @type {string}
  */
 export const TIMESTAMP_ATTR = "data-timestamp";
-
 export const START_OFFSET_ATTR = "data-start-offset";
 export const LENGTH_ATTR = "data-length";
 
