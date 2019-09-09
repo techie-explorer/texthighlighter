@@ -76,8 +76,10 @@ import TextHighlighter from 'text-highlighter';
 import { isDuplicate } from './utils'; 
 import highlightsApi from './services/highlights-api';
 
-class Article {
-  constructor(pageElement) {
+class ArticleView {
+  constructor(data) {
+    this.data = data;
+    const pageElement = document.getElementById("article");
     this.highlighter = new TextHighlighter(
       pageElement, 
       {
@@ -125,6 +127,11 @@ class Article {
       .catch((err) => console.error(err));
 
     return descriptorsWithIds;
+  }
+
+  render = () => {
+    // Code that takes the data for the article and adds it to the DOM
+    // based on a html template here.
   }
 }
 ```
