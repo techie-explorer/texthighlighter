@@ -65,9 +65,6 @@ class IndependenciaHighlighter {
         excludeNodeNames: this.options.excludeNodes,
       });
 
-      // createdHighlights = this.highlightRange(range, wrapper);
-      // normalizedHighlights = this.normalizeHighlights(createdHighlights);
-
       const processedDescriptors = this.options.onAfterHighlight(range, descriptors, timestamp);
       this.deserializeHighlights(JSON.stringify(processedDescriptors));
     }
@@ -78,12 +75,9 @@ class IndependenciaHighlighter {
   }
 
   /**
-   * Normalizes highlights. Ensures text nodes within any given element node are merged together, elements with the
+   * Normalizes highlights and the dom. Ensures text nodes within any given element node are merged together, elements with the
    * same ID next to each other are merged together and highlights with the same ID next to each other are merged together.
    *
-   * @param {Array} highlights - highlights to normalize.
-   * @returns {Array} - array of normalized highlights. Order and number of returned highlights may be different than
-   * input highlights.
    * @memberof IndependenciaHighlighter
    */
   normalizeHighlights() {
@@ -92,9 +86,9 @@ class IndependenciaHighlighter {
 
   /**
    *
-   * Removes highlights from element. If element is a highlight itself, it is removed as well.
-   * If no element is given, all highlights are removed.
-   * @param {HTMLElement} [element] - element to remove highlights from
+   * Removes a highlight from dom given that highlight ID.
+   * If no ID is given, all highlights are removed.
+   * @param {string} id - ID of highlight to remove
    * @memberof IndependenciaHighlighter
    */
   removeHighlights(id) {
@@ -143,6 +137,7 @@ class IndependenciaHighlighter {
    * Returns true if element is a highlight.
    *
    * @param el - element to check.
+   * @param dataAttr - data attribute to determine if the element is a highlight
    * @returns {boolean}
    * @memberof IndependenciaHighlighter
    */
@@ -151,7 +146,8 @@ class IndependenciaHighlighter {
   }
 
   /**
-   * Serializes all highlights in the element the highlighter is applied to.
+   * Serializes the highlight belonging to the ID.
+   * @param id - ID of the highlight to serialise
    * @returns {string} - stringified JSON with highlights definition
    * @memberof IndependenciaHighlighter
    */
@@ -259,9 +255,7 @@ class IndependenciaHighlighter {
       }
     });
 
-    // TODO: normalise at the end of deserialisation.
-    // this.normalizeHighlights(highlights);
-    //dom(this.el).normalizeElements();
+    this.normalizeHighlights();
 
     return highlights;
   }
