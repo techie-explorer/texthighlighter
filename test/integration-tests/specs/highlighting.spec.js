@@ -121,7 +121,7 @@ describe("highlighting a given range", () => {
         toDiffableHtml(fixture().outerHTML)
       );
       if (params.highlightIdToRemove) {
-        highlighter.removeHighlights(params.highlightIdToRemove);
+        highlighter.removeHighlights(null, params.highlightIdToRemove);
       } else {
         highlighter.removeHighlights();
       }

@@ -90,7 +90,6 @@ class IndependenciaHighlighter {
    * Normalizes highlights. Ensures text nodes within any given element node are merged together, elements with the
    * same ID next to each other are merged together and highlights with the same ID next to each other are merged together.
    *
-   * @param {Array} highlights - highlights to normalize.
    * @returns {Array} - array of normalized highlights. Order and number of returned highlights may be different than
    * input highlights.
    * @memberof IndependenciaHighlighter
@@ -103,11 +102,13 @@ class IndependenciaHighlighter {
    *
    * Removes highlights from element. If element is a highlight itself, it is removed as well.
    * If no element is given, all highlights are removed.
-   * @param {HTMLElement} [element] - element to remove highlights from
+   * @param {HTMLElement} element - element to remove highlights from
+   * @param {string} id - The unique id of a highlight represented by a collection of elements.
    * @memberof IndependenciaHighlighter
    */
-  removeHighlights(id) {
-    let highlights = this.getHighlights(),
+  removeHighlights(element, id) {
+    const container = element || this.el;
+    let highlights = this.getHighlights({ container }),
       self = this;
 
     function removeHighlight(highlight) {
@@ -285,7 +286,7 @@ class IndependenciaHighlighter {
 
     // TODO: normalise at the end of deserialisation.
     // this.normalizeHighlights(highlights);
-    //dom(this.el).normalizeElements();
+    // dom(this.el).normalizeElements();
 
     return highlights;
   }
