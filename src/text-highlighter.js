@@ -60,7 +60,7 @@ class TextHighlighter {
    * @param {function} options.onBeforeHighlight - function called before highlight is created. Range object is
    *  passed as param. Function should return true to continue processing, or false - to prevent highlighting.
    * @param {function} options.onAfterHighlight - function called after highlight is created. Array of created
-   * wrappers is passed as param.
+   * wrappers is passed as param. (The callback interface differs between versions, see specific highlighter classes for more info)
    * @class TextHighlighter
    */
   constructor(element, options) {
@@ -81,7 +81,11 @@ class TextHighlighter {
       onBeforeHighlight: function() {
         return true;
       },
-      onAfterHighlight: function() {},
+      onAfterHighlight: function(_, hlts) {
+        // For the newer version of the highlighter, we need to return the
+        // highlight descriptors parameter by default in order to create highlights in the DOM.
+        return hlts;
+      },
       ...options
     };
 

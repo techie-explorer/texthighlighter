@@ -19,6 +19,12 @@ import dom from "../utils/dom";
 /**
  * IndependenciaHighlighter that provides text highlighting functionality to dom elements
  * with a focus on removing interdependence between highlights and other element nodes in the context element.
+ *
+ * @callback onAfterHighlightCallbackV2
+ * @param {Range} range
+ * @param {[string, string, number, number][]} highlightDescriptors
+ * @param {number} timestamp
+ * @return {[string, string, number, number][]}
  */
 class IndependenciaHighlighter {
   /**
@@ -35,8 +41,8 @@ class IndependenciaHighlighter {
    *  passed as param. Function should return true if highlight should be removed, or false - to prevent removal.
    * @param {function} options.onBeforeHighlight - function called before highlight is created. Range object is
    *  passed as param. Function should return true to continue processing, or false - to prevent highlighting.
-   * @param {function} options.onAfterHighlight - function called after highlight is created. Array of created
-   * wrappers is passed as param.
+   * @param {onAfterHighlightCallbackV2} options.onAfterHighlight - function called after highlight is created. Array of created
+   * wrappers is passed as param. This should always return a set of descriptors.
    * @class IndependenciaHighlighter
    */
   constructor(element, options) {
