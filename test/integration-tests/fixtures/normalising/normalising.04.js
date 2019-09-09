@@ -10,7 +10,7 @@ const fixtures = {
           highlight(
             {
               color: "red",
-              id: "",
+              id: "highlight-1",
               startOffset: 6,
               length: 26,
             },
@@ -20,7 +20,7 @@ const fixtures = {
             highlight(
               {
                 color: "red",
-                id: "",
+                id: "highlight-1",
                 startOffset: 6,
                 length: 26,
               },
@@ -31,7 +31,7 @@ const fixtures = {
             highlight(
               {
                 color: "red",
-                id: "",
+                id: "highlight-1",
                 startOffset: 6,
                 length: 26,
               },
@@ -43,7 +43,7 @@ const fixtures = {
             highlight(
               {
                 color: "red",
-                id: "",
+                id: "highlight-1",
                 startOffset: 6,
                 length: 26,
               },
@@ -52,7 +52,7 @@ const fixtures = {
             highlight(
               {
                 color: "red",
-                id: "",
+                id: "highlight-1",
                 startOffset: 6,
                 length: 26,
               },
@@ -62,7 +62,7 @@ const fixtures = {
           highlight(
             {
               color: "red",
-              id: "",
+              id: "highlight-1",
               startOffset: 6,
               length: 26,
             },
@@ -85,7 +85,7 @@ const fixtures = {
           highlight(
             {
               color: "red",
-              id: "",
+              id: "highlight-1",
               startOffset: 6,
               length: 26,
             },
@@ -95,7 +95,7 @@ const fixtures = {
             highlight(
               {
                 color: "red",
-                id: "",
+                id: "highlight-1",
                 startOffset: 6,
                 length: 26,
               },
@@ -107,7 +107,7 @@ const fixtures = {
             highlight(
               {
                 color: "red",
-                id: "",
+                id: "highlight-1",
                 startOffset: 6,
                 length: 26,
               },
@@ -117,7 +117,7 @@ const fixtures = {
           highlight(
             {
               color: "red",
-              id: "",
+              id: "highlight-1",
               startOffset: 6,
               length: 26,
             },

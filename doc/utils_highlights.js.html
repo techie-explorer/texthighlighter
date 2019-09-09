@@ -709,7 +709,13 @@ function isClosestHighlightParent(node, id, rootElement) {
  *
  * @param {HTMLElement} rootElement The root context element to normalise elements within.
  */
-export function focusHighlightNodes(id, nodeInfoList, highlightWrapper, rootElement) {
+export function focusHighlightNodes(
+  id,
+  nodeInfoList,
+  highlightWrapper,
+  rootElement,
+  highlightedClass,
+) {
   nodeInfoList.forEach((nodeInfo) => {
     const node = nodeInfo.node;
     // Only wrap the node if the closest highlight parent isn't one with the given id.
@@ -747,7 +753,7 @@ export function focusHighlightNodes(id, nodeInfoList, highlightWrapper, rootElem
 
   // Ensure we normalise all nodes in the root container to merge sibling elements
   // of the same highlight together that get copied for the purpose of focusing.
-  dom(rootElement).normalizeElements();
+  dom(rootElement).normalizeElements(highlightedClass);
 }
 </pre>
     </article>

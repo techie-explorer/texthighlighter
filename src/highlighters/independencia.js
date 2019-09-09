@@ -93,7 +93,7 @@ class IndependenciaHighlighter {
    * @memberof IndependenciaHighlighter
    */
   normalizeHighlights() {
-    dom(this.el).normalizeElements();
+    dom(this.el).normalizeElements(this.options.highlightedClass);
   }
 
   /**
@@ -260,7 +260,6 @@ class IndependenciaHighlighter {
           if (hlNode.previousSibling && !hlNode.previousSibling.nodeValue) {
             dom(hlNode.previousSibling).remove();
           }
-
           highlight = dom(hlNode).wrap(dom().fromHTML(hl.wrapper)[0]);
           highlights.push(highlight);
         }
@@ -319,7 +318,13 @@ class IndependenciaHighlighter {
 
       const highlightWrapper = firstHighlightElement.cloneNode(true);
       highlightWrapper.innerHTML = "";
-      focusHighlightNodes(id, nodesAndOffsets, highlightWrapper, this.el);
+      focusHighlightNodes(
+        id,
+        nodesAndOffsets,
+        highlightWrapper,
+        this.el,
+        this.options.highlightedClass,
+      );
     } else if (descriptors) {
       // No elements in the DOM for the highlight?
       // let's deserialize the descriptor to bring the highlight into focus.
