@@ -12,6 +12,13 @@ const highlighters = {
   "v2-2019": Independencia
 };
 
+const versionNames = {
+  "v1-2014": "Primitivo (v1-2014)",
+  primitivo: "Primitivo (v1-2014)",
+  "v2-2019": "Independencia (v2-2019)",
+  independencia: "Independencia (v2-2019)"
+};
+
 /**
  * TextHighlighter that provides text highlighting functionality to dom elements.
  */
@@ -252,6 +259,62 @@ class TextHighlighter {
 
     dom(this.el).removeAllRanges();
     wnd.scrollTo(scrollX, scrollY);
+  }
+
+  /**
+   * Focuses a highlight, bringing it forward in the case it is sitting behind another
+   * overlapping highlight, or a highlight it is nested inside.
+   *
+   * This is only supported by independencia (v2-2019) and onwards.
+   * For older versions, this will simply do nothing.
+   *
+   * @param {string} id - The id of the highlight present in the class names of all elements
+   *                      in the DOM that represent the highlight.
+   *
+   * @param {string} descriptors - Optional serialised descriptors, useful in the case a highlight has no representation in the DOM
+   *                        where empty highlight wrapper nodes are removed to use less dom elements.
+   *
+   * @memberof TextHighlighter
+   */
+  focusUsingId(id, descriptors) {
+    if (this.highlighter.focusUsingId) {
+      this.highlighter.focusUsingId(id, descriptors);
+    } else {
+      console.warn(
+        `The ${
+          versionNames[this.options.version]
+        } version of the text highlighter does not support focusing highlights.`
+      );
+    }
+  }
+
+  /**
+   * Deselects a highlight, bringing any nested highlights in the list of descriptors
+   * forward.
+   *
+   * This is only supported by independencia (v2-2019) and onwards.
+   * For older versions, this will simply do nothing.
+   *
+   * @typedef HighlightDescriptor
+   * @type {object}
+   * @property {string} id
+   * @property {string} serialisedDescriptor
+   *
+   * @param {string} id  The id of the deselected highlight.
+   * @param {HighlightDescriptor[]} descriptors the serialised highlight descriptors for a set of highlights that could be nested
+   *                               in the deselected highlight.
+   * @memberof TextHighlighter
+   */
+  deselectUsingId(id, descriptors) {
+    if (this.highlighter.deselectUsingId) {
+      this.highlighter.deselectUsingId(id, descriptors);
+    } else {
+      console.warn(
+        `The ${
+          versionNames[this.options.version]
+        } version of the text highlighter does not support deselecting highlights.`
+      );
+    }
   }
 }
 

@@ -1,43 +1,44 @@
 import { span, highlight, b } from "../../../utils/dom-elements";
 
 const fixtures = {
-  "03.focus.overlappingFocusFirst": () => {
+  "05.focus.overlappingMultipleFocusFirst": () => {
     return span(
       "AAA",
       span(
         "CCC",
         span("Lorem "),
+        // highlighted text: "ipsum dolor sit"
         highlight(
           {
             color: "red",
             id: "test-overlapping-highlights-1",
             startOffset: 12,
-            length: 16
+            length: 15
           },
-          "ipsum"
+          "ip"
         ),
         highlight(
           {
-            color: "blue",
+            color: "green",
             id: "test-overlapping-highlights-2",
-            startOffset: 17,
-            length: 15
+            startOffset: 14,
+            length: 5
           },
+          // highlighted text: "sum d"
           highlight(
             {
               color: "red",
               id: "test-overlapping-highlights-1",
               startOffset: 12,
-              length: 16
+              length: 15
             },
-            " dolor "
-          )
-        ),
-        b(
+            "sum d"
+          ),
+          // highlighted text: " dolor sit amet"
           highlight(
             {
               color: "blue",
-              id: "test-overlapping-highlights-2",
+              id: "test-overlapping-highlights-3",
               startOffset: 17,
               length: 15
             },
@@ -46,7 +47,26 @@ const fixtures = {
                 color: "red",
                 id: "test-overlapping-highlights-1",
                 startOffset: 12,
-                length: 16
+                length: 15
+              },
+              "olor "
+            )
+          )
+        ),
+        b(
+          highlight(
+            {
+              color: "blue",
+              id: "test-overlapping-highlights-3",
+              startOffset: 17,
+              length: 15
+            },
+            highlight(
+              {
+                color: "red",
+                id: "test-overlapping-highlights-1",
+                startOffset: 12,
+                length: 15
               },
               "sit "
             )
@@ -56,7 +76,7 @@ const fixtures = {
           highlight(
             {
               color: "blue",
-              id: "test-overlapping-highlights-2",
+              id: "test-overlapping-highlights-3",
               startOffset: 17,
               length: 15
             },

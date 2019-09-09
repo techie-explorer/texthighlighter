@@ -5,7 +5,8 @@ import {
   findNodesAndOffsets,
   createWrapper,
   createDescriptors,
-  getHighlightedTextRelativeToRoot
+  getHighlightedTextRelativeToRoot,
+  focusHighlightNodes
 } from "../utils/highlights";
 import {
   START_OFFSET_ATTR,
@@ -14,7 +15,6 @@ import {
   TIMESTAMP_ATTR
 } from "../config";
 import dom from "../utils/dom";
-import { unique } from "../utils/arrays";
 
 /**
  * IndependenciaHighlighter that provides text highlighting functionality to dom elements
@@ -107,7 +107,6 @@ class IndependenciaHighlighter {
    * @memberof IndependenciaHighlighter
    */
   removeHighlights(id) {
-
     let highlights = this.getHighlights(),
       self = this;
 
@@ -116,14 +115,14 @@ class IndependenciaHighlighter {
     }
 
     highlights.forEach(function(hl) {
-      if(!id || (id && hl.classList.contains(id))) {
+      if (!id || (id && hl.classList.contains(id))) {
         if (self.options.onRemoveHighlight(hl) === true) {
           removeHighlight(hl);
         }
       }
     });
 
-     this.normalizeHighlights(highlights)
+    this.normalizeHighlights(highlights);
   }
 
   /**
@@ -280,6 +279,118 @@ class IndependenciaHighlighter {
     //dom(this.el).normalizeElements();
 
     return highlights;
+  }
+
+  /**
+   * Focuses a highlight, bringing it forward in the case it is sitting behind another
+   * overlapping highlight, or a highlight it is nested inside.
+   *
+   * @param {object} id - The id of the highlight present in the class names of all elements
+   *                      in the DOM that represent the highlight.
+   *
+   * In order to utilise this functionality unique ids for highlights should be added to the class list in the highlight
+   * wrapper within the descriptors.
+   * You can do this in the onAfterHighlight callback when a highlight is first created.
+   *
+   * In the future it might be worth adding more flexiblity to allow for user-defined ways of storing ids to identify
+   * elements in the DOM. (e.g. choosing between class name or data attributes)
+   *
+   * @param {string} descriptors - Optional serialised descriptors, useful in the case a highlight has no representation in the DOM
+   *                        where empty highlight wrapper nodes are removed to use less dom elements.
+   *
+   * @memberof IndependenciaHighlighter
+   */
+  focusUsingId(id, descriptors) {
+    const highlightElements = this.el.querySelectorAll(`.${id}`);
+
+    // For the future, we may save by accepting the offset and length as parameters as the caller should have this data
+    // from the serialised descriptors.
+    if (highlightElements.length > 0) {
+      const firstHighlightElement = highlightElements[0];
+      const nodesAndOffsets = findNodesAndOffsets(
+        {
+          offset: Number.parseInt(
+            firstHighlightElement.getAttribute(START_OFFSET_ATTR)
+          ),
+          length: Number.parseInt(
+            firstHighlightElement.getAttribute(LENGTH_ATTR)
+          )
+        },
+        this.el,
+        this.options.excludeNodes
+      );
+
+      const highlightWrapper = firstHighlightElement.cloneNode(true);
+      highlightWrapper.innerHTML = "";
+      focusHighlightNodes(id, nodesAndOffsets, highlightWrapper, this.el);
+    } else if (descriptors) {
+      // No elements in the DOM for the highlight?
+      // let's deserialize the descriptor to bring the highlight into focus.
+      this.deserializeHighlights(descriptors);
+    }
+  }
+
+  /**
+   * Deselects a highlight, bringing any nested highlights in the list of descriptors
+   * forward.
+   *
+   * In order to utilise this functionality unique ids for highlights should be added to the class list in the highlight
+   * wrapper within the descriptors.
+   * You can do this in the onAfterHighlight callback when a highlight is first created.
+   *
+   * In the future it might be worth adding more flexiblity to allow for user-defined ways of storing ids to identify
+   * elements in the DOM. (e.g. choosing between class name or data attributes)
+   *
+   * @typedef HighlightDescriptor
+   * @type {object}
+   * @property {string} id
+   * @property {string} serialisedDescriptor
+   *
+   * @param {string} id  The id of the deselected highlight.
+   * @param {HighlightDescriptor[]} descriptors An array of serialised descriptors containing all the relevant highlights
+   *                               that could be nested within the deselected highlight.
+   *
+   * @memberof IndependenciaHighlighter
+   */
+  deselectUsingId(id, descriptors) {
+    const deselectedHighlight = this.el.querySelector(`.${id}`);
+
+    if (deselectedHighlight) {
+      const deselectedStartOffset = Number.parseInt(
+        deselectedHighlight.getAttribute(START_OFFSET_ATTR)
+      );
+      const deselectedLength = Number.parseInt(
+        deselectedHighlight.getAttribute(LENGTH_ATTR)
+      );
+
+      const nestedDescriptors = descriptors
+        .map(hlDescriptor => ({
+          id: hlDescriptor.id,
+          descriptor: JSON.parse(hlDescriptor.serialisedDescriptor)
+        }))
+        .filter(hlDescriptor => {
+          const innerDescriptor = hlDescriptor.descriptor[0];
+          const offset = Number.parseInt(innerDescriptor[2]);
+          const length = Number.parseInt(innerDescriptor[3]);
+          return (
+            offset >= deselectedStartOffset &&
+            offset + length <= deselectedStartOffset + deselectedLength
+          );
+        });
+
+      nestedDescriptors.sort((a, b) => {
+        const aLength = Number.parseInt(a.descriptor[0][3]);
+        const bLength = Number.parseInt(b.descriptor[0][3]);
+        return aLength > bLength ? -1 : 1;
+      });
+
+      nestedDescriptors.forEach(hlDescriptor => {
+        this.focusUsingId(
+          hlDescriptor.id,
+          JSON.stringify(hlDescriptor.descriptor)
+        );
+      });
+    }
   }
 }
 

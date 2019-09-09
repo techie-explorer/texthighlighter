@@ -1,6 +1,12 @@
 import dom, { NODE_TYPE } from "./dom";
-import { DATA_ATTR, START_OFFSET_ATTR, LENGTH_ATTR } from "../config";
+import {
+  DATA_ATTR,
+  START_OFFSET_ATTR,
+  LENGTH_ATTR,
+  TIMESTAMP_ATTR
+} from "../config";
 import { arrayToLower } from "./arrays";
+import { scaleFromTransformMatrix } from "./transform";
 
 /**
  * Takes range object as parameter and refines it boundaries
@@ -588,4 +594,138 @@ export function createDescriptors({
     length
   ];
   return [descriptor];
+}
+
+/**
+ *
+ *
+ * @param {HTMLElement} node  The element we need to get parent information for.
+ * @param {string} id The unique id of the collection of elements representing a highlight.
+ * @param {HTMLElement} rootElement The root element of the context to stop at.
+ *
+ * @return {boolean}
+ */
+function isClosestHighlightParent(node, id, rootElement) {
+  let isClosestHighlightParent = true;
+  let currentNode = node.parentNode;
+
+  while (
+    currentNode &&
+    currentNode !== rootElement &&
+    isClosestHighlightParent
+  ) {
+    if (
+      isElementHighlight(currentNode, DATA_ATTR) &&
+      !currentNode.classList.contains(id)
+    ) {
+      // The case there is a closer parent than the highlight for the provided id.
+      isClosestHighlightParent = false;
+    } else {
+      currentNode = currentNode.parentNode;
+    }
+  }
+
+  return isClosestHighlightParent;
+}
+
+/**
+ * Focuses a set of highlight elements for a given id by ensuring if it has descendants that are highlights
+ * it is moved inside of the innermost highlight.
+ *
+ * The innermost highlight's styles will be applied and will be visible to the user
+ * and given the "focus".
+ *
+ * To focus the red highlight the following:
+ *
+ * -- <red-highlight>
+ * ---- <blue-highlight>
+ * ------ <green-highlight>
+ * ---------- Highlighted text
+ *
+ * becomes:
+ *
+ * -- <blue-highlight>
+ * ---- <green-highlight>
+ * ------ <red-highlight>
+ * -------- Highlighted text
+ *
+ * and
+ *
+ * -- <red-highlight>
+ * ---- Some text only highlighted in red
+ * ---- <blue-highlight>
+ * ------ Text in blue and red
+ * ------ <green-highlight>
+ * ---------- Rest of the highlight in red, green and blue
+ *
+ * becomes
+ *
+ * -- <red-highlight>
+ * ---- Some text only highlighted in red
+ * -- <blue-highlight>
+ * ---- <red-highlight-copy-1>
+ * ------ Text in blue and red
+ * ---- <green-highlight>
+ * ------ <red-highlight-copy-2>
+ * -------- Rest of the highlight in red, green and blue
+ *
+ * @typedef NodeInfo
+ * @type {object}
+ * @property {HTMLElement} nodeInfo.node The html element (This will in most cases be a text node)
+ * @property {number} nodeInfo.offset  The offset within the node to be highlighted
+ * @property {number} nodeInfo.length  The length within the node that should be highlighted.
+ *
+ * @param {string} id The unique identifier of a highlight represented by one or more nodes in the DOM.
+ * @param {NodeInfo[]}  nodeInfoList The highlight portion node information that should be focused.
+ * @param {HTMLElement} highlightWrapper  The highlight wrapper representing the highlight to be focused.
+ *
+ * @param {HTMLElement} rootElement The root context element to normalise elements within.
+ */
+export function focusHighlightNodes(
+  id,
+  nodeInfoList,
+  highlightWrapper,
+  rootElement
+) {
+  nodeInfoList.forEach(nodeInfo => {
+    const node = nodeInfo.node;
+    // Only wrap the node if the closest highlight parent isn't one with the given id.
+    if (!isClosestHighlightParent(node, id, rootElement)) {
+      // Ensure any ancestors that aren't direct parents that represent the same highlight wrapper are removed.
+      const ancestors = dom(node).parentsUpTo(rootElement);
+      ancestors.forEach(ancestor => {
+        if (
+          isElementHighlight(ancestor, DATA_ATTR) &&
+          ancestor.classList.contains(id)
+        ) {
+          // Ensure a copy of the ancestor is wrapped back around any
+          // other children that do not contain the current node.
+          ancestor.childNodes.forEach(ancestorChild => {
+            if (!ancestorChild.contains(node)) {
+              const wrapper = highlightWrapper.cloneNode(true);
+              dom(ancestorChild).wrap(wrapper);
+            }
+          });
+
+          dom(ancestor).unwrap();
+        }
+      });
+
+      // Now wrap the node or the part of the node the highlight covers directly with the wrapper.
+      let nodeToBeWrapped = node;
+      if (nodeInfo.offset > 0) {
+        nodeToBeWrapped = node.splitText(nodeInfo.offset);
+      }
+
+      if (nodeInfo.length < nodeToBeWrapped.textContent.length) {
+        nodeToBeWrapped.splitText(nodeInfo.length);
+      }
+
+      dom(nodeToBeWrapped).wrap(highlightWrapper.cloneNode(true));
+    }
+  });
+
+  // Ensure we normalise all nodes in the root container to merge sibling elements
+  // of the same highlight together that get copied for the purpose of focusing.
+  dom(rootElement).normalizeElements();
 }
