@@ -163,6 +163,12 @@ Should work in all decent browsers and IE 11.
 
 First run `npm install` from the root directory of the repo to install all the test runner dependencies.
 
+To run both integration and unit tests at once use the following:
+
+```bash
+npm run test:all
+```
+
 ### Integration tests
 
 The integration tests covers the integration of the larger components that make up the highlighting

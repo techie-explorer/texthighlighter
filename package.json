@@ -60,7 +60,8 @@
     "rootDir": "."
   },
   "scripts": {
-    "test": "npm run test:unit",
+    "test": "npm run test:all",
+    "test:all": "jest test/**/* --testPathIgnorePatterns=test/primitivo-specs",
     "test:unit": "jest test/unit-tests",
     "test:integration": "jest test/integration-tests",
     "start": "grunt --gruntfile gruntfile.dev.js watch",
