@@ -14,3 +14,4 @@ hlbg.png
 .eslintrc.js
 .prettierrc
 .pretterignore
+build/dev
