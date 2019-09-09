@@ -61,6 +61,15 @@
             />
             <button id="deselect">Deselect</button>
           </li>
+          <li>
+            Remove highlight:
+            <input
+              type="text"
+              id="remove-text-field"
+              placeholder="Highlight ID"
+            />
+            <button id="removeHighlight">Remove Highlight</button>
+          </li>
         </ul>
       </div>
 
@@ -205,6 +214,7 @@
           deserializeBtn = document.getElementById("deserialize");
         var focusBtn = document.getElementById("focus");
         var deselectBtn = document.getElementById("deselect");
+        var removeHighlightBtn = document.getElementById("removeHighlight");
         var sandbox = document.getElementById("sandbox");
         var colors = new ColorPicker(document.querySelector(".color-picker"));
         window.hltr = new TextHighlighter(sandbox, {
@@ -289,6 +299,21 @@
             hltr.deserializeHighlights(serialized[highlightId]);
           });
         });
+
+        removeHighlightBtn.addEventListener("click", function() {
+          // Ensure all highlights are serialised first!
+          highlightIds.forEach(function(highlightId) {
+            serialized[highlightId] = hltr.serializeHighlights(highlightId);
+          });
+
+          var highlightId = document.getElementById("remove-text-field")
+            .value;
+          if (highlightId) {
+            hltr.removeHighlights(null,highlightId);
+            highlightIds = highlightIds.filter((id) => id !== highlightId)
+          }
+        });
+
       })();
     </script>
   </body>

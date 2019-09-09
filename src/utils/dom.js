@@ -1,4 +1,5 @@
 import { isElementHighlight } from "./highlights";
+import { DATA_ATTR } from "../config";
 export const NODE_TYPE = { ELEMENT_NODE: 1, TEXT_NODE: 3 };
 
 /**
@@ -215,24 +216,25 @@ const dom = function(el) {
     /**
      * Normalizes elements that have the a same id and are next to eachother in the child list
      */
-    normalizeElements: function() {
+    normalizeElements: function(highlightedClass) {
       if (!el) {
         return;
       }
 
       if (el.nodeType !== NODE_TYPE.TEXT_NODE) {
-        if (isElementHighlight(el, "data-highlighted")) {
+        if (isElementHighlight(el, DATA_ATTR)) {
           let className = el.className;
           while (
             className &&
             el.nextSibling &&
             el.nextSibling.nodeType !== NODE_TYPE.TEXT_NODE &&
-            el.nextSibling.className === className
+            el.nextSibling.className === className &&
+            className !== highlightedClass
           ) {
             el.innerHTML += el.nextSibling.innerHTML;
             el.parentNode.removeChild(el.nextSibling);
           }
-          dom(el.firstChild).normalizeElements();
+          dom(el.firstChild).normalizeElements(highlightedClass);
         } else {
           let id = el.id;
           while (
@@ -244,12 +246,12 @@ const dom = function(el) {
             el.innerHTML += el.nextSibling.innerHTML;
             el.parentNode.removeChild(el.nextSibling);
           }
-          dom(el.firstChild).normalizeElements();
+          dom(el.firstChild).normalizeElements(highlightedClass);
         }
       } else {
         dom(el).normalizeTextNodes();
       }
-      dom(el.nextSibling).normalizeElements();
+      dom(el.nextSibling).normalizeElements(highlightedClass);
     },
 
     /**
