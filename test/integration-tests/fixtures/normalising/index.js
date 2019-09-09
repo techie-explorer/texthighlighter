@@ -9,5 +9,5 @@ export default {
   ...n2Fixtures,
   ...n3Fixtures,
   ...n4Fixtures,
-  ...n5Fixtures
+  ...n5Fixtures,
 };

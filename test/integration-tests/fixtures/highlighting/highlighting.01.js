@@ -6,12 +6,12 @@ const fixtures = {
       "AAA",
       span(
         "CCC",
-        spanWithAttrs({id: 'highlight-1-start-node'})("Lorem ipsum dolor sit amet"),
+        spanWithAttrs({ id: "highlight-1-start-node" })("Lorem ipsum dolor sit amet"),
         span("consectetur adipiscit"),
-        span("elit.")
+        span("elit."),
       ),
-      spanWithAttrs({id: 'highlight-2-start-node'})("DDD"),
-      "BBB"
+      spanWithAttrs({ id: "highlight-2-start-node" })("DDD"),
+      "BBB",
     );
   },
   "01.highlighting.singleHighlight": () => {
@@ -19,17 +19,17 @@ const fixtures = {
       "AAA",
       span(
         "CCC",
-        spanWithAttrs({id: 'highlight-1-start-node'})(
+        spanWithAttrs({ id: "highlight-1-start-node" })(
           highlight(
             { color: "red", id: "", length: 26, startOffset: 6, time: "test" },
-            "Lorem ipsum dolor sit amet"
-          )
+            "Lorem ipsum dolor sit amet",
+          ),
         ),
         span("consectetur adipiscit"),
-        span("elit.")
+        span("elit."),
       ),
-      spanWithAttrs({id: 'highlight-2-start-node'})("DDD"),
-      "BBB"
+      spanWithAttrs({ id: "highlight-2-start-node" })("DDD"),
+      "BBB",
     );
   },
   "01.highlighting.multipleHighlights": () => {
@@ -37,22 +37,22 @@ const fixtures = {
       "AAA",
       span(
         "CCC",
-        spanWithAttrs({id: 'highlight-1-start-node'})(
+        spanWithAttrs({ id: "highlight-1-start-node" })(
           highlight(
             { color: "red", id: "", length: 26, startOffset: 6, time: "test" },
-            "Lorem ipsum dolor sit amet"
-          )
+            "Lorem ipsum dolor sit amet",
+          ),
         ),
         span("consectetur adipiscit"),
-        span("elit.")
+        span("elit."),
       ),
-      spanWithAttrs({id: 'highlight-2-start-node'})(
+      spanWithAttrs({ id: "highlight-2-start-node" })(
         "DD",
-        highlight({ color: "blue", id: "", length: 1, startOffset: 60, time: "test" }, "D")
+        highlight({ color: "blue", id: "", length: 1, startOffset: 60, time: "test" }, "D"),
       ),
-      "BBB"
+      "BBB",
     );
-  }
+  },
 };
 
 export default fixtures;

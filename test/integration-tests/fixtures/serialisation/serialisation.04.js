@@ -1,19 +1,6 @@
-import {
-  span,
-  style,
-  script,
-  highlight,
-  b,
-  i,
-  div,
-  img
-} from "../../../utils/dom-elements";
+import { span, style, script, highlight, b, i, div, img } from "../../../utils/dom-elements";
 
-import {
-  b64EncodedFontStyles,
-  regularStyles,
-  script as scriptText
-} from "../text";
+import { b64EncodedFontStyles, regularStyles, script as scriptText } from "../text";
 
 // Test fixtures with content including style and script elements.
 const fixtures = {
@@ -32,10 +19,10 @@ const fixtures = {
         b("am ", i("leonulla")),
         "et",
         span("consectetur ", b("adipiscit")),
-        span("elit.")
+        span("elit."),
       ),
       span("DDD"),
-      "BBB"
+      "BBB",
     );
   },
   "04.serialisation.multiple": () => {
@@ -46,48 +33,37 @@ const fixtures = {
           color: "red",
           id: "test-multiple-1",
           startOffset: 2,
-          length: 20
+          length: 20,
         },
-        "A"
+        "A",
       ),
       style(regularStyles()),
       style(b64EncodedFontStyles()),
-      b(
-        highlight(
-          { color: "red", id: "test-multiple-1", startOffset: 2, length: 20 },
-          "ZZZZZ"
-        )
-      ),
+      b(highlight({ color: "red", id: "test-multiple-1", startOffset: 2, length: 20 }, "ZZZZZ")),
       script(scriptText()),
       span(
-        highlight(
-          { color: "red", id: "test-multiple-1", startOffset: 2, length: 20 },
-          "CCC"
-        ),
+        highlight({ color: "red", id: "test-multiple-1", startOffset: 2, length: 20 }, "CCC"),
         span(
           highlight(
             { color: "red", id: "test-multiple-1", startOffset: 2, length: 20 },
-            "Lorem ipsum"
+            "Lorem ipsum",
           ),
-          " dolor "
+          " dolor ",
         ),
         b("sit amet elit"),
         img(),
         b("am ", i("leonulla")),
         "et",
         span("consectetur ", b("adipiscit")),
-        span("elit.")
+        span("elit."),
       ),
       span(
-        highlight(
-          { color: "blue", id: "test-multiple-2", startOffset: 81, length: 2 },
-          "DD"
-        ),
-        "D"
+        highlight({ color: "blue", id: "test-multiple-2", startOffset: 81, length: 2 }, "DD"),
+        "D",
       ),
-      "BBB"
+      "BBB",
     );
-  }
+  },
 };
 
 export default fixtures;

@@ -34,7 +34,7 @@ describe("deselecting parent highlights", () => {
    * @param {Highlight[]} highlights
    */
   function toDescriptors(highlights) {
-    return highlights.map(highlight => {
+    return highlights.map((highlight) => {
       return {
         id: highlight.id,
         // Highlight text field is not relevant for deselection tests so we can
@@ -45,9 +45,9 @@ describe("deselecting parent highlights", () => {
               `data-start-offset="${highlight.offset}" data-length="${highlight.length}"></span>`,
             "",
             highlight.offset,
-            highlight.length
-          ]
-        ])
+            highlight.length,
+          ],
+        ]),
       };
     });
   }
@@ -67,10 +67,9 @@ describe("deselecting parent highlights", () => {
    * @param {string} params.fixturePrefix - fixture name prefix
    * @param {string} params.fixturePostfixBeforeFocus - fixture name postfix used as the before focus comparison
    */
-  const testDeselect = params => {
+  const testDeselect = (params) => {
     it(`${params.fixturePrefix}:before(${params.fixturePostfixBeforeFocus}): ${params.title}`, () => {
-      const fixture =
-        fixtures[`${params.fixturePrefix}.${params.fixturePostfixBeforeFocus}`];
+      const fixture = fixtures[`${params.fixturePrefix}.${params.fixturePostfixBeforeFocus}`];
       setContents(root, fixture());
 
       const descriptors = toDescriptors(params.nestedHighlights);
@@ -83,25 +82,23 @@ describe("deselecting parent highlights", () => {
   };
 
   testDeselect({
-    title:
-      "should focus on a single nested highlight on deselection of the parent highlight",
+    title: "should focus on a single nested highlight on deselection of the parent highlight",
     fixturePrefix: "01.deselect",
     deselectId: "test-parent-highlight",
     nestedHighlights: [{ id: "test-nested-highlight", offset: 6, length: 26 }],
-    fixturePostfixBeforeFocus: "singleNestedHighlight"
+    fixturePostfixBeforeFocus: "singleNestedHighlight",
   });
 
   testDeselect({
-    title:
-      "should focus on three nested highlights on deselection of the parent highlight",
+    title: "should focus on three nested highlights on deselection of the parent highlight",
     fixturePrefix: "02.deselect",
     deselectId: "test-parent-highlight",
     nestedHighlights: [
       { id: "test-nested-highlight-1", offset: 3, length: 3 },
       { id: "test-nested-highlight-2", offset: 6, length: 26 },
-      { id: "test-nested-highlight-3", offset: 32, length: 6 }
+      { id: "test-nested-highlight-3", offset: 32, length: 6 },
     ],
-    fixturePostfixBeforeFocus: "multipleNestedHighlights"
+    fixturePostfixBeforeFocus: "multipleNestedHighlights",
   });
 
   testDeselect({
@@ -113,8 +110,8 @@ describe("deselecting parent highlights", () => {
       { id: "test-nested-highlight-1", offset: 3, length: 3 },
       { id: "test-nested-highlight-2", offset: 6, length: 26 },
       { id: "test-nested-highlight-3", offset: 32, length: 6 },
-      { id: "test-nested-highlight-4", offset: 38, length: 11 }
+      { id: "test-nested-highlight-4", offset: 38, length: 11 },
     ],
-    fixturePostfixBeforeFocus: "multiLevelNestedHighlights"
+    fixturePostfixBeforeFocus: "multiLevelNestedHighlights",
   });
 });

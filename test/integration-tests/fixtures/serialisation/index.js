@@ -7,5 +7,5 @@ export default {
   ...s1Fixtures,
   ...s2Fixtures,
   ...s3Fixtures,
-  ...s4Fixtures
+  ...s4Fixtures,
 };

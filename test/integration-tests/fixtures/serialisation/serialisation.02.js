@@ -12,10 +12,10 @@ const fixtures = {
         i("am"),
         "et",
         span("consectetur adipiscit"),
-        span("elit.")
+        span("elit."),
       ),
       span("DDD"),
-      "BBB"
+      "BBB",
     );
   },
   "02.serialisation.overlapping": () => {
@@ -29,10 +29,10 @@ const fixtures = {
               color: "red",
               id: "test-overlapping-highlights",
               startOffset: 6,
-              length: 26
+              length: 26,
             },
-            "Lorem ipsum dolor "
-          )
+            "Lorem ipsum dolor ",
+          ),
         ),
         b(
           highlight(
@@ -40,10 +40,10 @@ const fixtures = {
               color: "red",
               id: "test-overlapping-highlights",
               startOffset: 6,
-              length: 26
+              length: 26,
             },
-            "sit "
-          )
+            "sit ",
+          ),
         ),
         img(),
         i(
@@ -52,25 +52,25 @@ const fixtures = {
               color: "red",
               id: "test-overlapping-highlights",
               startOffset: 6,
-              length: 26
+              length: 26,
             },
-            "am"
-          )
+            "am",
+          ),
         ),
         highlight(
           {
             color: "red",
             id: "test-overlapping-highlights",
             startOffset: 6,
-            length: 26
+            length: 26,
           },
-          "et"
+          "et",
         ),
         span("consectetur adipiscit"),
-        span("elit.")
+        span("elit."),
       ),
       span("DDD"),
-      "BBB"
+      "BBB",
     );
   },
   "02.serialisation.nested": () => {
@@ -84,7 +84,7 @@ const fixtures = {
               color: "red",
               id: "test-overlapping-highlights",
               startOffset: 6,
-              length: 26
+              length: 26,
             },
             "Lorem ",
             highlight(
@@ -92,11 +92,11 @@ const fixtures = {
                 color: "blue",
                 id: "test-overlapping-highlights-nested-1",
                 startOffset: 12,
-                length: 12
+                length: 12,
               },
-              "ipsum dolor "
-            )
-          )
+              "ipsum dolor ",
+            ),
+          ),
         ),
         b(
           highlight(
@@ -104,10 +104,10 @@ const fixtures = {
               color: "red",
               id: "test-overlapping-highlights",
               startOffset: 6,
-              length: 26
+              length: 26,
             },
-            "sit "
-          )
+            "sit ",
+          ),
         ),
         img(),
         i(
@@ -116,27 +116,27 @@ const fixtures = {
               color: "red",
               id: "test-overlapping-highlights",
               startOffset: 6,
-              length: 26
+              length: 26,
             },
-            "am"
-          )
+            "am",
+          ),
         ),
         highlight(
           {
             color: "red",
             id: "test-overlapping-highlights",
             startOffset: 6,
-            length: 26
+            length: 26,
           },
-          "et"
+          "et",
         ),
         span("consectetur adipiscit"),
-        span("elit.")
+        span("elit."),
       ),
       span("DDD"),
-      "BBB"
+      "BBB",
     );
-  }
+  },
 };
 
 export default fixtures;

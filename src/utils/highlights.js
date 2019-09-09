@@ -1,10 +1,5 @@
 import dom, { NODE_TYPE } from "./dom";
-import {
-  DATA_ATTR,
-  START_OFFSET_ATTR,
-  LENGTH_ATTR,
-  TIMESTAMP_ATTR
-} from "../config";
+import { DATA_ATTR, START_OFFSET_ATTR, LENGTH_ATTR, TIMESTAMP_ATTR } from "../config";
 import { arrayToLower } from "./arrays";
 import { scaleFromTransformMatrix } from "./transform";
 
@@ -20,10 +15,7 @@ export function refineRangeBoundaries(range) {
     goDeeper = true;
 
   if (range.endOffset === 0) {
-    while (
-      !endContainer.previousSibling &&
-      endContainer.parentNode !== ancestor
-    ) {
+    while (!endContainer.previousSibling && endContainer.parentNode !== ancestor) {
       endContainer = endContainer.parentNode;
     }
     endContainer = endContainer.previousSibling;
@@ -53,7 +45,7 @@ export function refineRangeBoundaries(range) {
   return {
     startContainer: startContainer,
     endContainer: endContainer,
-    goDeeper: goDeeper
+    goDeeper: goDeeper,
   };
 }
 
@@ -64,10 +56,7 @@ export function refineRangeBoundaries(range) {
  */
 export function sortByDepth(arr, descending) {
   arr.sort(function(a, b) {
-    return (
-      dom(descending ? b : a).parents().length -
-      dom(descending ? a : b).parents().length
-    );
+    return dom(descending ? b : a).parents().length - dom(descending ? a : b).parents().length;
   });
 }
 
@@ -96,11 +85,9 @@ export function createWrapper(options) {
 }
 
 export function findTextNodeAtLocation(element, locationInChildNodes) {
-  console.log("Element as parameter: ", element);
   let textNodeElement = element;
   let i = 0;
   while (textNodeElement && textNodeElement.nodeType !== NODE_TYPE.TEXT_NODE) {
-    console.log(`textNodeElement step ${i}`, textNodeElement);
     if (locationInChildNodes === "start") {
       if (textNodeElement.childNodes.length > 0) {
         textNodeElement = textNodeElement.childNodes[0];
@@ -120,7 +107,6 @@ export function findTextNodeAtLocation(element, locationInChildNodes) {
     i++;
   }
 
-  console.log("text node element returned: ", textNodeElement);
   return textNodeElement;
 }
 
@@ -137,11 +123,7 @@ function textContentExcludingTags(node, excludeNodeNames) {
  * @param {*} highlight
  * @param {*} parentNode
  */
-export function findNodesAndOffsets(
-  highlight,
-  parentNode,
-  excludeNodeNames = ["SCRIPT", "STYLE"]
-) {
+export function findNodesAndOffsets(highlight, parentNode, excludeNodeNames = ["SCRIPT", "STYLE"]) {
   const nodesAndOffsets = [];
   let currentNode = parentNode;
   let currentOffset = 0;
@@ -150,8 +132,7 @@ export function findNodesAndOffsets(
   while (currentNode && currentOffset < highlightEndOffset) {
     // Ensure we ignore node types that the caller has specified should be excluded.
     if (!excludeNodeNames.includes(currentNode.nodeName)) {
-      const textLength = textContentExcludingTags(currentNode, excludeNodeNames)
-        .length;
+      const textLength = textContentExcludingTags(currentNode, excludeNodeNames).length;
 
       const endOfCurrentNodeOffset = currentOffset + textLength;
 
@@ -160,9 +141,7 @@ export function findNodesAndOffsets(
         if (isTerminalNode) {
           if (currentNode.nodeType === NODE_TYPE.TEXT_NODE) {
             const offsetWithinNode =
-              highlight.offset > currentOffset
-                ? highlight.offset - currentOffset
-                : 0;
+              highlight.offset > currentOffset ? highlight.offset - currentOffset : 0;
 
             const lengthInHighlight =
               highlightEndOffset > endOfCurrentNodeOffset
@@ -172,7 +151,7 @@ export function findNodesAndOffsets(
             nodesAndOffsets.push({
               node: currentNode,
               offset: offsetWithinNode,
-              length: lengthInHighlight
+              length: lengthInHighlight,
             });
 
             currentOffset = endOfCurrentNodeOffset;
@@ -199,7 +178,7 @@ export function findNodesAndOffsets(
 export function getElementOffset(
   childElement,
   rootElement,
-  excludeNodeNames = ["SCRIPT", "STYLE"]
+  excludeNodeNames = ["SCRIPT", "STYLE"],
 ) {
   let offset = 0;
   let childNodes;
@@ -208,14 +187,12 @@ export function getElementOffset(
   do {
     // Ensure specified node types are not counted in the offset.
     if (!excludeNodeNames.includes(currentElement.nodeName)) {
-      childNodes = Array.prototype.slice.call(
-        currentElement.parentNode.childNodes
-      );
+      childNodes = Array.prototype.slice.call(currentElement.parentNode.childNodes);
       const childElementIndex = childNodes.indexOf(currentElement);
       const offsetInCurrentParent = getTextOffsetBefore(
         childNodes,
         childElementIndex,
-        excludeNodeNames
+        excludeNodeNames,
       );
       offset += offsetInCurrentParent;
     }
@@ -237,15 +214,9 @@ function getTextOffsetBefore(childNodes, cutIndex, excludeNodeNames) {
     // plus innerText forces a reflow of the layout and as we access text content of nodes
     // a lot in the highlighting process, we don't want to take the performance hit.
     // https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent
-    const text = dom(currentNode).textContentExcludingTags(
-      arrayToLower(excludeNodeNames)
-    );
+    const text = dom(currentNode).textContentExcludingTags(arrayToLower(excludeNodeNames));
 
-    if (
-      !excludeNodeNames.includes(currentNode.nodeName) &&
-      text &&
-      text.length > 0
-    ) {
+    if (!excludeNodeNames.includes(currentNode.nodeName) && text && text.length > 0) {
       textOffset += text.length;
     }
   }
@@ -263,7 +234,6 @@ export function findFirstNonSharedParent(elements) {
     const currentParent = parents[i];
 
     if (currentParent.contains(otherElement)) {
-      console.log("currentParent contains other element!", currentParent);
       if (i > 0) {
         firstNonSharedParent = parents[i - 1];
       } else {
@@ -278,12 +248,12 @@ export function findFirstNonSharedParent(elements) {
 
 const siblingRemovalDirections = {
   start: "previousSibling",
-  end: "nextSibling"
+  end: "nextSibling",
 };
 
 const siblingTextNodeMergeDirections = {
   start: "nextSibling",
-  end: "previousSibling"
+  end: "previousSibling",
 };
 
 function removeSiblingsInDirection(startNode, direction) {
@@ -322,24 +292,15 @@ export function extractElementContentForHighlight(params) {
   // Beginning of childNodes list for end container in selection
   // and end of childNodes list for start container in selection.
   let locationInChildNodes = locationInSelection === "start" ? "end" : "start";
-  let elementCopy = findTextNodeAtLocation(
-    elementAncestorCopy,
-    locationInChildNodes
-  );
+  let elementCopy = findTextNodeAtLocation(elementAncestorCopy, locationInChildNodes);
   let elementCopyParent = elementCopy.parentNode;
 
-  removeSiblingsInDirection(
-    elementCopy,
-    siblingRemovalDirections[locationInSelection]
-  );
+  removeSiblingsInDirection(elementCopy, siblingRemovalDirections[locationInSelection]);
 
   mergeSiblingTextNodesInDirection(
     elementCopy,
-    siblingTextNodeMergeDirections[locationInSelection]
+    siblingTextNodeMergeDirections[locationInSelection],
   );
-
-  console.log("elementCopy: ", elementCopy);
-  console.log("elementCopyParent: ", elementCopyParent);
 
   // Clean out any nested highlight wrappers.
   if (
@@ -388,7 +349,7 @@ export function nodesInBetween(startNode, endNode) {
   // as the start node or contained in an element at the same level.
   const {
     foundEndNodeSibling: foundEndNodeSiblingOnSameLevel,
-    gatheredSiblings
+    gatheredSiblings,
   } = gatherSiblingsUpToEndNode(startNode, endNode);
 
   if (foundEndNodeSiblingOnSameLevel) {
@@ -399,13 +360,13 @@ export function nodesInBetween(startNode, endNode) {
   // that is not the parent of the end node.
   const startNodeParent = findFirstNonSharedParent({
     childElement: startNode,
-    otherElement: endNode
+    otherElement: endNode,
   });
 
   if (startNodeParent) {
     const {
       foundEndNodeSibling: foundEndNodeSiblingFromParentLevel,
-      gatheredSiblings: gatheredSiblingsFromParent
+      gatheredSiblings: gatheredSiblingsFromParent,
     } = gatherSiblingsUpToEndNode(startNodeParent, endNode);
 
     if (foundEndNodeSiblingFromParentLevel) {
@@ -450,7 +411,7 @@ export function groupHighlights(highlights, timestampAttr) {
             return h.textContent;
           })
           .join("");
-      }
+      },
     });
   });
 
@@ -461,16 +422,13 @@ export function retrieveHighlights(params) {
   params = {
     andSelf: true,
     grouped: false,
-    ...params
+    ...params,
   };
 
   let nodeList = params.container.querySelectorAll("[" + params.dataAttr + "]"),
     highlights = Array.prototype.slice.call(nodeList);
 
-  if (
-    params.andSelf === true &&
-    params.container.hasAttribute(params.dataAttr)
-  ) {
+  if (params.andSelf === true && params.container.hasAttribute(params.dataAttr)) {
     highlights.push(params.container);
   }
 
@@ -482,21 +440,19 @@ export function retrieveHighlights(params) {
 }
 
 export function isElementHighlight(el, dataAttr) {
-  return (
-    el && el.nodeType === NODE_TYPE.ELEMENT_NODE && el.hasAttribute(dataAttr)
-  );
+  return el && el.nodeType === NODE_TYPE.ELEMENT_NODE && el.hasAttribute(dataAttr);
 }
 
 export function addNodesToHighlightAfterElement({
   element,
   elementAncestor,
   highlightWrapper,
-  highlightedClass
+  highlightedClass,
 }) {
   if (elementAncestor) {
     if (elementAncestor.classList.contains(highlightedClass)) {
       // Ensure we only take the children from a parent that is a highlight.
-      elementAncestor.childNodes.forEach(childNode => {
+      elementAncestor.childNodes.forEach((childNode) => {
         // if (dom(childNode).isAfter(element)) {
         // }
         elementAncestor.appendChild(childNode);
@@ -516,10 +472,7 @@ export function addNodesToHighlightAfterElement({
  *
  * @return {string} The human-readable highlighted text for the given range.
  */
-export function getHighlightedTextForRange(
-  range,
-  excludeTags = ["script", "style"]
-) {
+export function getHighlightedTextForRange(range, excludeTags = ["script", "style"]) {
   // Strip out all carriage returns and excess html layout space.
   return dom(range.cloneContents())
     .textContentExcludingTags(arrayToLower(excludeTags))
@@ -542,14 +495,12 @@ export function getHighlightedTextRelativeToRoot({
   rootElement,
   startOffset,
   length,
-  excludeTags = ["script", "style"]
+  excludeTags = ["script", "style"],
 }) {
-  const textContent = dom(rootElement).textContentExcludingTags(
-    arrayToLower(excludeTags)
-  );
+  const textContent = dom(rootElement).textContentExcludingTags(arrayToLower(excludeTags));
   const highlightedRawText = textContent.substring(
     startOffset,
-    Number.parseInt(startOffset) + Number.parseInt(length)
+    Number.parseInt(startOffset) + Number.parseInt(length),
   );
 
   const textNode = document.createTextNode(highlightedRawText);
@@ -563,19 +514,17 @@ export function createDescriptors({
   rootElement,
   range,
   wrapper,
-  excludeNodeNames = ["SCRIPT", "STYLE"]
+  excludeNodeNames = ["SCRIPT", "STYLE"],
 }) {
   const wrapperClone = wrapper.cloneNode(true);
 
   const startOffset =
-    getElementOffset(range.startContainer, rootElement, excludeNodeNames) +
-    range.startOffset;
+    getElementOffset(range.startContainer, rootElement, excludeNodeNames) + range.startOffset;
 
   const endOffset =
     range.startContainer === range.endContainer
       ? startOffset + (range.endOffset - range.startOffset)
-      : getElementOffset(range.endContainer, rootElement, excludeNodeNames) +
-        range.endOffset;
+      : getElementOffset(range.endContainer, rootElement, excludeNodeNames) + range.endOffset;
 
   const length = endOffset - startOffset;
 
@@ -591,7 +540,7 @@ export function createDescriptors({
     // retrieve all the text content between the start and end offsets.
     getHighlightedTextForRange(range, excludeNodeNames),
     startOffset,
-    length
+    length,
   ];
   return [descriptor];
 }
@@ -609,15 +558,8 @@ function isClosestHighlightParent(node, id, rootElement) {
   let isClosestHighlightParent = true;
   let currentNode = node.parentNode;
 
-  while (
-    currentNode &&
-    currentNode !== rootElement &&
-    isClosestHighlightParent
-  ) {
-    if (
-      isElementHighlight(currentNode, DATA_ATTR) &&
-      !currentNode.classList.contains(id)
-    ) {
+  while (currentNode && currentNode !== rootElement && isClosestHighlightParent) {
+    if (isElementHighlight(currentNode, DATA_ATTR) && !currentNode.classList.contains(id)) {
       // The case there is a closer parent than the highlight for the provided id.
       isClosestHighlightParent = false;
     } else {
@@ -681,26 +623,18 @@ function isClosestHighlightParent(node, id, rootElement) {
  *
  * @param {HTMLElement} rootElement The root context element to normalise elements within.
  */
-export function focusHighlightNodes(
-  id,
-  nodeInfoList,
-  highlightWrapper,
-  rootElement
-) {
-  nodeInfoList.forEach(nodeInfo => {
+export function focusHighlightNodes(id, nodeInfoList, highlightWrapper, rootElement) {
+  nodeInfoList.forEach((nodeInfo) => {
     const node = nodeInfo.node;
     // Only wrap the node if the closest highlight parent isn't one with the given id.
     if (!isClosestHighlightParent(node, id, rootElement)) {
       // Ensure any ancestors that aren't direct parents that represent the same highlight wrapper are removed.
       const ancestors = dom(node).parentsUpTo(rootElement);
-      ancestors.forEach(ancestor => {
-        if (
-          isElementHighlight(ancestor, DATA_ATTR) &&
-          ancestor.classList.contains(id)
-        ) {
+      ancestors.forEach((ancestor) => {
+        if (isElementHighlight(ancestor, DATA_ATTR) && ancestor.classList.contains(id)) {
           // Ensure a copy of the ancestor is wrapped back around any
           // other children that do not contain the current node.
-          ancestor.childNodes.forEach(ancestorChild => {
+          ancestor.childNodes.forEach((ancestorChild) => {
             if (!ancestorChild.contains(node)) {
               const wrapper = highlightWrapper.cloneNode(true);
               dom(ancestorChild).wrap(wrapper);

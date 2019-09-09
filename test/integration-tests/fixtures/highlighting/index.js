@@ -5,5 +5,5 @@ import h3Fixtures from "./highlighting.03";
 export default {
   ...h1Fixtures,
   ...h2Fixtures,
-  ...h3Fixtures
+  ...h3Fixtures,
 };

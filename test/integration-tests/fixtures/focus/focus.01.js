@@ -12,16 +12,16 @@ const fixtures = {
               color: "red",
               id: "test-single-highlight",
               startOffset: 6,
-              length: 26
+              length: 26,
             },
-            "Lorem ipsum dolor sit amet"
-          )
+            "Lorem ipsum dolor sit amet",
+          ),
         ),
         span("consectetur adipiscit"),
-        span("elit.")
+        span("elit."),
       ),
       span("DDD"),
-      "BBB"
+      "BBB",
     );
   },
   "01.focus.multipleHighlights": () => {
@@ -35,13 +35,13 @@ const fixtures = {
               color: "red",
               id: "test-multiple-highlights-1",
               startOffset: 6,
-              length: 26
+              length: 26,
             },
-            "Lorem ipsum dolor sit amet"
-          )
+            "Lorem ipsum dolor sit amet",
+          ),
         ),
         span("consectetur adipiscit"),
-        span("elit.")
+        span("elit."),
       ),
       span(
         "DD",
@@ -50,14 +50,14 @@ const fixtures = {
             color: "blue",
             id: "test-multiple-highlights-2",
             startOffset: 60,
-            length: 1
+            length: 1,
           },
-          "D"
-        )
+          "D",
+        ),
       ),
-      "BBB"
+      "BBB",
     );
-  }
+  },
 };
 
 export default fixtures;

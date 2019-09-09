@@ -1,11 +1,7 @@
-import {
-  START_OFFSET_ATTR,
-  LENGTH_ATTR,
-  TIMESTAMP_ATTR
-} from "../../src/config";
+import { START_OFFSET_ATTR, LENGTH_ATTR, TIMESTAMP_ATTR } from "../../src/config";
 
 const appendChildren = (elem, ...children) => {
-  children.forEach(child => {
+  children.forEach((child) => {
     if (typeof child === "string") {
       elem.appendChild(document.createTextNode(child));
     } else {
@@ -14,7 +10,7 @@ const appendChildren = (elem, ...children) => {
   });
 };
 
-const element = tag => (...children) => ({ id, style } = {}) => {
+const element = (tag) => (...children) => ({ id, style } = {}) => {
   const docElem = document.createElement(tag);
   appendChildren(docElem, ...children);
   if (id) {
@@ -22,7 +18,7 @@ const element = tag => (...children) => ({ id, style } = {}) => {
   }
 
   if (style) {
-    Object.keys(style).forEach(styleProperty => {
+    Object.keys(style).forEach((styleProperty) => {
       docElem.style[styleProperty] = style[styleProperty];
     });
   }
@@ -38,18 +34,13 @@ const img = (...children) => element("img")(...children)();
 const style = (...children) => element("style")(...children)();
 const script = (...children) => element("script")(...children)();
 
-const spanWithAttrs = attrs => (...children) =>
-  element("span")(...children)(attrs);
-const divWithAttrs = attrs => (...children) =>
-  element("div")(...children)(attrs);
-const bWithAttrs = attrs => (...children) => element("b")(...children)(attrs);
-const iWithAttrs = attrs => (...children) => element("i")(...children)(attrs);
-const imgWithAttrs = attrs => (...children) =>
-  element("img")(...children)(attrs);
-const styleWithAttrs = attrs => (...children) =>
-  element("style")(...children)(attrs);
-const scriptWithAttrs = attrs => (...children) =>
-  element("script")(...children)(attrs);
+const spanWithAttrs = (attrs) => (...children) => element("span")(...children)(attrs);
+const divWithAttrs = (attrs) => (...children) => element("div")(...children)(attrs);
+const bWithAttrs = (attrs) => (...children) => element("b")(...children)(attrs);
+const iWithAttrs = (attrs) => (...children) => element("i")(...children)(attrs);
+const imgWithAttrs = (attrs) => (...children) => element("img")(...children)(attrs);
+const styleWithAttrs = (attrs) => (...children) => element("style")(...children)(attrs);
+const scriptWithAttrs = (attrs) => (...children) => element("script")(...children)(attrs);
 
 const docFrag = (...children) => {
   const frag = document.createDocumentFragment();
@@ -89,5 +80,5 @@ export {
   imgWithAttrs,
   styleWithAttrs,
   scriptWithAttrs,
-  docFrag
+  docFrag,
 };

@@ -6,14 +6,9 @@ import {
   createWrapper,
   createDescriptors,
   getHighlightedTextRelativeToRoot,
-  focusHighlightNodes
+  focusHighlightNodes,
 } from "../utils/highlights";
-import {
-  START_OFFSET_ATTR,
-  LENGTH_ATTR,
-  DATA_ATTR,
-  TIMESTAMP_ATTR
-} from "../config";
+import { START_OFFSET_ATTR, LENGTH_ATTR, DATA_ATTR, TIMESTAMP_ATTR } from "../config";
 import dom from "../utils/dom";
 
 /**
@@ -67,17 +62,13 @@ class IndependenciaHighlighter {
         rootElement: this.el,
         range,
         wrapper,
-        excludeNodeNames: this.options.excludeNodes
+        excludeNodeNames: this.options.excludeNodes,
       });
 
       // createdHighlights = this.highlightRange(range, wrapper);
       // normalizedHighlights = this.normalizeHighlights(createdHighlights);
 
-      const processedDescriptors = this.options.onAfterHighlight(
-        range,
-        descriptors,
-        timestamp
-      );
+      const processedDescriptors = this.options.onAfterHighlight(range, descriptors, timestamp);
       this.deserializeHighlights(JSON.stringify(processedDescriptors));
     }
 
@@ -143,7 +134,7 @@ class IndependenciaHighlighter {
       container: this.el,
       dataAttr: DATA_ATTR,
       timestampAttr: TIMESTAMP_ATTR,
-      ...params
+      ...params,
     };
     return retrieveHighlights(mergedParams);
   }
@@ -177,7 +168,7 @@ class IndependenciaHighlighter {
     // Even if there are multiple elements for a given highlight, the first
     // highlight in the DOM with the given ID in it's class name
     // will have all the information we need.
-    const highlight = highlights.find(hl => hl.classList.contains(id));
+    const highlight = highlights.find((hl) => hl.classList.contains(id));
 
     if (!highlight) {
       return [];
@@ -196,10 +187,10 @@ class IndependenciaHighlighter {
         rootElement: self.el,
         startOffset: offset,
         length,
-        excludeTags: this.options.excludeNodes
+        excludeTags: this.options.excludeNodes,
       }),
       offset,
-      length
+      length,
     ];
 
     return JSON.stringify([descriptor]);
@@ -233,35 +224,29 @@ class IndependenciaHighlighter {
           wrapper: hlDescriptor[0],
           text: hlDescriptor[1],
           offset: Number.parseInt(hlDescriptor[2]),
-          length: Number.parseInt(hlDescriptor[3])
+          length: Number.parseInt(hlDescriptor[3]),
         },
         hlNode,
         highlight;
 
       const parentNode = self.el;
-      const highlightNodes = findNodesAndOffsets(
-        hl,
-        parentNode,
-        self.options.excludeNodes
-      );
+      const highlightNodes = findNodesAndOffsets(hl, parentNode, self.options.excludeNodes);
 
-      highlightNodes.forEach(
-        ({ node, offset: offsetWithinNode, length: lengthInNode }) => {
-          hlNode = node.splitText(offsetWithinNode);
-          hlNode.splitText(lengthInNode);
+      highlightNodes.forEach(({ node, offset: offsetWithinNode, length: lengthInNode }) => {
+        hlNode = node.splitText(offsetWithinNode);
+        hlNode.splitText(lengthInNode);
 
-          if (hlNode.nextSibling && !hlNode.nextSibling.nodeValue) {
-            dom(hlNode.nextSibling).remove();
-          }
-
-          if (hlNode.previousSibling && !hlNode.previousSibling.nodeValue) {
-            dom(hlNode.previousSibling).remove();
-          }
-
-          highlight = dom(hlNode).wrap(dom().fromHTML(hl.wrapper)[0]);
-          highlights.push(highlight);
+        if (hlNode.nextSibling && !hlNode.nextSibling.nodeValue) {
+          dom(hlNode.nextSibling).remove();
         }
-      );
+
+        if (hlNode.previousSibling && !hlNode.previousSibling.nodeValue) {
+          dom(hlNode.previousSibling).remove();
+        }
+
+        highlight = dom(hlNode).wrap(dom().fromHTML(hl.wrapper)[0]);
+        highlights.push(highlight);
+      });
     }
 
     hlDescriptors.forEach(function(hlDescriptor) {
@@ -309,15 +294,11 @@ class IndependenciaHighlighter {
       const firstHighlightElement = highlightElements[0];
       const nodesAndOffsets = findNodesAndOffsets(
         {
-          offset: Number.parseInt(
-            firstHighlightElement.getAttribute(START_OFFSET_ATTR)
-          ),
-          length: Number.parseInt(
-            firstHighlightElement.getAttribute(LENGTH_ATTR)
-          )
+          offset: Number.parseInt(firstHighlightElement.getAttribute(START_OFFSET_ATTR)),
+          length: Number.parseInt(firstHighlightElement.getAttribute(LENGTH_ATTR)),
         },
         this.el,
-        this.options.excludeNodes
+        this.options.excludeNodes,
       );
 
       const highlightWrapper = firstHighlightElement.cloneNode(true);
@@ -357,18 +338,16 @@ class IndependenciaHighlighter {
 
     if (deselectedHighlight) {
       const deselectedStartOffset = Number.parseInt(
-        deselectedHighlight.getAttribute(START_OFFSET_ATTR)
+        deselectedHighlight.getAttribute(START_OFFSET_ATTR),
       );
-      const deselectedLength = Number.parseInt(
-        deselectedHighlight.getAttribute(LENGTH_ATTR)
-      );
+      const deselectedLength = Number.parseInt(deselectedHighlight.getAttribute(LENGTH_ATTR));
 
       const nestedDescriptors = descriptors
-        .map(hlDescriptor => ({
+        .map((hlDescriptor) => ({
           id: hlDescriptor.id,
-          descriptor: JSON.parse(hlDescriptor.serialisedDescriptor)
+          descriptor: JSON.parse(hlDescriptor.serialisedDescriptor),
         }))
-        .filter(hlDescriptor => {
+        .filter((hlDescriptor) => {
           const innerDescriptor = hlDescriptor.descriptor[0];
           const offset = Number.parseInt(innerDescriptor[2]);
           const length = Number.parseInt(innerDescriptor[3]);
@@ -384,11 +363,8 @@ class IndependenciaHighlighter {
         return aLength > bLength ? -1 : 1;
       });
 
-      nestedDescriptors.forEach(hlDescriptor => {
-        this.focusUsingId(
-          hlDescriptor.id,
-          JSON.stringify(hlDescriptor.descriptor)
-        );
+      nestedDescriptors.forEach((hlDescriptor) => {
+        this.focusUsingId(hlDescriptor.id, JSON.stringify(hlDescriptor.descriptor));
       });
     }
   }

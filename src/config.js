@@ -31,5 +31,5 @@ export const IGNORE_TAGS = [
   "EMBED",
   "PARAM",
   "METER",
-  "PROGRESS"
+  "PROGRESS",
 ];

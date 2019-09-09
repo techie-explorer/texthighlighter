@@ -14,7 +14,7 @@ const fixtures = {
             color: "red",
             id: "test-overlapping-highlights-1",
             startOffset: 11,
-            length: 16
+            length: 16,
           },
           "ip",
           // green highlighted text: "sum d"
@@ -25,10 +25,10 @@ const fixtures = {
               color: "blue",
               id: "test-overlapping-highlights-3",
               startOffset: 16,
-              length: 15
+              length: 15,
             },
-            "olor "
-          )
+            "olor ",
+          ),
         ),
         b(
           highlight(
@@ -36,18 +36,18 @@ const fixtures = {
               color: "red",
               id: "test-overlapping-highlights-1",
               startOffset: 11,
-              length: 16
+              length: 16,
             },
             highlight(
               {
                 color: "blue",
                 id: "test-overlapping-highlights-3",
                 startOffset: 16,
-                length: 15
+                length: 15,
               },
-              "sit"
-            )
-          )
+              "sit",
+            ),
+          ),
         ),
         b(
           highlight(
@@ -55,15 +55,15 @@ const fixtures = {
               color: "blue",
               id: "test-overlapping-highlights-3",
               startOffset: 16,
-              length: 15
+              length: 15,
             },
-            " amet"
-          )
+            " amet",
+          ),
         ),
-        b("elit")
-      )
+        b("elit"),
+      ),
     );
-  }
+  },
 };
 
 export default fixtures;
