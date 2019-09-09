@@ -195,7 +195,7 @@ The first version of the highlighter contains tests in a standalone jasmine runn
 
 To run those tests, first set up the server:
 ```bash
-node testserver.js
+node webserver.js
 ```
 
 Then go to `http://localhost:5002/test/test.html` and the tests will run on page load.
@@ -219,7 +219,7 @@ grunt jsdoc
 
 Ensure the test server is running:
 ```bash
-node testserver.js
+node webserver.js
 ```
 
 Then go to `http://localhost:5002/doc` to see the API reference for the library.
