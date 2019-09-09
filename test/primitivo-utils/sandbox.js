@@ -59,7 +59,6 @@ var sandbox = (function() {
         params = { version: "v1-2014" };
       }
 
-      console.log(params);
       this.$el.textHighlighter(params);
       return sandbox.getHighlighter();
     },
@@ -181,6 +180,6 @@ var sandbox = (function() {
       }
 
       return range;
-    }
+    },
   };
 })();

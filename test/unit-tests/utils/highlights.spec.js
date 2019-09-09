@@ -2,18 +2,9 @@ import {
   getHighlightedTextRelativeToRoot,
   getHighlightedTextForRange,
   findNodesAndOffsets,
-  getElementOffset
+  getElementOffset,
 } from "../../../src/utils/highlights";
-import {
-  span,
-  b,
-  i,
-  div,
-  img,
-  style,
-  script,
-  docFrag
-} from "../../utils/dom-elements";
+import { span, b, i, div, img, style, script, docFrag } from "../../utils/dom-elements";
 
 /**
  * Extracts text from nodes so we can do equality comparisons
@@ -21,11 +12,11 @@ import {
  *
  * @param {*} nodes
  */
-const prepareNodes = nodes =>
-  nodes.map(node => ({
+const prepareNodes = (nodes) =>
+  nodes.map((node) => ({
     length: node.length,
     nodeText: node.node.textContent,
-    offset: node.offset
+    offset: node.offset,
   }));
 
 describe("highlighting utility functionality", () => {
@@ -44,11 +35,9 @@ describe("highlighting utility functionality", () => {
       const contents = div(
         style(".header { background-color: #fff; }"),
         span("a span"),
-        div(
-          div(script("function init() { alert('We have done something!') }"))
-        ),
+        div(div(script("function init() { alert('We have done something!') }"))),
         child,
-        b("Some bold text after")
+        b("Some bold text after"),
       );
       root.appendChild(contents);
       expect(getElementOffset(child, root, ["SCRIPT", "STYLE"])).toEqual(6);
@@ -58,23 +47,16 @@ describe("highlighting utility functionality", () => {
   describe("#getHighlightedTextRelativeToRoot()", () => {
     it("should extract the highlighted text across a range of nodes at multiple levels", () => {
       const contents = span(
-        b(
-          "This ",
-          i("is"),
-          " the ",
-          span("begin", i("ning")),
-          " ",
-          i("something wonderful,")
-        ),
-        span(span(" improving the foundations"), " for what is to come")
+        b("This ", i("is"), " the ", span("begin", i("ning")), " ", i("something wonderful,")),
+        span(span(" improving the foundations"), " for what is to come"),
       );
       root.appendChild(contents);
       expect(
         getHighlightedTextRelativeToRoot({
           rootElement: root,
           startOffset: 21,
-          length: 35
-        })
+          length: 35,
+        }),
       ).toEqual(" something wonderful, improving the");
     });
   });
@@ -88,13 +70,13 @@ describe("highlighting utility functionality", () => {
             script("function init() { alert('Something!') }"),
             div(" ", span(b("of something wonderful"))),
             div(div(div(style(".header { background: black; }")))),
-            div(", improving the ", b(i("foundations")), " for what is to come")
+            div(", improving the ", b(i("foundations")), " for what is to come"),
           );
-        }
+        },
       };
 
       expect(getHighlightedTextForRange(range, ["script", "style"])).toEqual(
-        "This really is the beginning of something wonderful, improving the foundations for what is to come"
+        "This really is the beginning of something wonderful, improving the foundations for what is to come",
       );
     });
   });
@@ -104,22 +86,22 @@ describe("highlighting utility functionality", () => {
       const contents = div(
         b("This is the start"),
         i(" of something wonderful."),
-        div("Trust me when I say we are improving things")
+        div("Trust me when I say we are improving things"),
       );
       root.appendChild(contents);
       const nodes = findNodesAndOffsets(
         {
           offset: 21,
-          length: 5
+          length: 5,
         },
-        root
+        root,
       );
       expect(prepareNodes(nodes)).toEqual([
         {
           offset: 4,
           nodeText: " of something wonderful.",
-          length: 5
-        }
+          length: 5,
+        },
       ]);
     });
 
@@ -127,22 +109,22 @@ describe("highlighting utility functionality", () => {
       const contents = div(
         b("This is the start"),
         i(" of something wonderful."),
-        div("Trust me when I say we are improving things")
+        div("Trust me when I say we are improving things"),
       );
       root.appendChild(contents);
       const nodes = findNodesAndOffsets(
         {
           offset: 29,
-          length: 12
+          length: 12,
         },
-        root
+        root,
       );
       expect(prepareNodes(nodes)).toEqual([
         {
           offset: 12,
           nodeText: " of something wonderful.",
-          length: 12
-        }
+          length: 12,
+        },
       ]);
     });
 
@@ -150,22 +132,22 @@ describe("highlighting utility functionality", () => {
       const contents = div(
         b("This is the start"),
         i(" of something wonderful."),
-        div("Trust me when I say we are improving things")
+        div("Trust me when I say we are improving things"),
       );
       root.appendChild(contents);
       const nodes = findNodesAndOffsets(
         {
           offset: 17,
-          length: 5
+          length: 5,
         },
-        root
+        root,
       );
       expect(prepareNodes(nodes)).toEqual([
         {
           offset: 0,
           nodeText: " of something wonderful.",
-          length: 5
-        }
+          length: 5,
+        },
       ]);
     });
 
@@ -173,22 +155,22 @@ describe("highlighting utility functionality", () => {
       const contents = div(
         b("This is the start"),
         i(" of something wonderful."),
-        div("Trust me when I say we are improving things")
+        div("Trust me when I say we are improving things"),
       );
       root.appendChild(contents);
       const nodes = findNodesAndOffsets(
         {
           offset: 17,
-          length: 24
+          length: 24,
         },
-        root
+        root,
       );
       expect(prepareNodes(nodes)).toEqual([
         {
           offset: 0,
           nodeText: " of something wonderful.",
-          length: 24
-        }
+          length: 24,
+        },
       ]);
     });
 
@@ -201,39 +183,39 @@ describe("highlighting utility functionality", () => {
         span(" We are not ", i("very happy with ")),
         div(div(span(b("what went before.")))),
         div(
-          "We will be the revolutionaries highlighters around the world have been crying out for."
-        )
+          "We will be the revolutionaries highlighters around the world have been crying out for.",
+        ),
       );
       root.appendChild(contents);
       const nodes = findNodesAndOffsets(
         {
           offset: 24,
-          length: 50
+          length: 50,
         },
-        root
+        root,
       );
 
       expect(prepareNodes(nodes)).toEqual([
         {
           length: 11,
           nodeText: "of something ",
-          offset: 2
+          offset: 2,
         },
         {
           length: 21,
           nodeText: "That is very unusual.",
-          offset: 0
+          offset: 0,
         },
         {
           length: 12,
           nodeText: " We are not ",
-          offset: 0
+          offset: 0,
         },
         {
           length: 6,
           nodeText: "very happy with ",
-          offset: 0
-        }
+          offset: 0,
+        },
       ]);
     });
 
@@ -251,43 +233,43 @@ describe("highlighting utility functionality", () => {
           span(" We are not ", i("very happy with ")),
           div(div(span(b("what went before.")))),
           div(
-            "We will be the revolutionaries highlighters around the world have been crying out for."
-          )
+            "We will be the revolutionaries highlighters around the world have been crying out for.",
+          ),
         );
 
         root.appendChild(contents);
         const nodes = findNodesAndOffsets(
           {
             offset: 24,
-            length: 50
+            length: 50,
           },
           root,
-          ["SCRIPT", "STYLE"]
+          ["SCRIPT", "STYLE"],
         );
 
         expect(prepareNodes(nodes)).toEqual([
           {
             length: 11,
             nodeText: "of something ",
-            offset: 2
+            offset: 2,
           },
           {
             length: 21,
             nodeText: "That is very unusual.",
-            offset: 0
+            offset: 0,
           },
           {
             length: 12,
             nodeText: " We are not ",
-            offset: 0
+            offset: 0,
           },
           {
             length: 6,
             nodeText: "very happy with ",
-            offset: 0
-          }
+            offset: 0,
+          },
         ]);
-      }
+      },
     );
   });
 });

@@ -61,7 +61,7 @@ describe("Callbacks", function() {
       expect(
         hl.getHighlights({ container: sandbox.el }).map(function(h) {
           return h.textContent;
-        })
+        }),
       ).toEqual(params.expectedHighlights);
     });
   }
@@ -77,7 +77,7 @@ describe("Callbacks", function() {
       expectedHighlights: ["ipsum"],
       rangeCreator: function(node) {
         return sandbox.addRange(node.childNodes[0], node.childNodes[0], 6, 11);
-      }
+      },
     });
 
     testCallbacks({
@@ -90,7 +90,7 @@ describe("Callbacks", function() {
       expectedHighlights: [],
       rangeCreator: function(node) {
         return sandbox.addRange(node.childNodes[0], node.childNodes[0], 6, 11);
-      }
+      },
     });
   });
 
@@ -107,7 +107,7 @@ describe("Callbacks", function() {
       expectedHighlights: ["ipsum"],
       rangeCreator: function(node) {
         return sandbox.addRange(node.childNodes[0], node.childNodes[0], 6, 11);
-      }
+      },
     });
 
     testCallbacks({
@@ -119,19 +119,14 @@ describe("Callbacks", function() {
         expect(
           highlights.map(function(h) {
             return h.textContent;
-          })
+          }),
         ).toEqual(["dolor ", "sit amet", " consectetur"]);
         expect(timestamp).toEqual(jasmine.any(Number));
       },
       expectedHighlights: ["dolor ", "sit amet", " consectetur"],
       rangeCreator: function(node1) {
-        return sandbox.addRange(
-          node1.childNodes[0],
-          node1.childNodes[2],
-          12,
-          12
-        );
-      }
+        return sandbox.addRange(node1.childNodes[0], node1.childNodes[2], 12, 12);
+      },
     });
   });
 
@@ -146,7 +141,7 @@ describe("Callbacks", function() {
       expectedHighlights: [],
       rangeCreator: function(node) {
         return sandbox.addRange(node.childNodes[0], node.childNodes[0], 6, 11);
-      }
+      },
     });
 
     testCallbacks({
@@ -159,7 +154,7 @@ describe("Callbacks", function() {
       expectedHighlights: ["ipsum"],
       rangeCreator: function(node) {
         return sandbox.addRange(node.childNodes[0], node.childNodes[0], 6, 11);
-      }
+      },
     });
   });
 });

@@ -4,7 +4,7 @@ import {
   isElementHighlight,
   sortByDepth,
   haveSameColor,
-  createWrapper
+  createWrapper,
 } from "../utils/highlights";
 import dom, { NODE_TYPE } from "../utils/dom";
 import { IGNORE_TAGS, DATA_ATTR, TIMESTAMP_ATTR } from "../config";
@@ -55,8 +55,6 @@ class PrimitivoHighlighter {
       return [];
     }
 
-    console.log("ALSDebug28: range before refined! ", range);
-
     let result = refineRangeBoundaries(range),
       startContainer = result.startContainer,
       endContainer = result.endContainer,
@@ -70,10 +68,7 @@ class PrimitivoHighlighter {
 
     do {
       if (goDeeper && node.nodeType === NODE_TYPE.TEXT_NODE) {
-        if (
-          IGNORE_TAGS.indexOf(node.parentNode.tagName) === -1 &&
-          node.nodeValue.trim() !== ""
-        ) {
+        if (IGNORE_TAGS.indexOf(node.parentNode.tagName) === -1 && node.nodeValue.trim() !== "") {
           wrapperClone = wrapper.cloneNode(true);
           wrapperClone.setAttribute(DATA_ATTR, true);
           nodeParent = node.parentNode;
@@ -87,10 +82,7 @@ class PrimitivoHighlighter {
 
         goDeeper = false;
       }
-      if (
-        node === endContainer &&
-        !(endContainer.hasChildNodes() && goDeeper)
-      ) {
+      if (node === endContainer && !(endContainer.hasChildNodes() && goDeeper)) {
         done = true;
       }
 
@@ -287,13 +279,6 @@ class PrimitivoHighlighter {
       createdHighlights = this.highlightRange(range, wrapper);
       normalizedHighlights = this.normalizeHighlights(createdHighlights);
 
-      if (!this.options.onAfterHighlight) {
-        console.log(
-          "ALSDEbug24: Primitivo: this.options: ",
-          this.options,
-          "\n\n\n\n"
-        );
-      }
       this.options.onAfterHighlight(range, normalizedHighlights, timestamp);
     }
 
@@ -362,7 +347,7 @@ class PrimitivoHighlighter {
       container: this.el,
       dataAttr: DATA_ATTR,
       timestampAttr: TIMESTAMP_ATTR,
-      ...params
+      ...params,
     };
     return retrieveHighlights(mergedParams);
   }
@@ -412,20 +397,11 @@ class PrimitivoHighlighter {
       wrapper.innerHTML = "";
       wrapper = wrapper.outerHTML;
 
-      if (
-        highlight.previousSibling &&
-        highlight.previousSibling.nodeType === NODE_TYPE.TEXT_NODE
-      ) {
+      if (highlight.previousSibling && highlight.previousSibling.nodeType === NODE_TYPE.TEXT_NODE) {
         offset = highlight.previousSibling.length;
       }
 
-      hlDescriptors.push([
-        wrapper,
-        highlight.textContent,
-        hlPath.join(":"),
-        offset,
-        length
-      ]);
+      hlDescriptors.push([wrapper, highlight.textContent, hlPath.join(":"), offset, length]);
     });
 
     return JSON.stringify(hlDescriptors);
@@ -459,7 +435,7 @@ class PrimitivoHighlighter {
           text: hlDescriptor[1],
           path: hlDescriptor[2].split(":"),
           offset: hlDescriptor[3],
-          length: hlDescriptor[4]
+          length: hlDescriptor[4],
         },
         elIndex = hl.path.pop(),
         node = self.el,

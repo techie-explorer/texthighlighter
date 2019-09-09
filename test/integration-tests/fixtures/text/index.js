@@ -13,14 +13,10 @@ let regularStylesStr;
 
 export const regularStyles = () =>
   !regularStylesStr
-    ? (regularStylesStr = fs
-        .readFileSync(`${__dirname}/regular-styles.txt`)
-        .toString())
+    ? (regularStylesStr = fs.readFileSync(`${__dirname}/regular-styles.txt`).toString())
     : regularStylesStr;
 
 let scriptStr;
 
 export const script = () =>
-  !scriptStr
-    ? (scriptStr = fs.readFileSync(`${__dirname}/script.txt`).toString())
-    : scriptStr;
+  !scriptStr ? (scriptStr = fs.readFileSync(`${__dirname}/script.txt`).toString()) : scriptStr;

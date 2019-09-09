@@ -38,10 +38,9 @@ describe("focusing on different highlights", () => {
    * @param {string} params.fixturePrefix - fixture name prefix
    * @param {string} params.fixturePostfixBeforeFocus - fixture name postfix used as the before focus comparison
    */
-  const testFocus = params => {
+  const testFocus = (params) => {
     it(`${params.fixturePrefix}:before(${params.fixturePostfixBeforeFocus}): ${params.title}`, () => {
-      const fixture =
-        fixtures[`${params.fixturePrefix}.${params.fixturePostfixBeforeFocus}`];
+      const fixture = fixtures[`${params.fixturePrefix}.${params.fixturePostfixBeforeFocus}`];
       setContents(root, fixture());
 
       const { id, offset, length, descriptors } = params.highlights[0];
@@ -51,11 +50,7 @@ describe("focusing on different highlights", () => {
 
       // The second id is of the highlight that was originally focused.
       if (params.highlights.length > 1) {
-        const {
-          id: id2,
-          offset: offset2,
-          length: length2
-        } = params.highlights[1];
+        const { id: id2, offset: offset2, length: length2 } = params.highlights[1];
         highlighter.focusUsingId(id2);
 
         expect({ id: id2, offset: offset2, length: length2 }).toHaveFocus(root);
@@ -68,7 +63,7 @@ describe("focusing on different highlights", () => {
       "should focus on a single highlight that does not overlap and therefore have no difference from the original fixture",
     fixturePrefix: "01.focus",
     highlights: [{ id: "test-single-highlight", offset: 6, length: 26 }],
-    fixturePostfixBeforeFocus: "singleHighlight"
+    fixturePostfixBeforeFocus: "singleHighlight",
   });
 
   testFocus({
@@ -77,9 +72,9 @@ describe("focusing on different highlights", () => {
     fixturePrefix: "01.focus",
     highlights: [
       { id: "test-multiple-highlights-1", offset: 6, length: 26 },
-      { id: "test-multiple-highlights-2", offset: 60, length: 1 }
+      { id: "test-multiple-highlights-2", offset: 60, length: 1 },
     ],
-    fixturePostfixBeforeFocus: "multipleHighlights"
+    fixturePostfixBeforeFocus: "multipleHighlights",
   });
 
   testFocus({
@@ -87,18 +82,17 @@ describe("focusing on different highlights", () => {
       "should focus on a highlight that overlaps an image, therefore there should be no difference from the original fixture",
     fixturePrefix: "02.focus",
     highlights: [{ id: "test-overlapping-highlights", offset: 6, length: 26 }],
-    fixturePostfixBeforeFocus: "overlapping"
+    fixturePostfixBeforeFocus: "overlapping",
   });
 
   testFocus({
-    title:
-      "should focus on a nested highlight and focus on it's surrounding parent highlight",
+    title: "should focus on a nested highlight and focus on it's surrounding parent highlight",
     fixturePrefix: "02.focus",
     highlights: [
       { id: "test-overlapping-highlights", offset: 6, length: 26 },
-      { id: "test-overlapping-highlights-nested-1", offset: 12, length: 12 }
+      { id: "test-overlapping-highlights-nested-1", offset: 12, length: 12 },
     ],
-    fixturePostfixBeforeFocus: "nestedFocus"
+    fixturePostfixBeforeFocus: "nestedFocus",
   });
 
   testFocus({
@@ -106,9 +100,9 @@ describe("focusing on different highlights", () => {
     fixturePrefix: "03.focus",
     highlights: [
       { id: "test-overlapping-highlights-2", offset: 17, length: 15 },
-      { id: "test-overlapping-highlights-1", offset: 12, length: 16 }
+      { id: "test-overlapping-highlights-1", offset: 12, length: 16 },
     ],
-    fixturePostfixBeforeFocus: "overlappingFocusFirst"
+    fixturePostfixBeforeFocus: "overlappingFocusFirst",
   });
 
   testFocus({
@@ -117,9 +111,9 @@ describe("focusing on different highlights", () => {
     fixturePrefix: "04.focus",
     highlights: [
       { id: "test-overlapping-highlights-2", offset: 14, length: 5 },
-      { id: "test-overlapping-highlights-1", offset: 12, length: 15 }
+      { id: "test-overlapping-highlights-1", offset: 12, length: 15 },
     ],
-    fixturePostfixBeforeFocus: "overlappingMultipleFocusFirst"
+    fixturePostfixBeforeFocus: "overlappingMultipleFocusFirst",
   });
 
   testFocus({
@@ -128,9 +122,9 @@ describe("focusing on different highlights", () => {
     fixturePrefix: "05.focus",
     highlights: [
       { id: "test-overlapping-highlights-3", offset: 17, length: 15 },
-      { id: "test-overlapping-highlights-1", offset: 12, length: 15 }
+      { id: "test-overlapping-highlights-1", offset: 12, length: 15 },
     ],
-    fixturePostfixBeforeFocus: "overlappingMultipleFocusFirst"
+    fixturePostfixBeforeFocus: "overlappingMultipleFocusFirst",
   });
 
   testFocus({
@@ -139,9 +133,9 @@ describe("focusing on different highlights", () => {
     fixturePrefix: "06.focus",
     highlights: [
       { id: "test-overlapping-highlights-2", offset: 13, length: 5 },
-      { id: "test-overlapping-highlights-3", offset: 16, length: 15 }
+      { id: "test-overlapping-highlights-3", offset: 16, length: 15 },
     ],
-    fixturePostfixBeforeFocus: "overlappingMultipleFocusThird"
+    fixturePostfixBeforeFocus: "overlappingMultipleFocusThird",
   });
 
   testFocus({
@@ -155,10 +149,10 @@ describe("focusing on different highlights", () => {
         length: 5,
         descriptors:
           '[["<span class=\\"highlighted test-overlapping-highlights-2\\" style=\\"background-color:red;\\" ' +
-          'data-highlighted=\\"true\\" data-start-offset=\\"13\\" data-length=\\"5\\"></span>","sum d",13,5]]'
+          'data-highlighted=\\"true\\" data-start-offset=\\"13\\" data-length=\\"5\\"></span>","sum d",13,5]]',
       },
-      { id: "test-overlapping-highlights-3", offset: 16, length: 15 }
+      { id: "test-overlapping-highlights-3", offset: 16, length: 15 },
     ],
-    fixturePostfixBeforeFocus: "overlappingMultipleFocusThird"
+    fixturePostfixBeforeFocus: "overlappingMultipleFocusThird",
   });
 });

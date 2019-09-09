@@ -31,7 +31,7 @@ const dom = function(el) {
       } else {
         el.className = el.className.replace(
           new RegExp("(^|\\b)" + className + "(\\b|$)", "gi"),
-          " "
+          " ",
         );
       }
     },
@@ -167,7 +167,7 @@ const dom = function(el) {
      * @returns {HTMLElement[]}
      */
     parentsWithoutDocument: function() {
-      return this.parents().filter(elem => elem !== document);
+      return this.parents().filter((elem) => elem !== document);
     },
 
     /**
@@ -202,10 +202,7 @@ const dom = function(el) {
       }
 
       if (el.nodeType === NODE_TYPE.TEXT_NODE) {
-        while (
-          el.nextSibling &&
-          el.nextSibling.nodeType === NODE_TYPE.TEXT_NODE
-        ) {
+        while (el.nextSibling && el.nextSibling.nodeType === NODE_TYPE.TEXT_NODE) {
           el.nodeValue += el.nextSibling.nodeValue;
           el.parentNode.removeChild(el.nextSibling);
         }
@@ -362,13 +359,13 @@ const dom = function(el) {
         const elementsToBeExcluded = excludeTags.reduce((accum, tag) => {
           return [...accum, ...elCopy.querySelectorAll(tag)];
         }, []);
-        elementsToBeExcluded.forEach(toExcludeFromCopy => {
+        elementsToBeExcluded.forEach((toExcludeFromCopy) => {
           toExcludeFromCopy.remove();
         });
         return elCopy.textContent;
       }
       return el.textContent;
-    }
+    },
   };
 };
 

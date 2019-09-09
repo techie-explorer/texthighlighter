@@ -1,4 +1,4 @@
-import { span, highlight, bWithAttrs,b, i, img } from "../../../utils/dom-elements";
+import { span, highlight, bWithAttrs, b, i, img } from "../../../utils/dom-elements";
 
 const fixtures = {
   "04.normalising.base": () => {
@@ -12,31 +12,31 @@ const fixtures = {
               color: "red",
               id: "",
               startOffset: 6,
-              length: 26
+              length: 26,
             },
             "Lorem ipsum dolor ",
           ),
-          bWithAttrs({id: "bold"})(
+          bWithAttrs({ id: "bold" })(
             highlight(
               {
                 color: "red",
                 id: "",
                 startOffset: 6,
-                length: 26
+                length: 26,
               },
-              "sit "
-            )
+              "sit ",
+            ),
           ),
-          bWithAttrs({id: "bold"})(
+          bWithAttrs({ id: "bold" })(
             highlight(
               {
                 color: "red",
                 id: "",
                 startOffset: 6,
-                length: 26
+                length: 26,
               },
-              "sit again "
-            )
+              "sit again ",
+            ),
           ),
           img(),
           i(
@@ -45,18 +45,18 @@ const fixtures = {
                 color: "red",
                 id: "",
                 startOffset: 6,
-                length: 26
+                length: 26,
               },
-              "am "
+              "am ",
             ),
             highlight(
               {
                 color: "red",
                 id: "",
                 startOffset: 6,
-                length: 26
+                length: 26,
               },
-              "am again"
+              "am again",
             ),
           ),
           highlight(
@@ -64,16 +64,16 @@ const fixtures = {
               color: "red",
               id: "",
               startOffset: 6,
-              length: 26
+              length: 26,
             },
-            "et"
-          )
+            "et",
+          ),
         ),
         span("consectetur adipiscit"),
-        span("elit.")
+        span("elit."),
       ),
       span("DDD"),
-      "BBB"
+      "BBB",
     );
   },
   "04.normalising.highlightsWithSameId": () => {
@@ -87,20 +87,20 @@ const fixtures = {
               color: "red",
               id: "",
               startOffset: 6,
-              length: 26
+              length: 26,
             },
             "Lorem ipsum dolor ",
           ),
-          bWithAttrs({id: "bold"})(
+          bWithAttrs({ id: "bold" })(
             highlight(
               {
                 color: "red",
                 id: "",
                 startOffset: 6,
-                length: 26
+                length: 26,
               },
-              "sit sit again "
-            )
+              "sit sit again ",
+            ),
           ),
           img(),
           i(
@@ -109,9 +109,9 @@ const fixtures = {
                 color: "red",
                 id: "",
                 startOffset: 6,
-                length: 26
+                length: 26,
               },
-              "am am again"
+              "am am again",
             ),
           ),
           highlight(
@@ -119,16 +119,16 @@ const fixtures = {
               color: "red",
               id: "",
               startOffset: 6,
-              length: 26
+              length: 26,
             },
-            "et"
-          )
+            "et",
+          ),
         ),
         span("consectetur adipiscit"),
-        span("elit.")
+        span("elit."),
       ),
       span("DDD"),
-      "BBB"
+      "BBB",
     );
   },
 };

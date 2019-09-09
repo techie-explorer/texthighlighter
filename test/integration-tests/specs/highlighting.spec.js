@@ -14,7 +14,7 @@ import {
   script,
   docFrag,
   spanWithAttrs,
-  highlight
+  highlight,
 } from "../../utils/dom-elements";
 
 describe("highlighting a given range", () => {
@@ -29,7 +29,7 @@ describe("highlighting a given range", () => {
       version: "independencia",
       onAfterHighlight: (range, descriptors, timestamp) => {
         return descriptors;
-      }
+      },
     });
   });
 
@@ -61,20 +61,13 @@ describe("highlighting a given range", () => {
    * @param {string} params.highlightIdToRemove - id of the highlight to remove, if this isn't set then remove them all
    * @param {function} params.cloneContents - the return of the range clone contents function
    */
-  const testHighlighting = params => {
+  const testHighlighting = (params) => {
     it(params.title, () => {
-      const fixture =
-        fixtures[
-          `${params.fixturePrefix}.${params.fixturePostfixAfterHighlight}`
-        ];
+      const fixture = fixtures[`${params.fixturePrefix}.${params.fixturePostfixAfterHighlight}`];
       const fixtureBase =
-        fixtures[
-          `${params.fixturePrefix}.${params.fixturePostfixBeforeHighlight}`
-        ];
+        fixtures[`${params.fixturePrefix}.${params.fixturePostfixBeforeHighlight}`];
       const fixtureAfterRemoval =
-        fixtures[
-          `${params.fixturePrefix}.${params.fixturePostfixRemovedHighlight}`
-        ];
+        fixtures[`${params.fixturePrefix}.${params.fixturePostfixRemovedHighlight}`];
       setContents(root, fixtureBase());
 
       let startNode = document.getElementById(params.range.startNodeId);
@@ -89,26 +82,24 @@ describe("highlighting a given range", () => {
         startOffset: params.range.startOffset,
         endContainer: endNode,
         endOffset: params.range.endOffset,
-        cloneContents: params.cloneContents
+        cloneContents: params.cloneContents,
       };
 
       window.getSelection = () => {
         return {
           rangeCount: 1,
           removeAllRanges: () => {},
-          getRangeAt: index => {
+          getRangeAt: (index) => {
             return range;
-          }
+          },
         };
       };
 
       highlighter.setColor(params.colour);
       highlighter.doHighlight(true);
 
-      let highlights = Array.prototype.slice.call(
-        document.querySelectorAll(".highlighted")
-      );
-      highlights.forEach(highlight => {
+      let highlights = Array.prototype.slice.call(document.querySelectorAll(".highlighted"));
+      highlights.forEach((highlight) => {
         highlight.setAttribute(TIMESTAMP_ATTR, "test");
         if (params.highlightId && highlight.className === "highlighted") {
           highlight.classList.add(params.highlightId);
@@ -117,9 +108,7 @@ describe("highlighting a given range", () => {
 
       const htmlDuring = root.innerHTML;
 
-      expect(toDiffableHtml(htmlDuring)).toEqual(
-        toDiffableHtml(fixture().outerHTML)
-      );
+      expect(toDiffableHtml(htmlDuring)).toEqual(toDiffableHtml(fixture().outerHTML));
       if (params.highlightIdToRemove) {
         highlighter.removeHighlights(null, params.highlightIdToRemove);
       } else {
@@ -128,9 +117,7 @@ describe("highlighting a given range", () => {
 
       const htmlAfter = root.innerHTML;
 
-      expect(toDiffableHtml(htmlAfter)).toEqual(
-        toDiffableHtml(fixtureAfterRemoval().outerHTML)
-      );
+      expect(toDiffableHtml(htmlAfter)).toEqual(toDiffableHtml(fixtureAfterRemoval().outerHTML));
     });
   };
 
@@ -144,12 +131,12 @@ describe("highlighting a given range", () => {
       startNodeId: "highlight-1-start-node",
       startOffset: 0,
       endNodeId: "highlight-1-start-node",
-      endOffset: 26
+      endOffset: 26,
     },
     colour: "red",
     cloneContents: () => {
       return docFrag(span("Lorem ipsum dolor sit amet"));
-    }
+    },
   });
 
   testHighlighting({
@@ -162,12 +149,12 @@ describe("highlighting a given range", () => {
       startNodeId: "highlight-2-start-node",
       startOffset: 2,
       endNodeId: "highlight-2-start-node",
-      endOffset: 3
+      endOffset: 3,
     },
     colour: "blue",
     cloneContents: () => {
       return docFrag(span("DDD"));
-    }
+    },
   });
 
   testHighlighting({
@@ -180,7 +167,7 @@ describe("highlighting a given range", () => {
       startNodeId: "highlight-1-start-node",
       startOffset: 0,
       endNodeId: "highlight-1-end-node",
-      endOffset: 29
+      endOffset: 29,
     },
     colour: "red",
     highlightId: "1",
@@ -194,10 +181,10 @@ describe("highlighting a given range", () => {
           i("am"),
           "et",
           span("consectetur adipiscit"),
-          span("elit.")
-        )
+          span("elit."),
+        ),
       );
-    }
+    },
   });
 
   testHighlighting({
@@ -210,7 +197,7 @@ describe("highlighting a given range", () => {
       startNodeId: "highlight-1-start-node",
       startOffset: 6,
       endNodeId: "highlight-1-start-node",
-      endOffset: 18
+      endOffset: 18,
     },
     colour: "blue",
     highlightId: "2",
@@ -218,10 +205,10 @@ describe("highlighting a given range", () => {
       return docFrag(
         highlight(
           { color: "red", id: "1", length: 26, startOffset: 6, time: "test" },
-          "Lorem ipsum dolor "
-        )
+          "Lorem ipsum dolor ",
+        ),
       );
-    }
+    },
   });
 
   testHighlighting({
@@ -235,7 +222,7 @@ describe("highlighting a given range", () => {
       startNodeId: "highlight-1-start-node",
       startOffset: 0,
       endNodeId: "highlight-1-end-node",
-      endOffset: 29
+      endOffset: 29,
     },
     colour: "red",
     highlightId: "1",
@@ -251,20 +238,20 @@ describe("highlighting a given range", () => {
                 id: "2",
                 length: 12,
                 startOffset: 12,
-                time: "test"
+                time: "test",
               },
-              "ipsum dolor "
-            )
+              "ipsum dolor ",
+            ),
           ),
           b("sit "),
           img(),
           i("am"),
           "et",
           span("consectetur adipiscit"),
-          span("elit.")
-        )
+          span("elit."),
+        ),
       );
-    }
+    },
   });
 
   testHighlighting({
@@ -277,7 +264,7 @@ describe("highlighting a given range", () => {
       startNodeId: "highlight-1-start-node",
       startOffset: 6,
       endNodeId: "highlight-1-start-node",
-      endOffset: 18
+      endOffset: 18,
     },
     colour: "blue",
     highlightId: "2",
@@ -286,10 +273,10 @@ describe("highlighting a given range", () => {
       return docFrag(
         highlight(
           { color: "red", id: "1", length: 26, startOffset: 6, time: "test" },
-          "Lorem ipsum dolor "
-        )
+          "Lorem ipsum dolor ",
+        ),
       );
-    }
+    },
   });
 
   testHighlighting({
@@ -303,7 +290,7 @@ describe("highlighting a given range", () => {
       startNodeId: "highlight-1-start-node",
       startOffset: 0,
       endNodeId: "highlight-1-end-node",
-      endOffset: 29
+      endOffset: 29,
     },
     colour: "red",
     highlightId: "1",
@@ -320,20 +307,20 @@ describe("highlighting a given range", () => {
                 id: "2",
                 length: 12,
                 startOffset: 12,
-                time: "test"
+                time: "test",
               },
-              "ipsum dolor "
-            )
+              "ipsum dolor ",
+            ),
           ),
           b("sit "),
           img(),
           i("am"),
           "et",
           span("consectetur adipiscit"),
-          span("elit.")
-        )
+          span("elit."),
+        ),
       );
-    }
+    },
   });
 
   testHighlighting({
@@ -347,7 +334,7 @@ describe("highlighting a given range", () => {
       startNodeId: "highlight-1-start-node",
       startOffset: 6,
       endNodeId: "highlight-1-start-node",
-      endOffset: 18
+      endOffset: 18,
     },
     colour: "blue",
     highlightId: "2",
@@ -356,10 +343,10 @@ describe("highlighting a given range", () => {
       return docFrag(
         highlight(
           { color: "red", id: "1", length: 26, startOffset: 6, time: "test" },
-          "Lorem ipsum dolor "
-        )
+          "Lorem ipsum dolor ",
+        ),
       );
-    }
+    },
   });
 
   testHighlighting({
@@ -373,7 +360,7 @@ describe("highlighting a given range", () => {
       startNodeId: "highlight-1-start-node",
       startOffset: 0,
       endNodeId: "highlight-1-end-node",
-      endOffset: 29
+      endOffset: 29,
     },
     colour: "red",
     highlightId: "1",
@@ -390,20 +377,20 @@ describe("highlighting a given range", () => {
                 id: "2",
                 length: 12,
                 startOffset: 12,
-                time: "test"
+                time: "test",
               },
-              "ipsum dolor "
-            )
+              "ipsum dolor ",
+            ),
           ),
           b("sit "),
           img(),
           i("am"),
           "et",
           span("consectetur adipiscit"),
-          span("elit.")
-        )
+          span("elit."),
+        ),
       );
-    }
+    },
   });
 
   testHighlighting({
@@ -417,7 +404,7 @@ describe("highlighting a given range", () => {
       startNodeId: "highlight-1-start-node",
       startOffset: 8,
       endNodeId: "highlight-1-start-node",
-      endOffset: 13
+      endOffset: 13,
     },
     colour: "green",
     highlightId: "3",
@@ -429,7 +416,7 @@ describe("highlighting a given range", () => {
             color: "red",
             id: "test-overlapping-highlights-1",
             startOffset: 12,
-            length: 16
+            length: 16,
           },
           "ipsum",
           highlight(
@@ -437,13 +424,13 @@ describe("highlighting a given range", () => {
               color: "blue",
               id: "test-overlapping-highlights-2",
               startOffset: 17,
-              length: 15
+              length: 15,
             },
-            " dolor "
-          )
-        )
+            " dolor ",
+          ),
+        ),
       );
-    }
+    },
   });
 
   testHighlighting({
@@ -457,7 +444,7 @@ describe("highlighting a given range", () => {
       startNodeId: "highlight-1-start-node",
       startOffset: 8,
       endNodeId: "highlight-1-start-node",
-      endOffset: 13
+      endOffset: 13,
     },
     colour: "green",
     highlightId: "3",
@@ -469,7 +456,7 @@ describe("highlighting a given range", () => {
             color: "red",
             id: "test-overlapping-highlights-1",
             startOffset: 12,
-            length: 16
+            length: 16,
           },
           "ipsum",
           highlight(
@@ -477,13 +464,13 @@ describe("highlighting a given range", () => {
               color: "blue",
               id: "test-overlapping-highlights-2",
               startOffset: 17,
-              length: 15
+              length: 15,
             },
-            " dolor "
-          )
-        )
+            " dolor ",
+          ),
+        ),
       );
-    }
+    },
   });
 
   testHighlighting({
@@ -497,7 +484,7 @@ describe("highlighting a given range", () => {
       startNodeId: "highlight-1-start-node",
       startOffset: 8,
       endNodeId: "highlight-1-start-node",
-      endOffset: 13
+      endOffset: 13,
     },
     colour: "green",
     highlightId: "3",
@@ -508,7 +495,7 @@ describe("highlighting a given range", () => {
             color: "red",
             id: "test-overlapping-highlights-1",
             startOffset: 12,
-            length: 16
+            length: 16,
           },
           "ipsum",
           highlight(
@@ -516,12 +503,12 @@ describe("highlighting a given range", () => {
               color: "blue",
               id: "test-overlapping-highlights-2",
               startOffset: 17,
-              length: 15
+              length: 15,
             },
-            " dolor "
-          )
-        )
+            " dolor ",
+          ),
+        ),
       );
-    }
+    },
   });
 });

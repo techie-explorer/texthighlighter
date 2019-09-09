@@ -3,15 +3,17 @@ import { span } from "../../../utils/dom-elements";
 const fixtures = {
   "01.normalising.base": () => {
     return span(
-      "AAA","aaa",
+      "AAA",
+      "aaa",
       span(
-        "CCC","ccc",
+        "CCC",
+        "ccc",
         span("Lorem ipsum dolor sit amet"),
         span("consectetur adipiscit"),
-        span("elit.")
+        span("elit."),
       ),
-      span("DDD","ddd"),
-      "BBB"
+      span("DDD", "ddd"),
+      "BBB",
     );
   },
   "01.normalising.textNodes": () => {
@@ -21,12 +23,12 @@ const fixtures = {
         "CCCccc",
         span("Lorem ipsum dolor sit amet"),
         span("consectetur adipiscit"),
-        span("elit.")
+        span("elit."),
       ),
       span("DDDddd"),
-      "BBB"
+      "BBB",
     );
-  }
+  },
 };
 
 export default fixtures;

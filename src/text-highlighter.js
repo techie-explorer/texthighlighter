@@ -9,14 +9,14 @@ const highlighters = {
   primitivo: Primitivo,
   "v1-2014": Primitivo,
   independencia: Independencia,
-  "v2-2019": Independencia
+  "v2-2019": Independencia,
 };
 
 const versionNames = {
   "v1-2014": "Primitivo (v1-2014)",
   primitivo: "Primitivo (v1-2014)",
   "v2-2019": "Independencia (v2-2019)",
-  independencia: "Independencia (v2-2019)"
+  independencia: "Independencia (v2-2019)",
 };
 
 /**
@@ -86,19 +86,14 @@ class TextHighlighter {
         // highlight descriptors parameter by default in order to create highlights in the DOM.
         return hlts;
       },
-      ...options
+      ...options,
     };
 
     if (!highlighters[this.options.version]) {
-      throw new Error(
-        "Please provide a valid version of the text highlighting functionality"
-      );
+      throw new Error("Please provide a valid version of the text highlighting functionality");
     }
 
-    this.highlighter = new highlighters[this.options.version](
-      this.el,
-      this.options
-    );
+    this.highlighter = new highlighters[this.options.version](this.el, this.options);
 
     dom(this.el).addClass(this.options.contextClass);
     bindEvents(this.el, this);
@@ -289,7 +284,7 @@ class TextHighlighter {
       console.warn(
         `The ${
           versionNames[this.options.version]
-        } version of the text highlighter does not support focusing highlights.`
+        } version of the text highlighter does not support focusing highlights.`,
       );
     }
   }
@@ -318,7 +313,7 @@ class TextHighlighter {
       console.warn(
         `The ${
           versionNames[this.options.version]
-        } version of the text highlighter does not support deselecting highlights.`
+        } version of the text highlighter does not support deselecting highlights.`,
       );
     }
   }

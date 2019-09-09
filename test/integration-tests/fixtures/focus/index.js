@@ -13,5 +13,5 @@ export default {
   ...f4Fixtures,
   ...f5Fixtures,
   ...f6Fixtures,
-  ...f7Fixtures
+  ...f7Fixtures,
 };

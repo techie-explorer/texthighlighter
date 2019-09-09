@@ -19,12 +19,12 @@ describe("dom utility functionality", () => {
         span(" and look to create a society of ", b("peace"), "."),
         div(" Let us not dwell on our ", i("differences")),
         script("function init() { alert('Something happened'); }"),
-        div(" and instead seek to build on what we have in common.")
+        div(" and instead seek to build on what we have in common."),
       );
       root.appendChild(contents);
       expect(dom(root).textContentExcludingTags(["style", "script"])).toEqual(
         "It is time to put away our weapons and look to create a society of peace. " +
-          "Let us not dwell on our differences and instead seek to build on what we have in common."
+          "Let us not dwell on our differences and instead seek to build on what we have in common.",
       );
     });
   });

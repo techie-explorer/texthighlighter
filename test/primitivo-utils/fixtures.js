@@ -76,7 +76,7 @@ var fixtures = (function(global) {
     $.ajax({
       url: file,
       dataType: "script",
-      async: false
+      async: false,
     });
   }
 
@@ -136,9 +136,7 @@ var fixtures = (function(global) {
    */
   function registerFixture(name, func) {
     var funcStr = func.toString(),
-      funcBody = funcStr
-        .slice(funcStr.indexOf("{") + 1, funcStr.lastIndexOf("}"))
-        .trim();
+      funcBody = funcStr.slice(funcStr.indexOf("{") + 1, funcStr.lastIndexOf("}")).trim();
 
     fixtures[name] = global.domBuilderEval(funcBody);
   }
@@ -155,7 +153,7 @@ var fixtures = (function(global) {
     getAsHtml: getFixtureAsHtml,
     loadFiles: loadFixtureFiles,
     clear: clearFixtures,
-    register: registerFixture
+    register: registerFixture,
   };
 })(window);
 

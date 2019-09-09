@@ -1,9 +1,10 @@
-import { span, highlight, bWithAttrs,b, i, img } from "../../../utils/dom-elements";
+import { span, highlight, bWithAttrs, b, i, img } from "../../../utils/dom-elements";
 
 const fixtures = {
   "05.normalising.base": () => {
     return span(
-      "AAA","aaa",
+      "AAA",
+      "aaa",
       span(
         "CCC",
         span(
@@ -12,31 +13,33 @@ const fixtures = {
               color: "red",
               id: "1",
               startOffset: 6,
-              length: 26
+              length: 26,
             },
-            "Lorem ipsum dolor ","aaa"
+            "Lorem ipsum dolor ",
+            "aaa",
           ),
-          bWithAttrs({id: "bold"})(
+          bWithAttrs({ id: "bold" })(
             highlight(
               {
                 color: "red",
                 id: "1",
                 startOffset: 6,
-                length: 26
+                length: 26,
               },
-              "sit ","aaa "
-            )
+              "sit ",
+              "aaa ",
+            ),
           ),
-          bWithAttrs({id: "bold"})(
+          bWithAttrs({ id: "bold" })(
             highlight(
               {
                 color: "red",
                 id: "1",
                 startOffset: 6,
-                length: 26
+                length: 26,
               },
-              "sit again "
-            )
+              "sit again ",
+            ),
           ),
           img(),
           i(
@@ -45,25 +48,25 @@ const fixtures = {
                 color: "red",
                 id: "1",
                 startOffset: 6,
-                length: 26
+                length: 26,
               },
-              "am "
+              "am ",
             ),
             highlight(
               {
                 color: "red",
                 id: "1",
                 startOffset: 6,
-                length: 26
+                length: 26,
               },
               highlight(
                 {
                   color: "blue",
                   id: "2",
                   startOffset: 6,
-                  length: 26
+                  length: 26,
                 },
-                "am again"
+                "am again",
               ),
             ),
           ),
@@ -72,16 +75,16 @@ const fixtures = {
               color: "red",
               id: "1",
               startOffset: 6,
-              length: 26
+              length: 26,
             },
-            "et"
-          )
+            "et",
+          ),
         ),
         span("consectetur adipiscit"),
-        span("elit.")
+        span("elit."),
       ),
       span("DDD"),
-      "BBB"
+      "BBB",
     );
   },
   "05.normalising.highlightsWithDifferentIds": () => {
@@ -95,20 +98,20 @@ const fixtures = {
               color: "red",
               id: "1",
               startOffset: 6,
-              length: 26
+              length: 26,
             },
             "Lorem ipsum dolor aaa",
           ),
-          bWithAttrs({id: "bold"})(
+          bWithAttrs({ id: "bold" })(
             highlight(
               {
                 color: "red",
                 id: "1",
                 startOffset: 6,
-                length: 26
+                length: 26,
               },
-              "sit aaa sit again "
-            )
+              "sit aaa sit again ",
+            ),
           ),
           img(),
           i(
@@ -117,7 +120,7 @@ const fixtures = {
                 color: "red",
                 id: "1",
                 startOffset: 6,
-                length: 26
+                length: 26,
               },
               "am ",
               highlight(
@@ -125,9 +128,9 @@ const fixtures = {
                   color: "blue",
                   id: "2",
                   startOffset: 6,
-                  length: 26
+                  length: 26,
                 },
-                "am again"
+                "am again",
               ),
             ),
           ),
@@ -136,16 +139,16 @@ const fixtures = {
               color: "red",
               id: "1",
               startOffset: 6,
-              length: 26
+              length: 26,
             },
-            "et"
-          )
+            "et",
+          ),
         ),
         span("consectetur adipiscit"),
-        span("elit.")
+        span("elit."),
       ),
       span("DDD"),
-      "BBB"
+      "BBB",
     );
   },
 };
