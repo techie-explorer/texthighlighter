@@ -131,6 +131,7 @@ Then go to `http://localhost:5002/doc` to see the API reference for the library.
 * [Simple demo](http://perlego.github.io/texthighlighter/demos/simple.html)
 * [Callbacks](http://perlego.github.io/texthighlighter/demos/callbacks.html)
 * [Serialization](http://perlego.github.io/texthighlighter/demos/serialization.html)
+* [Serialization (Absolutely positioned elements)](http://perlego.github.io/texthighlighter/demos/serialization-absolute-positioning.html)
 * [Iframe](http://perlego.github.io/texthighlighter/demos/iframe.html)
 
 ## Documentation
