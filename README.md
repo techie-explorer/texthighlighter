@@ -61,7 +61,7 @@ var hltr = new TextHighlighter(document.body);
 * Focusing & deselecting overlapping highlights.
 * Works well in iframes.
 * Keeps DOM clean.
-* No dependencies. No jQuery or other libraries needed.
+* No dependencies (apart from core-js and regenerator-runtime for IE11). No jQuery or other libraries needed.
 
 ## Using the library
 

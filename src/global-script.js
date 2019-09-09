@@ -1,3 +1,7 @@
+// Core JavaScript polyfills for ES latest features in IE11.
+import "core-js/stable";
+import "regenerator-runtime/runtime";
+
 import TextHighlighter from "./text-highlighter";
 
 /**
