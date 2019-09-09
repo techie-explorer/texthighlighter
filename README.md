@@ -8,13 +8,13 @@ TextHighlighter allows you to highlight text on web pages. Just select it!
 
 Install the library by running:
 
-```
+```bash
 $ npm install text-highlighter
 ```
 
 Then you can use it like so:
 
-```
+```javascript
 import TextHighlighter from 'text-highlighter';
 
 // Example using a React ref if you are building a react application.
@@ -30,24 +30,24 @@ Clone down this repository, checkout to the release tag representing the version
 (2.x.x + only, this won't work for 1.x.x, please refer to the documentation provided with 1.x.x releases)
 
 Ensure grunt is installed globally:
-```
+```bash
 npm install -g grunt
 ```
 
 Build the minified version of the library using the following command:
-```
+```bash
 grunt build
 ```
 
 Copy the script file from `build/prod/TextHighlighter.min.js` to the head section of your web page:
 
-```
+```html
 <script type="text/javascript" src="TextHighlighter.min.js"></script>
 ```
 
 And use it!
 
-```
+```javascript
 var hltr = new TextHighlighter(document.body);
 ```
 
@@ -77,7 +77,7 @@ The integration tests covers the integration of the larger components that make 
 functionality such as serialisation + deserialisation, focusing, deselecting, normalisation and interaction with callbacks.
 
 To run the integration tests use the following command:
-```
+```bash
 npm run test:integration
 ```
 
@@ -87,7 +87,7 @@ The unit tests cover functions that make up the smaller components that query, m
 along with pure utility pieces.
 
 To run the unit tests use the following command:
-```
+```bash
 npm run test:unit
 ```
 
@@ -96,7 +96,7 @@ npm run test:unit
 The first version of the highlighter contains tests in a standalone jasmine runner that runs in the browser.
 
 To run those tests, first set up the server:
-```
+```bash
 node testserver.js
 ```
 
