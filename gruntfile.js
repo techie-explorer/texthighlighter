@@ -24,6 +24,17 @@ module.exports = function(grunt) {
         }
       }
     },
+    jsdoc: {
+      dist: {
+        src: ["src/**/*.js", "README.md"],
+        options: {
+          configure: "jsdoc.conf.json",
+          destination: DOC_DIR,
+          private: false,
+          template: "node_modules/ink-docstrap/template"
+        }
+      }
+    },
     uglify: {
       my_target: {
         files: {
@@ -46,6 +57,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-clean");
   grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-contrib-watch");
+  grunt.loadNpmTasks("grunt-jsdoc");
 
   grunt.registerTask("build", ["browserify:dist", "uglify"]);
   grunt.registerTask("default", ["build"]);

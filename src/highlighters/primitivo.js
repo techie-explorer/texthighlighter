@@ -13,6 +13,11 @@ import { unique } from "../utils/arrays";
 /**
  * PrimitivoHighlighter that provides text highlighting functionality to dom elements
  * for simple use cases.
+ *
+ * @callback onAfterHighlightCallbackV1
+ * @param {Range} range
+ * @param {HTMLElement[]} highlights
+ * @param {number} timestamp
  */
 class PrimitivoHighlighter {
   /**
@@ -28,9 +33,9 @@ class PrimitivoHighlighter {
    *  passed as param. Function should return true if highlight should be removed, or false - to prevent removal.
    * @param {function} options.onBeforeHighlight - function called before highlight is created. Range object is
    *  passed as param. Function should return true to continue processing, or false - to prevent highlighting.
-   * @param {function} options.onAfterHighlight - function called after highlight is created. Array of created
+   * @param {onAfterHighlightCallbackV1} options.onAfterHighlight - function called after highlight is created. Array of created
    * wrappers is passed as param.
-   * @class TextHighlighter
+   * @class PrimitivoHighlighter
    */
   constructor(element, options) {
     this.el = element;

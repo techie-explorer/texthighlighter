@@ -14,6 +14,18 @@ import dom from "../utils/dom";
 /**
  * IndependenciaHighlighter that provides text highlighting functionality to dom elements
  * with a focus on removing interdependence between highlights and other element nodes in the context element.
+ *
+ * @typedef {Object} HlDescriptor
+ * @property {string} 0 - The span wrapper injected for the highlight.
+ * @property {string} 1 - The highlighted text.
+ * @property {number} 2 - The text offset relevant to the root element of a highlight.
+ * @property {number} 3 - Length of highlight.
+ *
+ * @callback onAfterHighlightCallbackV2
+ * @param {Range} range
+ * @param {HlDescriptor[]} highlightDescriptors
+ * @param {number} timestamp
+ * @return {HlDescriptor[]}
  */
 class IndependenciaHighlighter {
   /**
@@ -30,8 +42,8 @@ class IndependenciaHighlighter {
    *  passed as param. Function should return true if highlight should be removed, or false - to prevent removal.
    * @param {function} options.onBeforeHighlight - function called before highlight is created. Range object is
    *  passed as param. Function should return true to continue processing, or false - to prevent highlighting.
-   * @param {function} options.onAfterHighlight - function called after highlight is created. Array of created
-   * wrappers is passed as param.
+   * @param {onAfterHighlightCallbackV2} options.onAfterHighlight - function called after highlight is created. Array of created
+   * wrappers is passed as param. This should always return a set of descriptors.
    * @class IndependenciaHighlighter
    */
   constructor(element, options) {
@@ -201,7 +213,7 @@ class IndependenciaHighlighter {
    * @throws exception when can't parse JSON or JSON has invalid structure.
    * @param {object} json - JSON object with highlights definition.
    * @returns {Array} - array of deserialized highlights.
-   * @memberof TextHighlighter
+   * @memberof IndependenciaHighlighter
    */
   deserializeHighlights(json) {
     let hlDescriptors,
