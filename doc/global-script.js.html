@@ -84,7 +84,11 @@
 <section>
     <article>
         <pre
-            class="sunlight-highlight-javascript linenums">import TextHighlighter from "./text-highlighter";
+            class="sunlight-highlight-javascript linenums">// Core JavaScript polyfills for ES latest features in IE11.
+import "core-js/stable";
+import "regenerator-runtime/runtime";
+
+import TextHighlighter from "./text-highlighter";
 
 /**
  * Expose the TextHighlighter class globally to be

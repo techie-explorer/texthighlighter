@@ -116,6 +116,18 @@ const highlighter = new TextHighlighter(sandboxRef.current);
 // Example using an element accessed directly from the DOM.
 const highlighter = new TextHighlighter(document.getElementById(&quot;sandbox&quot;));
 </code></pre>
+<h4>Supporting IE11</h4>
+<p>One thing to note when using this library as a package, you are responsible for providing the polyfills<br>
+for the core JavaScript features outlined in the latest ECMAScript specifications.</p>
+<p>Within this library we use features such as Array.prototype.includes and Array.prototype.find<br>
+which aren't support by IE11 without polyfills.</p>
+<p>You will need to install core-js and regenerator-runtime.</p>
+<pre class="prettyprint source lang-bash"><code>npm install --save core-js regenerator-runtime
+</code></pre>
+<p>You can add the following two lines at the <em>BEGINNING</em> of your application's entrypoint file (index.js or main.js):</p>
+<pre class="prettyprint source lang-javascript"><code>import &quot;core-js/stable&quot;;
+import &quot;regenerator-runtime/runtime&quot;;
+</code></pre>
 <h3>Using the library as a script file</h3>
 <p>Clone down this repository, checkout to the release tag representing the version you would like to use.<br>
 (2.x.x + only, this won't work for 1.x.x, please refer to the documentation provided with 1.x.x releases)</p>
@@ -141,7 +153,7 @@ const highlighter = new TextHighlighter(document.getElementById(&quot;sandbox&qu
 <li>Focusing &amp; deselecting overlapping highlights.</li>
 <li>Works well in iframes.</li>
 <li>Keeps DOM clean.</li>
-<li>No dependencies. No jQuery or other libraries needed.</li>
+<li>No dependencies (apart from core-js and regenerator-runtime for IE11). No jQuery or other libraries needed.</li>
 </ul>
 <h2>Using the library</h2>
 <p>You can find the <a href="http://perlego.github.io/texthighlighter/doc/index.html">API reference here</a><br>

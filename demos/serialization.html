@@ -210,22 +210,28 @@
         window.hltr = new TextHighlighter(sandbox, {
           version: "independencia",
           onAfterHighlight: function(range, descriptors) {
-            var uniqueId = `hlt-${Math.random()
+            var uniqueId = "hlt-" + Math.random()
               .toString(36)
               .substring(2, 15) +
               Math.random()
                 .toString(36)
-                .substring(2, 15)}`;
+                .substring(2, 15);
             highlightIds.push(uniqueId);
 
-            var descriptorsWithIds = descriptors.map(descriptor => {
-              var [wrapper, ...rest] = descriptor;
+            var descriptorsWithIds = descriptors.map(function(descriptor) {
+              var wrapper = descriptor[0];
+              var highlightedText = descriptor[1];
+              var offset = descriptor[2];
+              var length = descriptor[3];
+
               return [
                 wrapper.replace(
                   'class="highlighted"',
-                  `class="highlighted ${uniqueId}"`
+                  "class=\"highlighted " + uniqueId + "\""
                 ),
-                ...rest
+                highlightedText,
+                offset,
+                length
               ];
             });
             return descriptorsWithIds;
@@ -239,6 +245,7 @@
 
         removeBtn.addEventListener("click", function() {
           hltr.removeHighlights();
+          highlightIds = [];
         });
 
         focusBtn.addEventListener("click", function() {
@@ -250,16 +257,16 @@
 
         deselectBtn.addEventListener("click", function() {
           // Ensure all highlights are serialised first!
-          highlightIds.forEach(highlightId => {
+          highlightIds.forEach(function(highlightId) {
             serialized[highlightId] = hltr.serializeHighlights(highlightId);
           });
 
           var highlightId = document.getElementById("deselect-text-field")
             .value;
           if (highlightId) {
-            const highlightDescriptors = Object.keys(serialized)
-              .filter(currentHighlightId => currentHighlightId !== highlightId)
-              .map(currentHighlightId => {
+            var highlightDescriptors = Object.keys(serialized)
+              .filter(function(currentHighlightId) { return currentHighlightId !== highlightId })
+              .map(function(currentHighlightId) {
                 return {
                   id: currentHighlightId,
                   serialisedDescriptor: serialized[currentHighlightId]
@@ -270,7 +277,7 @@
         });
 
         serializeBtn.addEventListener("click", function() {
-          highlightIds.forEach(highlightId => {
+          highlightIds.forEach(function(highlightId) {
             serialized[highlightId] = hltr.serializeHighlights(highlightId);
           });
           hltr.removeHighlights();
@@ -278,7 +285,7 @@
 
         deserializeBtn.addEventListener("click", function() {
           hltr.removeHighlights();
-          highlightIds.forEach(highlightId => {
+          highlightIds.forEach(function(highlightId) {
             hltr.deserializeHighlights(serialized[highlightId]);
           });
         });
