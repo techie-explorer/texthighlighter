@@ -63,6 +63,72 @@ var hltr = new TextHighlighter(document.body);
 * Keeps DOM clean.
 * No dependencies. No jQuery or other libraries needed.
 
+## Using the library
+
+You can find the [API reference here](http://perlego.github.io/texthighlighter/doc/index.html)
+which details the interface for the highlighter and the utility functionality that you could also make use
+of in your project.
+
+### Simple example
+
+```javascript
+import TextHighlighter from 'text-highlighter';
+import { isDuplicate } from './utils'; 
+import highlightsApi from './services/highlights-api';
+
+class Article {
+  constructor(pageElement) {
+    this.highlighter = new TextHighlighter(
+      pageElement, 
+      {
+        version: "independencia",
+        onBeforeHighlight: this.onBeforeHighlight,
+        onAfterHighlight: this.onAfterHighlight,
+        onRemoveHighlight: this.onRemoveHighlight
+    });
+  }
+
+  onBeforeHighlight = (range) => {
+    return !isDuplicate(range)
+  }
+
+  onRemoveHighlight = (highlightElement) => {
+    const proceed = window.confirm("Are you sure you want to remove this highlight?");
+    return proceed;
+  }
+
+  onAfterHighlight = (range, descriptors, timestamp) => {
+    // Add an ID to the class list to identify each highlight 
+    // (A highlight can be represented by a group of elements in the DOM).
+    const uniqueId = `hlt-${Math.random()
+      .toString(36)
+      .substring(2, 15) +
+      Math.random()
+      .toString(36)
+      .substring(2, 15)}`;
+    
+    const descriptorsWithIds = descriptors.map(descriptor => {
+      const [wrapper, ...rest] = descriptor;
+      return [
+        wrapper.replace(
+          'class="highlighted"',
+          `class="highlighted ${uniqueId}"`
+        ),
+        ...rest
+      ];
+    });
+
+    highlightsApi.saveBatch(descriptorsWithIds)
+      .then((result) => {
+        // Do something with the highlights that have been saved.
+      })
+      .catch((err) => console.error(err));
+
+    return descriptorsWithIds;
+  }
+}
+```
+
 ## Compatibility
 
 Should work in all decent browsers and IE 11.
