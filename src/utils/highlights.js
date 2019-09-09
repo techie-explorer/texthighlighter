@@ -186,7 +186,6 @@ export function getElementOffset(
   let currentElement = childElement;
   do {
     // Ensure specified node types are not counted in the offset.
-    console.log(excludeNodeNames);
     if (!excludeNodeNames.includes(currentElement.nodeName)) {
       childNodes = Array.prototype.slice.call(currentElement.parentNode.childNodes);
       const childElementIndex = childNodes.indexOf(currentElement);
