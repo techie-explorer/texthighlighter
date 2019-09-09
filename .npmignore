@@ -6,7 +6,7 @@ gruntfile.dev.js
 index.html
 jsdoc.conf.json
 setupTests.js
-testserver.js
+webserver.js
 lib
 hlbg.png
 .babelrc

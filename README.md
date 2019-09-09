@@ -163,6 +163,12 @@ Should work in all decent browsers and IE 11.
 
 First run `npm install` from the root directory of the repo to install all the test runner dependencies.
 
+To run both integration and unit tests at once use the following:
+
+```bash
+npm run test:all
+```
+
 ### Integration tests
 
 The integration tests covers the integration of the larger components that make up the highlighting
@@ -189,7 +195,7 @@ The first version of the highlighter contains tests in a standalone jasmine runn
 
 To run those tests, first set up the server:
 ```bash
-node testserver.js
+node webserver.js
 ```
 
 Then go to `http://localhost:5002/test/test.html` and the tests will run on page load.
@@ -213,7 +219,7 @@ grunt jsdoc
 
 Ensure the test server is running:
 ```bash
-node testserver.js
+node webserver.js
 ```
 
 Then go to `http://localhost:5002/doc` to see the API reference for the library.
