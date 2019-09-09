@@ -9,7 +9,7 @@ TextHighlighter allows you to highlight text on web pages. Just select it!
 Install the library by running:
 
 ```bash
-$ npm install text-highlighter
+$ npm install @perlego/text-highlighter
 ```
 
 Then you can use it like so:
