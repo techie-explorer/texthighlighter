@@ -227,6 +227,9 @@ class ArticleView {
 <p>Should work in all decent browsers and IE 11.</p>
 <h2>Running the tests</h2>
 <p>First run <code>npm install</code> from the root directory of the repo to install all the test runner dependencies.</p>
+<p>To run both integration and unit tests at once use the following:</p>
+<pre class="prettyprint source lang-bash"><code>npm run test:all
+</code></pre>
 <h3>Integration tests</h3>
 <p>The integration tests covers the integration of the larger components that make up the highlighting<br>
 functionality such as serialisation + deserialisation, focusing, deselecting, normalisation and interaction with callbacks.</p>
@@ -242,7 +245,7 @@ along with pure utility pieces.</p>
 <h3>Running the Primitivo tests (The first version of the highlighter)</h3>
 <p>The first version of the highlighter contains tests in a standalone jasmine runner that runs in the browser.</p>
 <p>To run those tests, first set up the server:</p>
-<pre class="prettyprint source lang-bash"><code>node testserver.js
+<pre class="prettyprint source lang-bash"><code>node webserver.js
 </code></pre>
 <p>Then go to <code>http://localhost:5002/test/test.html</code> and the tests will run on page load.</p>
 <h2>Building the API reference documentation</h2>
@@ -256,7 +259,7 @@ along with pure utility pieces.</p>
 <pre class="prettyprint source lang-bash"><code>grunt jsdoc
 </code></pre>
 <p>Ensure the test server is running:</p>
-<pre class="prettyprint source lang-bash"><code>node testserver.js
+<pre class="prettyprint source lang-bash"><code>node webserver.js
 </code></pre>
 <p>Then go to <code>http://localhost:5002/doc</code> to see the API reference for the library.</p>
 <h2>Demos</h2>
