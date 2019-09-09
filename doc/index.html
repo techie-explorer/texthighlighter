@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
 	<title>TextHighlighter Index</title>
 
 	<!--[if lt IE 9]>
@@ -15,58 +16,71 @@
 </head>
 
 <body>
-<div class="container-fluid">
-	<div class="navbar navbar-fixed-top navbar-inverse">
-		<div class="navbar-inner">
-			<a class="brand" href="index.html">TextHighlighter</a>
-			<ul class="nav">
-				
-				<li class="dropdown">
-					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
-						class="caret"></b></a>
 
-					<ul class="dropdown-menu inline">
-						
-						<li>
-							<a href="TextHighlighter.html">TextHighlighter</a>
-						</li>
-						
-
-					</ul>
-				</li>
-				
-				<li class="dropdown">
-					<a href="externals.list.html" class="dropdown-toggle" data-toggle="dropdown">Externals<b
-						class="caret"></b></a>
-
-					<ul class="dropdown-menu inline">
-						
-						<li>
-							<a href="_.html">jQuery.fn</a>
-						</li>
-						
-
-					</ul>
-				</li>
-				
-			</ul>
-		</div>
+<div class="navbar navbar-default navbar-fixed-top navbar-inverse">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">TextHighlighter</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu inline">
+					<li><a href="IndependenciaHighlighter.html">IndependenciaHighlighter</a></li><li><a href="PrimitivoHighlighter.html">PrimitivoHighlighter</a></li><li><a href="TextHighlighter.html">TextHighlighter</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
+				<ul class="dropdown-menu inline">
+					<li><a href="global.html#arrayToLower">arrayToLower</a></li><li><a href="global.html#createWrapper">createWrapper</a></li><li><a href="global.html#DATA_ATTR">DATA_ATTR</a></li><li><a href="global.html#dom">dom</a></li><li><a href="global.html#findNodesAndOffsets">findNodesAndOffsets</a></li><li><a href="global.html#getHighlightedTextForRange">getHighlightedTextForRange</a></li><li><a href="global.html#getHighlightedTextRelativeToRoot">getHighlightedTextRelativeToRoot</a></li><li><a href="global.html#groupHighlights">groupHighlights</a></li><li><a href="global.html#haveSameColor">haveSameColor</a></li><li><a href="global.html#IGNORE_TAGS">IGNORE_TAGS</a></li><li><a href="global.html#isClosestHighlightParent">isClosestHighlightParent</a></li><li><a href="global.html#mergeSiblingTextNodesInDirection">mergeSiblingTextNodesInDirection</a></li><li><a href="global.html#nodesInBetween">nodesInBetween</a></li><li><a href="global.html#refineRangeBoundaries">refineRangeBoundaries</a></li><li><a href="global.html#scaleFromTransformMatrix">scaleFromTransformMatrix</a></li><li><a href="global.html#sortByDepth">sortByDepth</a></li><li><a href="global.html#TIMESTAMP_ATTR">TIMESTAMP_ATTR</a></li><li><a href="global.html#unique">unique</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="externals.list.html" class="dropdown-toggle" data-toggle="dropdown">Externals<b class="caret"></b></a>
+				<ul class="dropdown-menu inline">
+					<li><a href="external-_jQuery.fn_.html">jQuery.fn</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+        
+            <div class="col-sm-3 col-md-3">
+                <form class="navbar-form" role="search">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        
 	</div>
 
-	<div class="row-fluid">
+</div>
+</div>
 
-		
-		<div class="span8">
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-8">
+	
+		<div id="main">
 			
-				<div id="main">
-					
-
 
 	
-	<span class="page-title">Index</span>
 	
-	
-
 
 
 
@@ -89,15 +103,34 @@
         <article><h1>TextHighlighter</h1>
 <p>TextHighlighter allows you to highlight text on web pages. Just select it!</p>
 <h2>Getting started</h2>
-<p>Download TextHighlighter directly from GitHub or install with Bower:</p>
-<pre><code>$ bower install text-highlighter</code></pre>
-<p>Add script file to head section of your web page:</p>
-<pre><code>&lt;script type=&quot;text/javascript&quot; src=&quot;TextHighlighter.min.js&quot;&gt;&lt;/script&gt;</code></pre>
+<h3>Using the library as an npm package</h3>
+<p>Install the library by running:</p>
+<pre class="prettyprint source lang-bash"><code>$ npm install text-highlighter
+</code></pre>
+<p>Then you can use it like so:</p>
+<pre class="prettyprint source lang-javascript"><code>import TextHighlighter from 'text-highlighter';
+
+// Example using a React ref if you are building a react application.
+const highlighter = new TextHighlighter(sandboxRef.current);
+
+// Example using an element accessed directly from the DOM.
+const highlighter = new TextHighlighter(document.getElementById(&quot;sandbox&quot;));
+</code></pre>
+<h3>Using the library as a script file</h3>
+<p>Clone down this repository, checkout to the release tag representing the version you would like to use.<br>
+(2.x.x + only, this won't work for 1.x.x, please refer to the documentation provided with 1.x.x releases)</p>
+<p>Ensure grunt is installed globally:</p>
+<pre class="prettyprint source lang-bash"><code>npm install -g grunt
+</code></pre>
+<p>Build the minified version of the library using the following command:</p>
+<pre class="prettyprint source lang-bash"><code>grunt build
+</code></pre>
+<p>Copy the script file from <code>build/prod/TextHighlighter.min.js</code> to the head section of your web page:</p>
+<pre class="prettyprint source lang-html"><code>&lt;script type=&quot;text/javascript&quot; src=&quot;TextHighlighter.min.js&quot;>&lt;/script>
+</code></pre>
 <p>And use it!</p>
-<pre><code>var hltr = new TextHighlighter(document.body);</code></pre>
-<p>For more details see <a href="http://mir3z.github.io/texthighlighter/doc/index.html">API reference</a> or 
-<a href="https://github.com/mir3z/texthighlighter/wiki">Wiki</a> pages on GitHub.</p>
-<p>Also check Demos section below for examples of usage.</p>
+<pre class="prettyprint source lang-javascript"><code>var hltr = new TextHighlighter(document.body);
+</code></pre>
 <h2>Features</h2>
 <ul>
 <li>Highlighting of selected text.</li>
@@ -105,22 +138,57 @@
 <li>Removing highlights.</li>
 <li>Selecting highlight color.</li>
 <li>Serialization &amp; deserialization.</li>
+<li>Focusing &amp; deselecting overlapping highlights.</li>
 <li>Works well in iframes.</li>
 <li>Keeps DOM clean.</li>
 <li>No dependencies. No jQuery or other libraries needed.</li>
 </ul>
 <h2>Compatibility</h2>
-<p>Should work in all decent browsers and IE &gt;= 9.</p>
+<p>Should work in all decent browsers and IE 11.</p>
+<h2>Running the tests</h2>
+<p>First run <code>npm install</code> from the root directory of the repo to install all the test runner dependencies.</p>
+<h3>Integration tests</h3>
+<p>The integration tests covers the integration of the larger components that make up the highlighting<br>
+functionality such as serialisation + deserialisation, focusing, deselecting, normalisation and interaction with callbacks.</p>
+<p>To run the integration tests use the following command:</p>
+<pre class="prettyprint source lang-bash"><code>npm run test:integration
+</code></pre>
+<h3>Unit tests</h3>
+<p>The unit tests cover functions that make up the smaller components that query, manipulate the DOM<br>
+along with pure utility pieces.</p>
+<p>To run the unit tests use the following command:</p>
+<pre class="prettyprint source lang-bash"><code>npm run test:unit
+</code></pre>
+<h3>Running the Primitivo tests (The first version of the highlighter)</h3>
+<p>The first version of the highlighter contains tests in a standalone jasmine runner that runs in the browser.</p>
+<p>To run those tests, first set up the server:</p>
+<pre class="prettyprint source lang-bash"><code>node testserver.js
+</code></pre>
+<p>Then go to <code>http://localhost:5002/test/test.html</code> and the tests will run on page load.</p>
+<h2>Building the API reference documentation</h2>
+<p>Ensure all dev dependencies are installed using:</p>
+<pre class="prettyprint source lang-bash"><code>npm install
+</code></pre>
+<p>Ensure grunt is installed globally:</p>
+<pre class="prettyprint source lang-bash"><code>npm install -g grunt
+</code></pre>
+<p>To build the documentation, run the following command:</p>
+<pre class="prettyprint source lang-bash"><code>grunt jsdoc
+</code></pre>
+<p>Ensure the test server is running:</p>
+<pre class="prettyprint source lang-bash"><code>node testserver.js
+</code></pre>
+<p>Then go to <code>http://localhost:5002/doc</code> to see the API reference for the library.</p>
 <h2>Demos</h2>
 <ul>
-<li><a href="http://mir3z.github.io/texthighlighter/demos/simple.html">Simple demo</a></li>
-<li><a href="http://mir3z.github.io/texthighlighter/demos/callbacks.html">Callbacks</a></li>
-<li><a href="http://mir3z.github.io/texthighlighter/demos/serialization.html">Serialization</a></li>
-<li><a href="http://mir3z.github.io/texthighlighter/demos/iframe.html">Iframe</a></li>
+<li><a href="http://perlego.github.io/texthighlighter/demos/simple.html">Simple demo</a></li>
+<li><a href="http://perlego.github.io/texthighlighter/demos/callbacks.html">Callbacks</a></li>
+<li><a href="http://perlego.github.io/texthighlighter/demos/serialization.html">Serialization</a></li>
+<li><a href="http://perlego.github.io/texthighlighter/demos/iframe.html">Iframe</a></li>
 </ul>
 <h2>Documentation</h2>
-<p>You may check <a href="http://mir3z.github.io/texthighlighter/doc/index.html">API reference</a> or 
-<a href="https://github.com/mir3z/texthighlighter/wiki">Wiki</a> pages on GitHub.</p></article>
+<p>You may check <a href="http://perlego.github.io/texthighlighter/doc/index.html">API reference</a> or<br>
+<a href="https://github.com/Perlego/texthighlighter/wiki">Wiki</a> pages on GitHub.</p></article>
     </section>
 
 
@@ -129,101 +197,136 @@
 
 
 
-				</div>
-
-				<div class="clearfix"></div>
-				<footer>
-					
-					
-		<span class="copyright">
-		TextHighlighter Copyright © 2011 - 2014 by mirz
-		</span>
-					<br />
-					
-		<span class="jsdoc-message">
-		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a>
-		on Thu Dec 25th 2014 using the <a
-			href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
-		</span>
-				</footer>
-			</div>
-
-			
-			<div class="span3">
-				<div id="toc"></div>
-			</div>
-			
-			<br clear="both">
 		</div>
-
 	</div>
-	<!--<script src="scripts/sunlight.js"></script>-->
-	<script src="scripts/docstrap.lib.js"></script>
-	<script src="scripts/bootstrap-dropdown.js"></script>
-	<script src="scripts/toc.js"></script>
 
-	<script>
-		$( function () {
-			$( "[id*='$']" ).each( function () {
-				var $this = $( this );
+	<div class="clearfix"></div>
 
-				$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
-			} );
-
-			$( "#toc" ).toc( {
-				anchorName  : function ( i, heading, prefix ) {
-					return $( heading ).attr( "id" ) || ( prefix + i );
-				},
-				selectors   : "h1,h2,h3,h4",
-				showAndHide : false,
-				scrollTo    : "100px"
-			} );
-
-			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
-			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
-			$( '.dropdown-toggle' ).dropdown();
-//			$( ".tutorial-section pre, .readme-section pre" ).addClass( "sunlight-highlight-javascript" ).addClass( "linenums" );
-
-			$( ".tutorial-section pre, .readme-section pre" ).each( function () {
-				var $this = $( this );
-
-				var example = $this.find( "code" );
-				exampleText = example.html();
-				var lang = /{@lang (.*?)}/.exec( exampleText );
-				if ( lang && lang[1] ) {
-					exampleText = exampleText.replace( lang[0], "" );
-					example.html( exampleText );
-					lang = lang[1];
-				} else {
-					lang = "javascript";
-				}
-
-				if ( lang ) {
-
-					$this
-						.addClass( "sunlight-highlight-" + lang )
-						.addClass( "linenums" )
-						.html( example.html() );
-
-				}
-			} );
-
-			Sunlight.highlightAll( {
-				lineNumbers : true,
-				showMenu : true,
-				enableDoclinks : true
-			} );
-		} );
-	 </script>
-
-
-
-	<!--Navigation and Symbol Display-->
+	
+		<div class="col-md-3">
+			<div id="toc" class="col-md-3 hidden-xs hidden-sm hidden-md"></div>
+		</div>
 	
 
+</div>
+</div>
 
-	<!--Google Analytics-->
+
+    <div class="modal fade" id="searchResults">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Search results</h4>
+          </div>
+          <div class="modal-body"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div>
+
+
+<footer>
+
+
+	<span class="copyright">
+	TextHighlighter Copyright © 2019 by Perlego Limited.
+	</span>
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a>
 	
+		on Mon Sep 9th 2019
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+
+    <script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre, pre.prettyprint.source" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			return $( heading ).attr( "id" ) || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            SearcherDisplay.init();
+        });
+    </script>
+
 
 </body>
 </html>

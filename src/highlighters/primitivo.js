@@ -35,7 +35,7 @@ class PrimitivoHighlighter {
    *  passed as param. Function should return true to continue processing, or false - to prevent highlighting.
    * @param {onAfterHighlightCallbackV1} options.onAfterHighlight - function called after highlight is created. Array of created
    * wrappers is passed as param.
-   * @class TextHighlighter
+   * @class PrimitivoHighlighter
    */
   constructor(element, options) {
     this.el = element;

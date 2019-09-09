@@ -102,6 +102,30 @@ node testserver.js
 
 Then go to `http://localhost:5002/test/test.html` and the tests will run on page load.
 
+## Building the API reference documentation
+
+Ensure all dev dependencies are installed using:
+```bash
+npm install
+```
+
+Ensure grunt is installed globally:
+```bash
+npm install -g grunt
+```
+
+To build the documentation, run the following command:
+```bash
+grunt jsdoc
+```
+
+Ensure the test server is running:
+```bash
+node testserver.js
+```
+
+Then go to `http://localhost:5002/doc` to see the API reference for the library.
+
 ## Demos
 
 * [Simple demo](http://perlego.github.io/texthighlighter/demos/simple.html)
