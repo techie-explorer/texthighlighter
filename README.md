@@ -23,6 +23,25 @@ const highlighter = new TextHighlighter(sandboxRef.current);
 // Example using an element accessed directly from the DOM.
 const highlighter = new TextHighlighter(document.getElementById("sandbox"));
 ```
+#### Supporting IE11
+
+One thing to note when using this library as a package, you are responsible for providing the polyfills
+for the core JavaScript features outlined in the latest ECMAScript specifications.
+
+Within this library we use features such as Array.prototype.includes and Array.prototype.find
+which aren't support by IE11 without polyfills.
+
+You will need to install core-js and regenerator-runtime.
+
+```bash
+npm install --save core-js regenerator-runtime
+```
+
+You can add the following two lines at the *BEGINNING* of your application's entrypoint file (index.js or main.js):
+```javascript
+import "core-js/stable";
+import "regenerator-runtime/runtime";
+```
 
 ### Using the library as a script file
 
