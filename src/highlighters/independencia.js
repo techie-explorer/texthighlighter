@@ -86,13 +86,16 @@ class IndependenciaHighlighter {
 
   /**
    *
-   * Removes a highlight from dom given that highlight ID.
-   * If no ID is given, all highlights are removed.
    * @param {string} id - ID of highlight to remove
+   * Removes highlights from element using highlight Id. .
+   * If no id is given, all highlights are removed.
+   * @param {HTMLElement} element - element to remove highlights from
+   * @param {string} id - The unique id of a highlight represented by a collection of elements.
    * @memberof IndependenciaHighlighter
    */
-  removeHighlights(id) {
-    let highlights = this.getHighlights(),
+  removeHighlights(element, id) {
+    const container = element || this.el;
+    let highlights = this.getHighlights({ container }),
       self = this;
 
     function removeHighlight(highlight) {
@@ -229,19 +232,26 @@ class IndependenciaHighlighter {
       const highlightNodes = findNodesAndOffsets(hl, parentNode, self.options.excludeNodes);
 
       highlightNodes.forEach(({ node, offset: offsetWithinNode, length: lengthInNode }) => {
-        hlNode = node.splitText(offsetWithinNode);
-        hlNode.splitText(lengthInNode);
+        // Don't call innerText to prevent DOM layout reflow.
+        // Visible text content may be a bit of naive name but represents
+        // everything excluding new lines and white space.
+        const visibleTextContent = node.textContent.trim().replace(/(\r\n|\n|\r)/gm, "");
 
-        if (hlNode.nextSibling && !hlNode.nextSibling.nodeValue) {
-          dom(hlNode.nextSibling).remove();
+        if (visibleTextContent.length > 0) {
+          hlNode = node.splitText(offsetWithinNode);
+          hlNode.splitText(lengthInNode);
+
+          if (hlNode.nextSibling && !hlNode.nextSibling.nodeValue) {
+            dom(hlNode.nextSibling).remove();
+          }
+
+          if (hlNode.previousSibling && !hlNode.previousSibling.nodeValue) {
+            dom(hlNode.previousSibling).remove();
+          }
+
+          highlight = dom(hlNode).wrap(dom().fromHTML(hl.wrapper)[0]);
+          highlights.push(highlight);
         }
-
-        if (hlNode.previousSibling && !hlNode.previousSibling.nodeValue) {
-          dom(hlNode.previousSibling).remove();
-        }
-
-        highlight = dom(hlNode).wrap(dom().fromHTML(hl.wrapper)[0]);
-        highlights.push(highlight);
       });
     }
 

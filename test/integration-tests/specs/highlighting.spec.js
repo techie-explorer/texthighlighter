@@ -110,7 +110,7 @@ describe("highlighting a given range", () => {
 
       expect(toDiffableHtml(htmlDuring)).toEqual(toDiffableHtml(fixture().outerHTML));
       if (params.highlightIdToRemove) {
-        highlighter.removeHighlights(params.highlightIdToRemove);
+        highlighter.removeHighlights(null, params.highlightIdToRemove);
       } else {
         highlighter.removeHighlights();
       }

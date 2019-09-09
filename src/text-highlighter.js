@@ -159,11 +159,13 @@ class TextHighlighter {
   /**
    * Removes highlights from element. If element is a highlight itself, it is removed as well.
    * If no element is given, all highlights all removed.
-   * @param {HTMLElement} [element] - element to remove highlights from
+   * @param {HTMLElement} element - element to remove highlights from.
+   *                                 if empty, the root element of the highlighter will  be used.
+   * @param {string} id - The unique id of a highlight represented by a collection of elements.
    * @memberof TextHighlighter
    */
-  removeHighlights(element) {
-    this.highlighter.removeHighlights(element);
+  removeHighlights(element, id) {
+    this.highlighter.removeHighlights(element, id);
   }
 
   /**
