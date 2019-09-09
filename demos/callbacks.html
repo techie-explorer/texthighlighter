@@ -210,10 +210,11 @@ new TextHighlighter(sandbox, {
                 " highlight(s): " +
                 highlights
                   .map(function(h) {
-                    return '"' + h.innerText + '"';
+                    return '"' + h[1] + '"';
                   })
                   .join(", ")
             );
+            return highlights;
           },
           onRemoveHighlight: function(hl) {
             return window.confirm(
