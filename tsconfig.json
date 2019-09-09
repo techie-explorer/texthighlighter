@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "*": ["./types/*"]
+    },
+    "types": ["node", "jest"]
+  },
+  "include": ["client/**/*", "packages/**/*"],
+  "exclude": ["node_modules/**/*"]
+}

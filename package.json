@@ -1,19 +1,73 @@
 {
-  "name": "TextHighlighter",
-  "version": "1.2.0",
+  "name": "texthighlighter",
+  "version": "2.0.0-alpha.1",
   "description": "TextHighlighter",
   "dependencies": {},
   "devDependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@babel/preset-env": "^7.5.5",
+    "@types/jest": "^24.0.18",
+    "babel-eslint": "^10.0.3",
+    "babel-jest": "^24.9.0",
+    "babelify": "^10.0.0",
+    "diffable-html": "^4.0.0",
+    "eslint": "^6.2.2",
+    "eslint-config-prettier": "^6.1.0",
+    "eslint-plugin-jest": "^22.15.2",
+    "eslint-plugin-prettier": "^3.1.0",
+    "express": "^4.17.1",
     "grunt": "^0.4.5",
+    "grunt-babel": "^8.0.0",
+    "grunt-browserify": "^5.3.0",
     "grunt-closurecompiler": "^0.9.9",
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-jshint": "^0.10.0",
-    "grunt-jsdoc": "^0.5.7"
+    "grunt-contrib-uglify": "^4.0.1",
+    "grunt-contrib-watch": "^1.1.0",
+    "grunt-jsdoc": "^2.4.0",
+    "ink-docstrap": "^1.3.2",
+    "jest": "^24.9.0",
+    "jest-extended": "^0.11.2",
+    "jsdom": "^15.1.1",
+    "load-grunt-tasks": "^5.1.0",
+    "prettier": "^1.18.2",
+    "sanitize-html": "^1.20.1"
+  },
+  "jest": {
+    "testURL": "https://localhost",
+    "collectCoverage": true,
+    "coverageDirectory": "./coverage",
+    "coverageReporters": [
+      "json",
+      "html"
+    ],
+    "transform": {
+      "^.+\\.[t|j]sx?$": "babel-jest"
+    },
+    "setupTestFrameworkScriptFile": "./setupTests.js",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/test/specs/"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/specs/"
+    ],
+    "rootDir": "."
+  },
+  "scripts": {
+    "test": "npm run test:unit",
+    "test:unit": "jest test/unit-tests",
+    "test:integration": "jest test/integration-tests",
+    "start": "grunt --gruntfile gruntfile.dev.js watch",
+    "build": "grunt"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mir3z/texthighlighter.git"
+    "url": "https://github.com/Perlego/texthighlighter.git"
   },
-  "author": "mirz <mirz.hq@gmail.com>",
+  "main": "src/index.js",
   "license": "MIT"
 }

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>TextHighlighter Source: text-highlighter.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cosmo.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top navbar-inverse">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">TextHighlighter</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu inline">
+					<li><a href="IndependenciaHighlighter.html">IndependenciaHighlighter</a></li><li><a href="PrimitivoHighlighter.html">PrimitivoHighlighter</a></li><li><a href="TextHighlighter.html">TextHighlighter</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
+				<ul class="dropdown-menu inline">
+					<li><a href="global.html#arrayToLower">arrayToLower</a></li><li><a href="global.html#createWrapper">createWrapper</a></li><li><a href="global.html#DATA_ATTR">DATA_ATTR</a></li><li><a href="global.html#dom">dom</a></li><li><a href="global.html#findNodesAndOffsets">findNodesAndOffsets</a></li><li><a href="global.html#getHighlightedTextForRange">getHighlightedTextForRange</a></li><li><a href="global.html#getHighlightedTextRelativeToRoot">getHighlightedTextRelativeToRoot</a></li><li><a href="global.html#groupHighlights">groupHighlights</a></li><li><a href="global.html#haveSameColor">haveSameColor</a></li><li><a href="global.html#IGNORE_TAGS">IGNORE_TAGS</a></li><li><a href="global.html#isClosestHighlightParent">isClosestHighlightParent</a></li><li><a href="global.html#mergeSiblingTextNodesInDirection">mergeSiblingTextNodesInDirection</a></li><li><a href="global.html#nodesInBetween">nodesInBetween</a></li><li><a href="global.html#refineRangeBoundaries">refineRangeBoundaries</a></li><li><a href="global.html#scaleFromTransformMatrix">scaleFromTransformMatrix</a></li><li><a href="global.html#sortByDepth">sortByDepth</a></li><li><a href="global.html#TIMESTAMP_ATTR">TIMESTAMP_ATTR</a></li><li><a href="global.html#unique">unique</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="externals.list.html" class="dropdown-toggle" data-toggle="dropdown">Externals<b class="caret"></b></a>
+				<ul class="dropdown-menu inline">
+					<li><a href="external-_jQuery.fn_.html">jQuery.fn</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+        
+            <div class="col-sm-3 col-md-3">
+                <form class="navbar-form" role="search">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-12">
+	
+		<div id="main">
+			
+
+		<h1 class="page-title">Source: text-highlighter.js</h1>
+    
+<section>
+    <article>
+        <pre
+            class="sunlight-highlight-javascript linenums">import dom from "./utils/dom";
+import { bindEvents, unbindEvents } from "./utils/events";
+import Primitivo from "./highlighters/primitivo";
+import Independencia from "./highlighters/independencia";
+import { DATA_ATTR } from "./config";
+import { createWrapper } from "./utils/highlights";
+
+const highlighters = {
+  primitivo: Primitivo,
+  "v1-2014": Primitivo,
+  independencia: Independencia,
+  "v2-2019": Independencia,
+};
+
+const versionNames = {
+  "v1-2014": "Primitivo (v1-2014)",
+  primitivo: "Primitivo (v1-2014)",
+  "v2-2019": "Independencia (v2-2019)",
+  independencia: "Independencia (v2-2019)",
+};
+
+/**
+ * TextHighlighter that provides text highlighting functionality to dom elements.
+ */
+class TextHighlighter {
+  /**
+   * Creates wrapper for highlights.
+   * TextHighlighter instance calls this method each time it needs to create highlights and pass options retrieved
+   * in constructor.
+   *
+   * @param {object} options - the same object as in TextHighlighter constructor.
+   * @returns {HTMLElement}
+   */
+  static createWrapper(options) {
+    return createWrapper(options);
+  }
+
+  /**
+   * Creates TextHighlighter instance and binds to given DOM elements.
+   *
+   * @param {HTMLElement} element - DOM element to which highlighted will be applied.
+   * @param {object} [options] - additional options.
+   * @param {string} options.version - The version of the text highlighting functionality to use.
+   * There are two options:
+   *   primitivo (v1-2014) is for the initial implementation using interdependent highlight locators.
+   *   (Lots of issues for requirements beyond simple all or nothing highlights)
+   *
+   *   independencia (v2-2019) is for an improved implementation focusing on making highlights independent
+   *   from eachother and other element nodes within the context DOM object. v2 uses data attributes
+   *   as the source of truth about the text range selected to create the original highlight.
+   *   This allows us freedom to manipulate the DOM at will and handle overlapping highlights a lot better.
+   *
+   * @param {string} options.color - highlight color.
+   * @param {string} options.excludeNodes - Node types to exclude when calculating offsets and determining where to inject highlights.
+   * @param {string} options.highlightedClass - class added to highlight, 'highlighted' by default.
+   * @param {string} options.contextClass - class added to element to which highlighter is applied,
+   *  'highlighter-context' by default.
+   * @param {function} options.onRemoveHighlight - function called before highlight is removed. Highlight is
+   *  passed as param. Function should return true if highlight should be removed, or false - to prevent removal.
+   * @param {function} options.onBeforeHighlight - function called before highlight is created. Range object is
+   *  passed as param. Function should return true to continue processing, or false - to prevent highlighting.
+   * @param {function} options.onAfterHighlight - function called after highlight is created. Array of created
+   * wrappers is passed as param. (The callback interface differs between versions, see specific highlighter classes for more info)
+   * @class TextHighlighter
+   */
+  constructor(element, options) {
+    if (!element) {
+      throw new Error("Missing anchor element");
+    }
+
+    this.el = element;
+    this.options = {
+      color: "#ffff7b",
+      highlightedClass: "highlighted",
+      contextClass: "highlighter-context",
+      version: "independencia",
+      excludeNodes: ["SCRIPT", "STYLE"],
+      onRemoveHighlight: function() {
+        return true;
+      },
+      onBeforeHighlight: function() {
+        return true;
+      },
+      onAfterHighlight: function(_, hlts) {
+        // For the newer version of the highlighter, we need to return the
+        // highlight descriptors parameter by default in order to create highlights in the DOM.
+        return hlts;
+      },
+      ...options,
+    };
+
+    if (!highlighters[this.options.version]) {
+      throw new Error("Please provide a valid version of the text highlighting functionality");
+    }
+
+    this.highlighter = new highlighters[this.options.version](this.el, this.options);
+
+    dom(this.el).addClass(this.options.contextClass);
+    bindEvents(this.el, this);
+  }
+
+  /**
+   * Permanently disables highlighting.
+   * Unbinds events and remove context element class.
+   * @memberof TextHighlighter
+   */
+  destroy() {
+    unbindEvents(this.el, this);
+    dom(this.el).removeClass(this.options.contextClass);
+  }
+
+  highlightHandler() {
+    this.doHighlight();
+  }
+
+  doHighlight(keepRange) {
+    this.highlighter.doHighlight(keepRange);
+  }
+
+  /**
+   * Highlights range.
+   * Wraps text of given range object in wrapper element.
+   * @param {Range} range
+   * @param {HTMLElement} wrapper
+   * @returns {Array} - array of created highlights.
+   * @memberof TextHighlighter
+   */
+  highlightRange(range, wrapper) {
+    return this.highlighter.highlightRange(range, wrapper);
+  }
+
+  /**
+   * Normalizes highlights. Ensure at least text nodes are normalized, carries out some flattening and nesting
+   * where necessary.
+   *
+   * @param {Array} highlights - highlights to normalize.
+   * @returns {Array} - array of normalized highlights. Order and number of returned highlights may be different than
+   * input highlights.
+   * @memberof TextHighlighter
+   */
+  normalizeHighlights(highlights) {
+    return this.highlighter.normalizeHighlights(highlights);
+  }
+
+  /**
+   * Sets highlighting color.
+   * @param {string} color - valid CSS color.
+   * @memberof TextHighlighter
+   */
+  setColor(color) {
+    this.options.color = color;
+  }
+
+  /**
+   * Returns highlighting color.
+   * @returns {string}
+   * @memberof TextHighlighter
+   */
+  getColor() {
+    return this.options.color;
+  }
+
+  /**
+   * Removes highlights from element. If element is a highlight itself, it is removed as well.
+   * If no element is given, all highlights all removed.
+   * @param {HTMLElement} element - element to remove highlights from.
+   *                                 if empty, the root element of the highlighter will  be used.
+   * @param {string} id - The unique id of a highlight represented by a collection of elements.
+   * @memberof TextHighlighter
+   */
+  removeHighlights(element, id) {
+    this.highlighter.removeHighlights(element, id);
+  }
+
+  /**
+   * Returns highlights from given container.
+   * @param params
+   * @param {HTMLElement} [params.container] - return highlights from this element. Default: the element the
+   * highlighter is applied to.
+   * @param {boolean} [params.andSelf] - if set to true and container is a highlight itself, add container to
+   * returned results. Default: true.
+   * @param {boolean} [params.grouped] - if set to true, highlights are grouped in logical groups of highlights added
+   * in the same moment. Each group is an object which has got array of highlights, 'toString' method and 'timestamp'
+   * property. Default: false.
+   * @returns {Array} - array of highlights.
+   * @memberof TextHighlighter
+   */
+  getHighlights(params) {
+    return this.highlighter.getHighlights(params);
+  }
+
+  /**
+   * Returns true if element is a highlight.
+   * All highlights have 'data-highlighted' attribute.
+   * @param el - element to check.
+   * @returns {boolean}
+   * @memberof TextHighlighter
+   */
+  isHighlight(el) {
+    return this.highlighter.isHighlight(el, DATA_ATTR);
+  }
+
+  /**
+   * Serializes all highlights in the element the highlighter is applied to.
+   * the id is not used in the initial version of the highlighter.
+   *
+   * @param {string} id - The unique identifier grouping a set of highlight elements together.
+   * @returns {string} - stringified JSON with highlights definition
+   * @memberof TextHighlighter
+   */
+  serializeHighlights(id) {
+    return this.highlighter.serializeHighlights(id);
+  }
+
+  /**
+   * Deserializes highlights.
+   * @throws exception when can't parse JSON or JSON has invalid structure.
+   * @param {object} json - JSON object with highlights definition.
+   * @returns {Array} - array of deserialized highlights.
+   * @memberof TextHighlighter
+   */
+  deserializeHighlights(json) {
+    return this.highlighter.deserializeHighlights(json);
+  }
+
+  /**
+   * Finds and highlights given text.
+   * @param {string} text - text to search for
+   * @param {boolean} [caseSensitive] - if set to true, performs case sensitive search (default: true)
+   * @memberof TextHighlighter
+   */
+  find(text, caseSensitive) {
+    let wnd = dom(this.el).getWindow(),
+      scrollX = wnd.scrollX,
+      scrollY = wnd.scrollY,
+      caseSens = typeof caseSensitive === "undefined" ? true : caseSensitive;
+
+    dom(this.el).removeAllRanges();
+
+    if (wnd.find) {
+      while (wnd.find(text, caseSens)) {
+        this.doHighlight(true);
+      }
+    } else if (wnd.document.body.createTextRange) {
+      let textRange = wnd.document.body.createTextRange();
+      textRange.moveToElementText(this.el);
+      while (textRange.findText(text, 1, caseSens ? 4 : 0)) {
+        if (
+          !dom(this.el).contains(textRange.parentElement()) &amp;&amp;
+          textRange.parentElement() !== this.el
+        ) {
+          break;
+        }
+
+        textRange.select();
+        this.doHighlight(true);
+        textRange.collapse(false);
+      }
+    }
+
+    dom(this.el).removeAllRanges();
+    wnd.scrollTo(scrollX, scrollY);
+  }
+
+  /**
+   * Focuses a highlight, bringing it forward in the case it is sitting behind another
+   * overlapping highlight, or a highlight it is nested inside.
+   *
+   * This is only supported by independencia (v2-2019) and onwards.
+   * For older versions, this will simply do nothing.
+   *
+   * @param {string} id - The id of the highlight present in the class names of all elements
+   *                      in the DOM that represent the highlight.
+   *
+   * @param {string} descriptors - Optional serialised descriptors, useful in the case a highlight has no representation in the DOM
+   *                        where empty highlight wrapper nodes are removed to use less dom elements.
+   *
+   * @memberof TextHighlighter
+   */
+  focusUsingId(id, descriptors) {
+    if (this.highlighter.focusUsingId) {
+      this.highlighter.focusUsingId(id, descriptors);
+    } else {
+      console.warn(
+        `The ${
+          versionNames[this.options.version]
+        } version of the text highlighter does not support focusing highlights.`,
+      );
+    }
+  }
+
+  /**
+   * Deselects a highlight, bringing any nested highlights in the list of descriptors
+   * forward.
+   *
+   * This is only supported by independencia (v2-2019) and onwards.
+   * For older versions, this will simply do nothing.
+   *
+   * @typedef HighlightDescriptor
+   * @type {object}
+   * @property {string} id
+   * @property {string} serialisedDescriptor
+   *
+   * @param {string} id  The id of the deselected highlight.
+   * @param {HighlightDescriptor[]} descriptors the serialised highlight descriptors for a set of highlights that could be nested
+   *                               in the deselected highlight.
+   * @memberof TextHighlighter
+   */
+  deselectUsingId(id, descriptors) {
+    if (this.highlighter.deselectUsingId) {
+      this.highlighter.deselectUsingId(id, descriptors);
+    } else {
+      console.warn(
+        `The ${
+          versionNames[this.options.version]
+        } version of the text highlighter does not support deselecting highlights.`,
+      );
+    }
+  }
+}
+
+export default TextHighlighter;
+</pre>
+    </article>
+</section>
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+
+</div>
+</div>
+
+
+    <div class="modal fade" id="searchResults">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Search results</h4>
+          </div>
+          <div class="modal-body"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div>
+
+
+<footer>
+
+
+	<span class="copyright">
+	TextHighlighter Copyright © 2019 by Perlego Limited.
+	</span>
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a>
+	
+		on Mon Sep 9th 2019
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+
+    <script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre, pre.prettyprint.source" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			return $( heading ).attr( "id" ) || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            SearcherDisplay.init();
+        });
+    </script>
+
+
+</body>
+</html>
