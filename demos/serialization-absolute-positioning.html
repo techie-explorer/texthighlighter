@@ -1509,7 +1509,7 @@
         var colors = new ColorPicker(document.querySelector(".color-picker"));
         window.hltr = new TextHighlighter(sandbox, {
           version: "independencia",
-          onAfterHighlight: function(range, descriptors) {
+          preprocessDescriptors: function(range, descriptors) {
             var uniqueId = "hlt-" + Math.random()
               .toString(36)
               .substring(2, 15) +
@@ -1535,7 +1535,9 @@
               ];
             });
             return descriptorsWithIds;
-          }
+            return { descriptors: descriptorsWithIds, meta: { id: uniqueId }};
+          },
+          onAfterHighlight: function(range, descriptors, timestamp, meta) {}
         });
         var serialized = {};
 
