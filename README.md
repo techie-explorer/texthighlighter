@@ -15,7 +15,7 @@ $ npm install @perlego/text-highlighter
 Then you can use it like so:
 
 ```javascript
-import TextHighlighter from 'text-highlighter';
+import TextHighlighter from '@perlego/text-highlighter';
 
 // Example using a React ref if you are building a react application.
 const highlighter = new TextHighlighter(sandboxRef.current);
@@ -91,7 +91,7 @@ of in your project.
 ### Simple example
 
 ```javascript
-import TextHighlighter from 'text-highlighter';
+import TextHighlighter from '@perlego/text-highlighter';
 import { isDuplicate } from './utils'; 
 import highlightsApi from './services/highlights-api';
 
