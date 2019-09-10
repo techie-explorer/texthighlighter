@@ -97,12 +97,13 @@ class IndependenciaHighlighter {
   }
 
   /**
+   * Removes one highlight if an ID is provided, removes all highlights in the provided
+   * element otherwise.
    *
-   * @param {string} id - ID of highlight to remove
-   * Removes highlights from element using highlight Id. .
-   * If no id is given, all highlights are removed.
    * @param {HTMLElement} element - element to remove highlights from
-   * @param {string} id - The unique id of a highlight represented by a collection of elements.
+   * @param {string} id - ID of highlight to remove
+   * Removes highlights from element using highlight ID.
+   * If no id is given, all highlights are removed.
    * @memberof IndependenciaHighlighter
    */
   removeHighlights(element, id) {
