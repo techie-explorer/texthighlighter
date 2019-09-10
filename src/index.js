@@ -1,3 +1,3 @@
-import TextHighlighter from "text-highlighter";
+import TextHighlighter from "./text-highlighter";
 
 export default TextHighlighter;
