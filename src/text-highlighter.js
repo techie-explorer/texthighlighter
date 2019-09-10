@@ -55,15 +55,27 @@ class TextHighlighter {
    * @param {string} options.highlightedClass - class added to highlight, 'highlighted' by default.
    * @param {string} options.contextClass - class added to element to which highlighter is applied,
    *  'highlighter-context' by default.
+   * @param {boolean} options.useDefaultEvents - Whether or not to use the default events to listen for text selections.
+   *  The default events are "mouseup" and "touchend". Set this to false and register TextHiglighter.highlightHandler with your own events.
+   *  It is down to you to remove the listener from your custom events when destroying instances of the text highlighter.
    * @param {function} options.onRemoveHighlight - function called before highlight is removed. Highlight is
    *  passed as param. Function should return true if highlight should be removed, or false - to prevent removal.
    * @param {function} options.onBeforeHighlight - function called before highlight is created. Range object is
    *  passed as param. Function should return true to continue processing, or false - to prevent highlighting.
+   * @param {function} options.preprocessDescriptors - function called when a user has made a selection to create a highlight,
+   *   this is called before the highlight are loaded into the DOM. This should be used to carry out tasks like customising the span wrapper
+   *   used to inject highlights with data attributes specific to your application. (This is only utilised by v2-2019 onwards)
    * @param {function} options.onAfterHighlight - function called after highlight is created. Array of created
-   * wrappers is passed as param. (The callback interface differs between versions, see specific highlighter classes for more info)
+   *   wrappers is passed as param. This is called once the highlights have been loaded into the DOM.
+   *   (The callback interface differs between versions, see specific highlighter classes for more info)
+   *
+   * @param {boolean} registerEventsOnConstruction - Whether or not to attempt to register events when the text highlighter is first instantiated.
+   *   In the case options.useDefaultEvents is false, even with this enabled the events won't be registered, this is only relevant if you want more
+   *   control and register events at a later point.
+   *
    * @class TextHighlighter
    */
-  constructor(element, options) {
+  constructor(element, options = {}, registerEventsOnConstruction = true) {
     if (!element) {
       throw new Error("Missing anchor element");
     }
@@ -74,6 +86,7 @@ class TextHighlighter {
       highlightedClass: "highlighted",
       contextClass: "highlighter-context",
       version: "independencia",
+      useDefaultEvents: true,
       excludeNodes: ["SCRIPT", "STYLE"],
       onRemoveHighlight: function() {
         return true;
@@ -81,11 +94,13 @@ class TextHighlighter {
       onBeforeHighlight: function() {
         return true;
       },
-      onAfterHighlight: function(_, hlts) {
-        // For the newer version of the highlighter, we need to return the
-        // highlight descriptors parameter by default in order to create highlights in the DOM.
-        return hlts;
+      preprocessDescriptors: function(_, hlts) {
+        // We need to return the highlight descriptors parameter by
+        // default in order to create highlights in the DOM.
+        // Also an empty meta object is needed given that it is expected in the interface.
+        return { descriptors: hlts, meta: {} };
       },
+      onAfterHighlight: function() {},
       ...options,
     };
 
@@ -96,7 +111,10 @@ class TextHighlighter {
     this.highlighter = new highlighters[this.options.version](this.el, this.options);
 
     dom(this.el).addClass(this.options.contextClass);
-    bindEvents(this.el, this);
+
+    if (registerEventsOnConstruction) {
+      this.registerDefaultEvents();
+    }
   }
 
   /**
@@ -105,10 +123,31 @@ class TextHighlighter {
    * @memberof TextHighlighter
    */
   destroy() {
-    unbindEvents(this.el, this);
+    if (this.options.useDefaultEvents) {
+      unbindEvents(this.el, this);
+    }
     dom(this.el).removeClass(this.options.contextClass);
   }
 
+  /**
+   * Registers the default event listeners that trigger the proecss
+   * of creating a highlight.
+   *
+   * @memberof TextHighlighter
+   */
+  registerDefaultEvents() {
+    if (this.options.useDefaultEvents) {
+      bindEvents(this.el, this);
+    }
+  }
+
+  /**
+   * Listener to events that can trigger the creation of a highlight.
+   * By default this is triggered  on "mouseup" and "touchend" events.
+   * If you disable the default events by setting options.useDefaultEvents
+   * you will need to register this handler with your own events and make sure you
+   * remove the listener when you destroy the instance of the TextHighlighter as well.
+   */
   highlightHandler() {
     this.doHighlight();
   }

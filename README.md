@@ -55,7 +55,7 @@ npm install -g grunt
 
 Build the minified version of the library using the following command:
 ```bash
-grunt build
+npm run build
 ```
 
 Copy the script file from `build/prod/TextHighlighter.min.js` to the head section of your web page:
@@ -105,6 +105,7 @@ class ArticleView {
         version: "independencia",
         onBeforeHighlight: this.onBeforeHighlight,
         onAfterHighlight: this.onAfterHighlight,
+        preprocessDescriptors: this.preprocessDescriptors,
         onRemoveHighlight: this.onRemoveHighlight
     });
   }
@@ -118,7 +119,7 @@ class ArticleView {
     return proceed;
   }
 
-  onAfterHighlight = (range, descriptors, timestamp) => {
+  preprocessDescriptors = (range, descriptors, timestamp) => {
     // Add an ID to the class list to identify each highlight 
     // (A highlight can be represented by a group of elements in the DOM).
     const uniqueId = `hlt-${Math.random()
@@ -139,13 +140,100 @@ class ArticleView {
       ];
     });
 
-    highlightsApi.saveBatch(descriptorsWithIds)
+    return { descriptors: descriptorsWithIds, meta: { id: uniqueId } };
+  }
+
+  onAfterHighlight = (range, descriptors, timestamp, meta) => {
+    highlightsApi.saveBatch(meta.id, descriptorsWithIds)
       .then((result) => {
         // Do something with the highlights that have been saved.
       })
       .catch((err) => console.error(err));
+  }
 
-    return descriptorsWithIds;
+  render = () => {
+    // Code that takes the data for the article and adds it to the DOM
+    // based on a html template here.
+  }
+}
+```
+
+
+### Example disabling default event binding
+
+For the case where you want to trigger the process of creating highlights from a custom event fired in your application you can
+do something like the following:
+
+```javascript
+import TextHighlighter from '@perlego/text-highlighter';
+import { isDuplicate } from './utils'; 
+import highlightsApi from './services/highlights-api';
+
+class ArticleView {
+  constructor(data) {
+    this.data = data;
+    const pageElement = document.getElementById("article");
+    this.createButton = document.getElementById("create-highlight");
+    this.highlighter = new TextHighlighter(
+      pageElement, 
+      {
+        version: "independencia",
+        useDefaultEvents: false,
+        onBeforeHighlight: this.onBeforeHighlight,
+        onAfterHighlight: this.onAfterHighlight,
+        preprocessDescriptors: this.preprocessDescriptors,
+        onRemoveHighlight: this.onRemoveHighlight
+    });
+
+    // Add your custom event handler.
+    this.highlightHandler = highlighter.highlightHandler.bind(highlighter);
+    createButton.addEventListener("click", this.highlightHandler);
+  }
+
+  // Your custom method that ensures the event handler is removed from the button click.
+  destroy() {
+    createButton.removeEventListener("click", this.highlightHanlder);
+  }
+
+  onBeforeHighlight = (range) => {
+    return !isDuplicate(range)
+  }
+
+  onRemoveHighlight = (highlightElement) => {
+    const proceed = window.confirm("Are you sure you want to remove this highlight?");
+    return proceed;
+  }
+
+  preprocessDescriptors = (range, descriptors, timestamp) => {
+    // Add an ID to the class list to identify each highlight 
+    // (A highlight can be represented by a group of elements in the DOM).
+    const uniqueId = `hlt-${Math.random()
+      .toString(36)
+      .substring(2, 15) +
+      Math.random()
+      .toString(36)
+      .substring(2, 15)}`;
+    
+    const descriptorsWithIds = descriptors.map(descriptor => {
+      const [wrapper, ...rest] = descriptor;
+      return [
+        wrapper.replace(
+          'class="highlighted"',
+          `class="highlighted ${uniqueId}"`
+        ),
+        ...rest
+      ];
+    });
+
+    return { descriptors: descriptorsWithIds, meta: { id: uniqueId } };
+  }
+
+  onAfterHighlight = (range, descriptors, timestamp, meta) => {
+    highlightsApi.saveBatch(meta.id, descriptorsWithIds)
+      .then((result) => {
+        // Do something with the highlights that have been saved.
+      })
+      .catch((err) => console.error(err));
   }
 
   render = () => {

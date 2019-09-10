@@ -10,12 +10,19 @@ const appendChildren = (elem, ...children) => {
   });
 };
 
-const element = (tag) => (...children) => ({ id, style } = {}) => {
+const element = (tag) => (...children) => ({ id, style, ...rest } = {}) => {
   const docElem = document.createElement(tag);
   appendChildren(docElem, ...children);
   if (id) {
     docElem.setAttribute("id", id);
   }
+
+  // Sets all data attributes.
+  Object.keys(rest)
+    .filter((key) => key.startsWith("data-"))
+    .forEach((dataAttrKey) => {
+      docElem.setAttribute(dataAttrKey, rest[dataAttrKey]);
+    });
 
   if (style) {
     Object.keys(style).forEach((styleProperty) => {
