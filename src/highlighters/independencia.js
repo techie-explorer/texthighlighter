@@ -21,11 +21,22 @@ import dom from "../utils/dom";
  * @property {number} 2 - The text offset relevant to the root element of a highlight.
  * @property {number} 3 - Length of highlight.
  *
- * @callback onAfterHighlightCallbackV2
+ * @typedef {Object} PreprocessDescriptorsResult
+ * @property {HlDescriptor[]} descriptors
+ * @property {Object} meta - Any application-specific meta data created in the preprocessing stage that is
+ *  used after highlights have been created.
+ *
+ * @callback PreprocessDescriptors
  * @param {Range} range
  * @param {HlDescriptor[]} highlightDescriptors
  * @param {number} timestamp
- * @return {HlDescriptor[]}
+ * @return {PreprocessDescriptorsResult}
+ *
+ * @callback OnAfterHighlightCallbackV2
+ * @param {Range} range
+ * @param {HlDescriptor[]} highlightDescriptors
+ * @param {number} timestamp
+ * @param {Object} meta
  */
 class IndependenciaHighlighter {
   /**
@@ -42,8 +53,12 @@ class IndependenciaHighlighter {
    *  passed as param. Function should return true if highlight should be removed, or false - to prevent removal.
    * @param {function} options.onBeforeHighlight - function called before highlight is created. Range object is
    *  passed as param. Function should return true to continue processing, or false - to prevent highlighting.
-   * @param {onAfterHighlightCallbackV2} options.onAfterHighlight - function called after highlight is created. Array of created
-   * wrappers is passed as param. This should always return a set of descriptors.
+   * @param {PreprocessDescriptors} options.preprocessDescriptors - function called after the user has carried out the action
+   *  to trigger creation of highlights after making a text selection. This should be used to customise the highlight span wrapper
+   *  with custom data attributes or styles required before the highlight is loaded into the DOM.
+   *  This callback must return an array of highlight descriptors.
+   * @param {OnAfterHighlightCallbackV2} options.onAfterHighlight - function called after highlight is created. Array of created
+   * wrappers is passed as param. This is called after the highlight has been created in the DOM.
    * @class IndependenciaHighlighter
    */
   constructor(element, options) {
@@ -77,8 +92,13 @@ class IndependenciaHighlighter {
         excludeNodeNames: this.options.excludeNodes,
       });
 
-      const processedDescriptors = this.options.onAfterHighlight(range, descriptors, timestamp);
+      const { descriptors: processedDescriptors, meta } = this.options.preprocessDescriptors(
+        range,
+        descriptors,
+        timestamp,
+      );
       this.deserializeHighlights(JSON.stringify(processedDescriptors));
+      this.options.onAfterHighlight(range, processedDescriptors, timestamp, meta);
     }
 
     if (!keepRange) {

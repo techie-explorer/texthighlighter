@@ -108,7 +108,7 @@
 <pre class="prettyprint source lang-bash"><code>$ npm install @perlego/text-highlighter
 </code></pre>
 <p>Then you can use it like so:</p>
-<pre class="prettyprint source lang-javascript"><code>import TextHighlighter from 'text-highlighter';
+<pre class="prettyprint source lang-javascript"><code>import TextHighlighter from '@perlego/text-highlighter';
 
 // Example using a React ref if you are building a react application.
 const highlighter = new TextHighlighter(sandboxRef.current);
@@ -135,7 +135,7 @@ import &quot;regenerator-runtime/runtime&quot;;
 <pre class="prettyprint source lang-bash"><code>npm install -g grunt
 </code></pre>
 <p>Build the minified version of the library using the following command:</p>
-<pre class="prettyprint source lang-bash"><code>grunt build
+<pre class="prettyprint source lang-bash"><code>npm run build
 </code></pre>
 <p>Copy the script file from <code>build/prod/TextHighlighter.min.js</code> to the head section of your web page:</p>
 <pre class="prettyprint source lang-html"><code>&lt;script type=&quot;text/javascript&quot; src=&quot;TextHighlighter.min.js&quot;>&lt;/script>
@@ -160,7 +160,7 @@ import &quot;regenerator-runtime/runtime&quot;;
 which details the interface for the highlighter and the utility functionality that you could also make use<br>
 of in your project.</p>
 <h3>Simple example</h3>
-<pre class="prettyprint source lang-javascript"><code>import TextHighlighter from 'text-highlighter';
+<pre class="prettyprint source lang-javascript"><code>import TextHighlighter from '@perlego/text-highlighter';
 import { isDuplicate } from './utils'; 
 import highlightsApi from './services/highlights-api';
 
@@ -174,6 +174,7 @@ class ArticleView {
         version: &quot;independencia&quot;,
         onBeforeHighlight: this.onBeforeHighlight,
         onAfterHighlight: this.onAfterHighlight,
+        preprocessDescriptors: this.preprocessDescriptors,
         onRemoveHighlight: this.onRemoveHighlight
     });
   }
@@ -187,7 +188,7 @@ class ArticleView {
     return proceed;
   }
 
-  onAfterHighlight = (range, descriptors, timestamp) => {
+  preprocessDescriptors = (range, descriptors, timestamp) => {
     // Add an ID to the class list to identify each highlight 
     // (A highlight can be represented by a group of elements in the DOM).
     const uniqueId = `hlt-${Math.random()
@@ -208,13 +209,95 @@ class ArticleView {
       ];
     });
 
-    highlightsApi.saveBatch(descriptorsWithIds)
+    return { descriptors: descriptorsWithIds, meta: { id: uniqueId } };
+  }
+
+  onAfterHighlight = (range, descriptors, timestamp, meta) => {
+    highlightsApi.saveBatch(meta.id, descriptorsWithIds)
       .then((result) => {
         // Do something with the highlights that have been saved.
       })
       .catch((err) => console.error(err));
+  }
 
-    return descriptorsWithIds;
+  render = () => {
+    // Code that takes the data for the article and adds it to the DOM
+    // based on a html template here.
+  }
+}
+</code></pre>
+<h3>Example disabling default event binding</h3>
+<p>For the case where you want to trigger the process of creating highlights from a custom event fired in your application you can<br>
+do something like the following:</p>
+<pre class="prettyprint source lang-javascript"><code>import TextHighlighter from '@perlego/text-highlighter';
+import { isDuplicate } from './utils'; 
+import highlightsApi from './services/highlights-api';
+
+class ArticleView {
+  constructor(data) {
+    this.data = data;
+    const pageElement = document.getElementById(&quot;article&quot;);
+    this.createButton = document.getElementById(&quot;create-highlight&quot;);
+    this.highlighter = new TextHighlighter(
+      pageElement, 
+      {
+        version: &quot;independencia&quot;,
+        useDefaultEvents: false,
+        onBeforeHighlight: this.onBeforeHighlight,
+        onAfterHighlight: this.onAfterHighlight,
+        preprocessDescriptors: this.preprocessDescriptors,
+        onRemoveHighlight: this.onRemoveHighlight
+    });
+
+    // Add your custom event handler.
+    this.highlightHandler = highlighter.highlightHandler.bind(highlighter);
+    createButton.addEventListener(&quot;click&quot;, this.highlightHandler);
+  }
+
+  // Your custom method that ensures the event handler is removed from the button click.
+  destroy() {
+    createButton.removeEventListener(&quot;click&quot;, this.highlightHanlder);
+  }
+
+  onBeforeHighlight = (range) => {
+    return !isDuplicate(range)
+  }
+
+  onRemoveHighlight = (highlightElement) => {
+    const proceed = window.confirm(&quot;Are you sure you want to remove this highlight?&quot;);
+    return proceed;
+  }
+
+  preprocessDescriptors = (range, descriptors, timestamp) => {
+    // Add an ID to the class list to identify each highlight 
+    // (A highlight can be represented by a group of elements in the DOM).
+    const uniqueId = `hlt-${Math.random()
+      .toString(36)
+      .substring(2, 15) +
+      Math.random()
+      .toString(36)
+      .substring(2, 15)}`;
+    
+    const descriptorsWithIds = descriptors.map(descriptor => {
+      const [wrapper, ...rest] = descriptor;
+      return [
+        wrapper.replace(
+          'class=&quot;highlighted&quot;',
+          `class=&quot;highlighted ${uniqueId}&quot;`
+        ),
+        ...rest
+      ];
+    });
+
+    return { descriptors: descriptorsWithIds, meta: { id: uniqueId } };
+  }
+
+  onAfterHighlight = (range, descriptors, timestamp, meta) => {
+    highlightsApi.saveBatch(meta.id, descriptorsWithIds)
+      .then((result) => {
+        // Do something with the highlights that have been saved.
+      })
+      .catch((err) => console.error(err));
   }
 
   render = () => {
@@ -322,7 +405,7 @@ along with pure utility pieces.</p>
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a>
 	
-		on Mon Sep 9th 2019
+		on Tue Sep 10th 2019
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>

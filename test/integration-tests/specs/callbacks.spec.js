@@ -2,18 +2,7 @@ import fixtures from "../fixtures/callbacks";
 import TextHighlighter from "../../../src/text-highlighter";
 import { setContents } from "../../utils/dom-helpers";
 import { TIMESTAMP_ATTR } from "../../../src/config";
-import {
-  span,
-  b,
-  i,
-  div,
-  img,
-  style,
-  script,
-  docFrag,
-  spanWithAttrs,
-  highlight,
-} from "../../utils/dom-elements";
+import { span, docFrag } from "../../utils/dom-elements";
 
 describe("highlighting a given range", () => {
   let root, highlighter;
@@ -53,12 +42,21 @@ describe("highlighting a given range", () => {
 
   const testCallbacks = (params) => {
     it(params.title, () => {
-      highlighter = new TextHighlighter(root, {
-        version: "independencia",
-        onBeforeHighlight: params.onBeforeHighlight,
-        onAfterHighlight: params.onAfterHighlight,
-        onRemoveHighlight: params.onRemoveHighlight,
-      });
+      const options = { version: "independencia" };
+      if (params.onBeforeHighlight) {
+        options.onBeforeHighlight = params.onBeforeHighlight;
+      }
+      if (params.onAfterHighlight) {
+        options.onAfterHighlight = params.onAfterHighlight;
+      }
+      if (params.onRemoveHighlight) {
+        options.onRemoveHighlight = params.onRemoveHighlight;
+      }
+      if (params.preprocessDescriptors) {
+        options.preprocessDescriptors = params.preprocessDescriptors;
+      }
+
+      highlighter = new TextHighlighter(root, options);
 
       const fixture = fixtures[`${params.fixturePrefix}.${params.fixturePostfix}`];
       const fixtureBase = fixtures[`${params.fixturePrefix}.base`];
@@ -111,9 +109,10 @@ describe("highlighting a given range", () => {
   };
 
   testCallbacks({
-    title: "should not change from the base since no callbacks are passed as parameters",
+    title:
+      "should change from the base using the default library behaviour since no callbacks are passed as parameters",
     fixturePrefix: "01.callbacks",
-    fixturePostfix: "base",
+    fixturePostfix: "singleHighlight",
     fixtureAfterRemoval: "base",
     range: {
       startNodeId: "highlight-1-start-node",
@@ -125,53 +124,6 @@ describe("highlighting a given range", () => {
     cloneContents: () => {
       return docFrag(span("Lorem ipsum dolor sit amet"));
     },
-    onBeforeHighlight: () => {},
-    onAfterHighlight: () => {},
-    onRemoveHighlight: () => {},
-  });
-
-  testCallbacks({
-    title: "should not change from the base since only onBeforeHighlight is passed as a parameter",
-    fixturePrefix: "01.callbacks",
-    fixturePostfix: "base",
-    fixtureAfterRemoval: "base",
-    range: {
-      startNodeId: "highlight-1-start-node",
-      startOffset: 0,
-      endNodeId: "highlight-1-start-node",
-      endOffset: 26,
-    },
-    colour: "red",
-    cloneContents: () => {
-      return docFrag(span("Lorem ipsum dolor sit amet"));
-    },
-    onBeforeHighlight: () => {
-      return true;
-    },
-    onAfterHighlight: () => {},
-    onRemoveHighlight: () => {},
-  });
-
-  testCallbacks({
-    title: "should not change from the base since only onAfterHighlight is passed as a parameter",
-    fixturePrefix: "01.callbacks",
-    fixturePostfix: "base",
-    fixtureAfterRemoval: "base",
-    range: {
-      startNodeId: "highlight-1-start-node",
-      startOffset: 0,
-      endNodeId: "highlight-1-start-node",
-      endOffset: 26,
-    },
-    colour: "red",
-    cloneContents: () => {
-      return docFrag(span("Lorem ipsum dolor sit amet"));
-    },
-    onBeforeHighlight: () => {},
-    onAfterHighlight: (range, descriptors, timestamp) => {
-      return descriptors;
-    },
-    onRemoveHighlight: () => {},
   });
 
   testCallbacks({
@@ -193,9 +145,10 @@ describe("highlighting a given range", () => {
     onBeforeHighlight: () => {
       return true;
     },
-    onAfterHighlight: (range, descriptors, timestamp) => {
-      return descriptors;
+    preprocessDescriptors: (range, descriptors) => {
+      return { descriptors, meta: {} };
     },
+    onAfterHighlight: () => {},
     onRemoveHighlight: () => {},
   });
 
@@ -217,9 +170,10 @@ describe("highlighting a given range", () => {
     onBeforeHighlight: () => {
       return false;
     },
-    onAfterHighlight: (range, descriptors, timestamp) => {
-      return descriptors;
+    preprocessDescriptors: (range, descriptors) => {
+      return { descriptors, meta: {} };
     },
+    onAfterHighlight: () => {},
     onRemoveHighlight: () => {},
   });
 
@@ -241,9 +195,10 @@ describe("highlighting a given range", () => {
     onBeforeHighlight: () => {
       return true;
     },
-    onAfterHighlight: (range, descriptors, timestamp) => {
-      return descriptors;
+    preprocessDescriptors: (range, descriptors) => {
+      return { descriptors, meta: {} };
     },
+    onAfterHighlight: () => {},
     onRemoveHighlight: () => {
       return true;
     },
@@ -268,9 +223,10 @@ describe("highlighting a given range", () => {
     onBeforeHighlight: () => {
       return true;
     },
-    onAfterHighlight: (range, descriptors, timestamp) => {
-      return descriptors;
+    preprocessDescriptors: (range, descriptors) => {
+      return { descriptors, meta: {} };
     },
+    onAfterHighlight: () => {},
     onRemoveHighlight: () => {
       return false;
     },
@@ -295,12 +251,53 @@ describe("highlighting a given range", () => {
     onBeforeHighlight: () => {
       return true;
     },
-    onAfterHighlight: function(range, descriptors) {
+    preprocessDescriptors: function(range, descriptors) {
       var descriptorsWithIds = descriptors.map((descriptor) => {
         var [wrapper, ...rest] = descriptor;
         return [wrapper.replace('class="highlighted"', `class="highlighted testId"`), ...rest];
       });
-      return descriptorsWithIds;
+      return { descriptors: descriptorsWithIds, meta: {} };
+    },
+    onAfterHighlight: () => {},
+    onRemoveHighlight: () => {
+      return true;
+    },
+  });
+
+  testCallbacks({
+    title:
+      "should create a highlight and remove it correctly with and pass through any application-specific metadata.",
+    fixturePrefix: "02.callbacks",
+    fixturePostfix: "Single_highlight_with_id_and_metadata",
+    fixtureAfterRemoval: "Single_highlight_with_id_and_metadata_after_removal",
+    range: {
+      startNodeId: "highlight-1-start-node",
+      startOffset: 0,
+      endNodeId: "highlight-1-start-node",
+      endOffset: 26,
+    },
+    colour: "red",
+    cloneContents: () => {
+      return docFrag(span("Lorem ipsum dolor sit amet"));
+    },
+    onBeforeHighlight: () => {
+      return true;
+    },
+    preprocessDescriptors: function(range, descriptors) {
+      var descriptorsWithIds = descriptors.map((descriptor) => {
+        var [wrapper, ...rest] = descriptor;
+        return [wrapper.replace('class="highlighted"', `class="highlighted testId"`), ...rest];
+      });
+      return {
+        descriptors: descriptorsWithIds,
+        meta: { id: "testId103293", customTag: "spontaneous" },
+      };
+    },
+    onAfterHighlight: (range, descriptors, timestamp, meta) => {
+      // Do something with meta data in the DOM.
+      const node = document.getElementById("highlight-1-start-node");
+      node.setAttribute("data-test-id", meta.id);
+      node.setAttribute("data-custom-tag", meta.customTag);
     },
     onRemoveHighlight: () => {
       return true;
