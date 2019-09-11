@@ -55,6 +55,8 @@ const docFrag = (...children) => {
   return frag;
 };
 
+const text = (textContent) => document.createTextNode(textContent);
+
 const highlight = ({ color, id, startOffset, length, time }, ...children) => {
   const docElem = span(...children);
   docElem.style.backgroundColor = color;
@@ -76,6 +78,7 @@ export {
   div,
   b,
   i,
+  text,
   img,
   highlight,
   style,

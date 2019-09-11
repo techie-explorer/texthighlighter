@@ -368,6 +368,28 @@ const dom = function(el) {
       }
       return el.textContent;
     },
+
+    /**
+     * Gets the index of a child element in the base element.
+     * It is important we use childNodes as we want to include both
+     * html element nodes and text nodes.
+     *
+     * @param {HTMLElement} childElement
+     * @return {number}
+     */
+    getChildIndex: function(childElement) {
+      let currentChild = el.firstChild;
+      let i = 0;
+
+      while (currentChild && childElement !== currentChild) {
+        if (currentChild !== childElement) {
+          currentChild = currentChild.nextSibling;
+          i++;
+        }
+      }
+
+      return currentChild ? i : -1;
+    },
   };
 };
 
