@@ -404,12 +404,14 @@ export function addNodesToHighlightAfterElement({
 export function getHighlightedTextForRange(range, excludeTags = ["script", "style"]) {
   // Strip out all carriage returns and excess html layout space.
 
-  return dom(range.cloneContents())
+  let textForRange = dom(range.cloneContents())
     .textContentExcludingTags(arrayToLower(excludeTags))
     .replace(/\s{2,}/g, " ")
     .replace("\r\n", "")
     .replace("\r", "")
     .replace("\n", "");
+
+  return textForRange;
 }
 
 /**
