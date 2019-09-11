@@ -187,8 +187,8 @@ export function getElementOffset(
   do {
     // Ensure specified node types are not counted in the offset.
     if (!excludeNodeNames.includes(currentElement.nodeName)) {
-      childNodes = Array.prototype.slice.call(currentElement.parentNode.childNodes);
-      const childElementIndex = childNodes.indexOf(currentElement);
+      childNodes = currentElement.parentNode.childNodes;
+      const childElementIndex = dom(currentElement.parentNode).getChildIndex(currentElement);
       const offsetInCurrentParent = getTextOffsetBefore(
         childNodes,
         childElementIndex,
@@ -244,77 +244,6 @@ export function findFirstNonSharedParent(elements) {
   }
 
   return firstNonSharedParent;
-}
-
-const siblingRemovalDirections = {
-  start: "previousSibling",
-  end: "nextSibling",
-};
-
-const siblingTextNodeMergeDirections = {
-  start: "nextSibling",
-  end: "previousSibling",
-};
-
-function removeSiblingsInDirection(startNode, direction) {
-  let sibling = startNode[direction];
-  while (sibling) {
-    startNode.parentNode.removeChild(sibling);
-    sibling = sibling[direction];
-  }
-}
-
-/**
- * Merges the text of all sibling text nodes with the start node.
- *
- * @param {HTMLElement} startNode
- * @param {string} direction
- */
-function mergeSiblingTextNodesInDirection(startNode, direction) {
-  let sibling = startNode[direction];
-  while (sibling) {
-    if (sibling.nodeType === NODE_TYPE.TEXT_NODE) {
-      startNode.textContent += sibling.textContent;
-      startNode.parentNode.removeChild(sibling);
-      sibling = sibling[direction];
-    }
-  }
-}
-
-export function extractElementContentForHighlight(params) {
-  let element = params.element;
-  let elementAncestor = params.elementAncestor;
-  let options = params.options;
-  let locationInSelection = params.locationInSelection;
-
-  let elementAncestorCopy = elementAncestor.cloneNode(true);
-
-  // Beginning of childNodes list for end container in selection
-  // and end of childNodes list for start container in selection.
-  let locationInChildNodes = locationInSelection === "start" ? "end" : "start";
-  let elementCopy = findTextNodeAtLocation(elementAncestorCopy, locationInChildNodes);
-  let elementCopyParent = elementCopy.parentNode;
-
-  removeSiblingsInDirection(elementCopy, siblingRemovalDirections[locationInSelection]);
-
-  mergeSiblingTextNodesInDirection(
-    elementCopy,
-    siblingTextNodeMergeDirections[locationInSelection],
-  );
-
-  // Clean out any nested highlight wrappers.
-  if (
-    elementCopyParent !== elementAncestorCopy &&
-    elementCopyParent.classList.contains(options.highlightedClass)
-  ) {
-    dom(elementCopyParent).unwrap();
-  }
-
-  // Remove the text node that we need for the new highlight
-  // from the existing highlight or other element.
-  element.parentNode.removeChild(element);
-
-  return { elementAncestorCopy, elementCopy };
 }
 
 function gatherSiblingsUpToEndNode(startNodeOrContainer, endNode) {
@@ -474,6 +403,7 @@ export function addNodesToHighlightAfterElement({
  */
 export function getHighlightedTextForRange(range, excludeTags = ["script", "style"]) {
   // Strip out all carriage returns and excess html layout space.
+
   return dom(range.cloneContents())
     .textContentExcludingTags(arrayToLower(excludeTags))
     .replace(/\s{2,}/g, " ")
