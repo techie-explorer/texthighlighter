@@ -401,8 +401,11 @@ export function addNodesToHighlightAfterElement({
  *
  * @return {string} The human-readable highlighted text for the given range.
  */
-export function getHighlightedTextForRange(range, excludeTags = ["script", "style"]) {
+export function getHighlightedTextForRange(range, rootElement, excludeTags = ["script", "style"]) {
   // Strip out all carriage returns and excess html layout space.
+
+  let eventsRemovedFromElements = [];
+  dom(rootElement).turnOffEventHandlers(eventsRemovedFromElements);
 
   let textForRange = dom(range.cloneContents())
     .textContentExcludingTags(arrayToLower(excludeTags))
@@ -410,6 +413,8 @@ export function getHighlightedTextForRange(range, excludeTags = ["script", "styl
     .replace("\r\n", "")
     .replace("\r", "")
     .replace("\n", "");
+
+  dom(rootElement).turnOnEventHandlers(eventsRemovedFromElements);
 
   return textForRange;
 }
@@ -470,7 +475,7 @@ export function createDescriptors({
   const descriptor = [
     wrapperHTML,
     // retrieve all the text content between the start and end offsets.
-    getHighlightedTextForRange(range, excludeNodeNames),
+    getHighlightedTextForRange(range, rootElement, excludeNodeNames),
     startOffset,
     length,
   ];

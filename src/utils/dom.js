@@ -394,36 +394,36 @@ const dom = function(el) {
     /**
      * Loop through the elements in the dom and remove any events attached to elements that are not text nodes and have no children.
      *
-     * @return {listOfElementAttributes} - list of events and their values which have been turned off, along with a temporary id for each element which has been altered.
+     * @param {listOfElementAttributes} - list of events and their values which have been turned off, along with a temporary id for each element which has been altered.
      */
     turnOffEventHandlers: function(listOfElementAttributes) {
       if (!el) {
         return;
       }
-      if (el.childNodes.length > 0) {
+      if (el.childNodes && el.childNodes.length > 0) {
         dom(el.firstChild).turnOffEventHandlers(listOfElementAttributes);
       } else if (el.nodeType !== NODE_TYPE.TEXT_NODE) {
         let eventsForObject = dom(el).turnOffEventHandlersForElement();
-        listOfElementAttributes.push(eventsForObject);
+        if (eventsForObject) {
+          listOfElementAttributes.push(eventsForObject);
+        }
       }
       dom(el.nextSibling).turnOffEventHandlers(listOfElementAttributes);
     },
 
     /**
-     * Loop through the elements in the dom and remove any events attached to elements that are not text nodes and have no children.
+     * Loop through the elements in the dom and add back in any events that were previously removed from elements.
      *
-     * @return {listOfElementAttributes} - list of events and their values which have been turned off, along with a temporary id for each element which has been altered.
+     * @param {listOfElementAttributes} - list of events and their values which have recently been turned off, along with a temporary id for each element which has been altered.
      */
     turnOnEventHandlers: function(listOfElementAttributes) {
-      if (!el) {
+      if (!el || !listOfElementAttributes || listOfElementAttributes.length === 0) {
         return;
       }
-      console.log("el.outerHTML", el.outerHTML);
       let elements = Array.prototype.slice.call(el.querySelectorAll("[temp-id]"));
       listOfElementAttributes.forEach((elementAttribute) => {
         let tempId = elementAttribute.tempId;
         let attributeList = elementAttribute.listOfAttributes;
-        console.log("elements", elements);
         let element = elements.filter((element) => element.getAttribute("temp-id") === tempId)[0];
         dom(element).addAttributes(attributeList);
         element.removeAttribute("temp-id");
@@ -434,14 +434,14 @@ const dom = function(el) {
      * Loop through the attributes of an element and turn off all attributes that have names starting with 'on'.
      * This will turn of all events for elements that have no children and are not text nodes (images etc.)
      *
-     * @return {array} - list of events and their values which have been turned off
+     * @return {object} - list of events and their values which have been turned off
      */
     turnOffEventHandlersForElement: function() {
       if (!el) {
-        return;
+        return null;
       }
 
-      if (el.nodeType !== NODE_TYPE.TEXT_NODE && el.childNodes.length === 0) {
+      if (el.nodeType !== NODE_TYPE.TEXT_NODE && el.childNodes && el.childNodes.length === 0) {
         var attributes = [].slice.call(el.attributes);
 
         var listOfAttributes = [];
