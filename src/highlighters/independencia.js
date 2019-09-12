@@ -7,7 +7,6 @@ import {
   createDescriptors,
   getHighlightedTextRelativeToRoot,
   focusHighlightNodes,
-  cloneElement,
 } from "../utils/highlights";
 import { START_OFFSET_ATTR, LENGTH_ATTR, DATA_ATTR, TIMESTAMP_ATTR } from "../config";
 import dom from "../utils/dom";
@@ -81,6 +80,9 @@ class IndependenciaHighlighter {
       return;
     }
 
+    let eventItems = [];
+    dom(this.el).turnOffEventHandlers(eventItems);
+
     if (this.options.onBeforeHighlight(range) === true) {
       timestamp = +new Date();
       wrapper = createWrapper(this.options);
@@ -105,6 +107,8 @@ class IndependenciaHighlighter {
     if (!keepRange) {
       dom(this.el).removeAllRanges();
     }
+
+    dom(this.el).turnOnEventHandlers(eventItems);
   }
 
   /**
@@ -198,6 +202,9 @@ class IndependenciaHighlighter {
       return [];
     }
 
+    let eventItems = [];
+    dom(this.el).turnOffEventHandlers(eventItems);
+
     // Even if there are multiple elements for a given highlight, the first
     // highlight in the DOM with the given ID in it's class name
     // will have all the information we need.
@@ -227,6 +234,8 @@ class IndependenciaHighlighter {
       length,
     ];
 
+    dom(this.el).turnOnEventHandlers(eventItems);
+
     return JSON.stringify([descriptor]);
   }
 
@@ -252,6 +261,9 @@ class IndependenciaHighlighter {
     } catch (e) {
       throw "Can't parse JSON: " + e;
     }
+
+    let eventItems = [];
+    dom(this.el).turnOffEventHandlers(eventItems);
 
     function deserialise(hlDescriptor) {
       let hl = {
@@ -301,6 +313,8 @@ class IndependenciaHighlighter {
 
     this.normalizeHighlights();
 
+    dom(this.el).turnOnEventHandlers(eventItems);
+
     return highlights;
   }
 
@@ -325,6 +339,8 @@ class IndependenciaHighlighter {
    */
   focusUsingId(id, descriptors) {
     const highlightElements = this.el.querySelectorAll(`.${id}`);
+    let eventItems = [];
+    dom(this.el).turnOffEventHandlers(eventItems);
 
     // For the future, we may save by accepting the offset and length as parameters as the caller should have this data
     // from the serialised descriptors.
@@ -353,6 +369,8 @@ class IndependenciaHighlighter {
       // let's deserialize the descriptor to bring the highlight into focus.
       this.deserializeHighlights(descriptors);
     }
+
+    dom(this.el).turnOnEventHandlers(eventItems);
   }
 
   /**

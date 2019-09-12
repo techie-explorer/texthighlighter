@@ -401,17 +401,15 @@ export function addNodesToHighlightAfterElement({
  *
  * @return {string} The human-readable highlighted text for the given range.
  */
-export function getHighlightedTextForRange(range, rootElement, excludeTags = ["script", "style"]) {
+export function getHighlightedTextForRange(range, excludeTags = ["script", "style"]) {
   // Strip out all carriage returns and excess html layout space.
 
-  let textForRange = dom(range.cloneContents())
+  return dom(range.cloneContents())
     .textContentExcludingTags(arrayToLower(excludeTags))
     .replace(/\s{2,}/g, " ")
     .replace("\r\n", "")
     .replace("\r", "")
     .replace("\n", "");
-
-  return textForRange;
 }
 
 /**
@@ -470,7 +468,7 @@ export function createDescriptors({
   const descriptor = [
     wrapperHTML,
     // retrieve all the text content between the start and end offsets.
-    getHighlightedTextForRange(range, rootElement, excludeNodeNames),
+    getHighlightedTextForRange(range, excludeNodeNames),
     startOffset,
     length,
   ];
@@ -600,19 +598,4 @@ export function focusHighlightNodes(
   // Ensure we normalise all nodes in the root container to merge sibling elements
   // of the same highlight together that get copied for the purpose of focusing.
   dom(rootElement).normalizeElements(highlightedClass);
-}
-
-/**
- * Clone a node after removing all events from that element that don't belong to a text node.
- * This will stop the events being fired during cloning. Add them back to the elements after cloning is complete.
- *
- * @param {HTMLElement} element  The element we need to clone.
- * @return {HTMLElement} clonedElement The clone of the element
- */
-export function cloneElement(element) {
-  let eventItems = [];
-  dom(element).turnOffEventHandlers(eventItems);
-  let clonedElement = element.cloneNode(true);
-  dom(element).turnOnEventHandlers(eventItems);
-  return clonedElement;
 }
