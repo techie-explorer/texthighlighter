@@ -1,4 +1,4 @@
-import { isElementHighlight } from "./highlights";
+import { isElementHighlight, cloneElement } from "./highlights";
 import { DATA_ATTR } from "../config";
 export const NODE_TYPE = { ELEMENT_NODE: 1, TEXT_NODE: 3 };
 
@@ -356,8 +356,9 @@ const dom = function(el) {
      */
     textContentExcludingTags: function(excludeTags) {
       // Ensure we simply return the text content in the case the element is a text node.
-      if (el.nodeType !== NODE_TYPE.TEXT_NODE) {
-        const elCopy = el.cloneNode(true);
+      if (el && el.nodeType !== NODE_TYPE.TEXT_NODE) {
+        const elCopy = cloneElement(el);
+
         const elementsToBeExcluded = excludeTags.reduce((accum, tag) => {
           return [...accum, ...elCopy.querySelectorAll(tag)];
         }, []);
@@ -425,8 +426,10 @@ const dom = function(el) {
         let tempId = elementAttribute.tempId;
         let attributeList = elementAttribute.listOfAttributes;
         let element = elements.filter((element) => element.getAttribute("temp-id") === tempId)[0];
-        dom(element).addAttributes(attributeList);
-        element.removeAttribute("temp-id");
+        if (element) {
+          dom(element).addAttributes(attributeList);
+          element.removeAttribute("temp-id");
+        }
       });
     },
 

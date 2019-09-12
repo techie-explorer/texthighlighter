@@ -7,6 +7,7 @@ import {
   createDescriptors,
   getHighlightedTextRelativeToRoot,
   focusHighlightNodes,
+  cloneElement,
 } from "../utils/highlights";
 import { START_OFFSET_ATTR, LENGTH_ATTR, DATA_ATTR, TIMESTAMP_ATTR } from "../config";
 import dom from "../utils/dom";
@@ -208,6 +209,7 @@ class IndependenciaHighlighter {
 
     const length = highlight.getAttribute(LENGTH_ATTR);
     const offset = highlight.getAttribute(START_OFFSET_ATTR);
+
     const wrapper = highlight.cloneNode(true);
 
     wrapper.innerHTML = "";
