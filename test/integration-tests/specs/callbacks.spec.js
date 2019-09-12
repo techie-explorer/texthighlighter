@@ -44,16 +44,16 @@ describe("highlighting a given range", () => {
     it(params.title, () => {
       const options = { version: "independencia" };
       if (params.onBeforeHighlight) {
-        options.onBeforeHighlight = params.onBeforeHighlight;
+        options.onBeforeHighlight = jest.fn(params.onBeforeHighlight);
       }
       if (params.onAfterHighlight) {
-        options.onAfterHighlight = params.onAfterHighlight;
+        options.onAfterHighlight = jest.fn(params.onAfterHighlight);
       }
       if (params.onRemoveHighlight) {
-        options.onRemoveHighlight = params.onRemoveHighlight;
+        options.onRemoveHighlight = jest.fn(params.onRemoveHighlight);
       }
       if (params.preprocessDescriptors) {
-        options.preprocessDescriptors = params.preprocessDescriptors;
+        options.preprocessDescriptors = jest.fn(params.preprocessDescriptors);
       }
 
       highlighter = new TextHighlighter(root, options);
@@ -105,6 +105,27 @@ describe("highlighting a given range", () => {
       const htmlAfter = root.innerHTML;
 
       expect(htmlAfter).toEqual(fixtureAfterRemoval().outerHTML);
+
+      if (params.onBeforeHighlight) {
+        expect(options.onBeforeHighlight).toHaveBeenCalledTimes(
+          params.expectedCallCount.onBeforeHighlight,
+        );
+      }
+      if (params.onAfterHighlight) {
+        expect(options.onAfterHighlight).toHaveBeenCalledTimes(
+          params.expectedCallCount.onAfterHighlight,
+        );
+      }
+      if (params.onRemoveHighlight) {
+        expect(options.onRemoveHighlight).toHaveBeenCalledTimes(
+          params.expectedCallCount.onRemoveHighlight,
+        );
+      }
+      if (params.preprocessDescriptors) {
+        expect(options.preprocessDescriptors).toHaveBeenCalledTimes(
+          params.expectedCallCount.preprocessDescriptors,
+        );
+      }
     });
   };
 
@@ -123,6 +144,12 @@ describe("highlighting a given range", () => {
     colour: "red",
     cloneContents: () => {
       return docFrag(span("Lorem ipsum dolor sit amet"));
+    },
+    expectedCallCount: {
+      onBeforeHighlight: 0,
+      onAfterHighlight: 0,
+      onRemoveHighlight: 0,
+      preprocessDescriptors: 0,
     },
   });
 
@@ -150,6 +177,12 @@ describe("highlighting a given range", () => {
     },
     onAfterHighlight: () => {},
     onRemoveHighlight: () => {},
+    expectedCallCount: {
+      onBeforeHighlight: 1,
+      onAfterHighlight: 1,
+      onRemoveHighlight: 1,
+      preprocessDescriptors: 1,
+    },
   });
 
   testCallbacks({
@@ -175,6 +208,12 @@ describe("highlighting a given range", () => {
     },
     onAfterHighlight: () => {},
     onRemoveHighlight: () => {},
+    expectedCallCount: {
+      onBeforeHighlight: 1,
+      onAfterHighlight: 0,
+      onRemoveHighlight: 0,
+      preprocessDescriptors: 0,
+    },
   });
 
   testCallbacks({
@@ -201,6 +240,12 @@ describe("highlighting a given range", () => {
     onAfterHighlight: () => {},
     onRemoveHighlight: () => {
       return true;
+    },
+    expectedCallCount: {
+      onBeforeHighlight: 1,
+      onAfterHighlight: 1,
+      onRemoveHighlight: 1,
+      preprocessDescriptors: 1,
     },
   });
 
@@ -229,6 +274,12 @@ describe("highlighting a given range", () => {
     onAfterHighlight: () => {},
     onRemoveHighlight: () => {
       return false;
+    },
+    expectedCallCount: {
+      onBeforeHighlight: 1,
+      onAfterHighlight: 1,
+      onRemoveHighlight: 1,
+      preprocessDescriptors: 1,
     },
   });
 
@@ -261,6 +312,12 @@ describe("highlighting a given range", () => {
     onAfterHighlight: () => {},
     onRemoveHighlight: () => {
       return true;
+    },
+    expectedCallCount: {
+      onBeforeHighlight: 1,
+      onAfterHighlight: 1,
+      onRemoveHighlight: 1,
+      preprocessDescriptors: 1,
     },
   });
 
@@ -301,6 +358,12 @@ describe("highlighting a given range", () => {
     },
     onRemoveHighlight: () => {
       return true;
+    },
+    expectedCallCount: {
+      onBeforeHighlight: 1,
+      onAfterHighlight: 1,
+      onRemoveHighlight: 1,
+      preprocessDescriptors: 1,
     },
   });
 });

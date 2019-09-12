@@ -7,6 +7,7 @@ import {
   createDescriptors,
   getHighlightedTextRelativeToRoot,
   focusHighlightNodes,
+  validateIndependenciaDescriptors,
 } from "../utils/highlights";
 import { START_OFFSET_ATTR, LENGTH_ATTR, DATA_ATTR, TIMESTAMP_ATTR } from "../config";
 import dom from "../utils/dom";
@@ -64,6 +65,7 @@ class IndependenciaHighlighter {
   constructor(element, options) {
     this.el = element;
     this.options = options;
+    this.removedHighlights = {};
   }
 
   /**
@@ -131,14 +133,16 @@ class IndependenciaHighlighter {
     let highlights = this.getHighlights({ container }),
       self = this;
 
-    function removeHighlight(highlight) {
-      dom(highlight).unwrap();
-    }
-
     highlights.forEach(function(hl) {
       if (!id || (id && hl.classList.contains(id))) {
-        if (self.options.onRemoveHighlight(hl) === true) {
-          removeHighlight(hl);
+        let highlightId = hl.classList.length > 1 ? hl.classList[1] : null;
+        if (highlightId && self.removedHighlights[highlightId]) {
+          dom(hl).unwrap();
+        } else if (self.options.onRemoveHighlight(hl) === true) {
+          dom(hl).unwrap();
+          if (highlightId) {
+            self.removedHighlights[highlightId] = true;
+          }
         }
       }
     });
@@ -289,7 +293,9 @@ class IndependenciaHighlighter {
 
     hlDescriptors.forEach(function(hlDescriptor) {
       try {
-        deserialise(hlDescriptor);
+        if (validateIndependenciaDescriptors(hlDescriptor)) {
+          deserialise(hlDescriptor);
+        }
       } catch (e) {
         if (console && console.warn) {
           console.warn("Can't deserialize highlight descriptor. Cause: " + e);

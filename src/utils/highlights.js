@@ -599,3 +599,16 @@ export function focusHighlightNodes(
   // of the same highlight together that get copied for the purpose of focusing.
   dom(rootElement).normalizeElements(highlightedClass);
 }
+
+/**
+ * Validation for descriptors to ensure they are of the correct format to be used by the Independencia highlighter.
+ *
+ * @param {array} descriptors  The descriptors to be validated.
+ * @return {boolean} - if the descriptors are valid or not.
+ */
+export function validateIndependenciaDescriptors(descriptors) {
+  if (descriptors && descriptors.length === 4) {
+    return true;
+  }
+  return false;
+}
