@@ -3,6 +3,7 @@ import {
   getHighlightedTextForRange,
   findNodesAndOffsets,
   getElementOffset,
+  validateIndependenciaDescriptors,
 } from "../../../src/utils/highlights";
 import { span, b, i, div, img, style, script, docFrag } from "../../utils/dom-elements";
 
@@ -271,5 +272,18 @@ describe("highlighting utility functionality", () => {
         ]);
       },
     );
+  });
+  describe("#validateIndependenciaDescriptors()", () => {
+    it("Should fail for descriptors of incorrect length", () => {
+      let descriptors = ['<span className="highlighted"></span>', "test1", 10];
+      expect(validateIndependenciaDescriptors(descriptors)).toEqual(false);
+      descriptors = ['<span className="highlighted"></span>', "test1", 10, 5, 5];
+      expect(validateIndependenciaDescriptors(descriptors)).toEqual(false);
+    });
+
+    it("Should work for descriptors of the correct length", () => {
+      let descriptors = ['<span className="highlighted"></span>', "test1", 10, 5];
+      expect(validateIndependenciaDescriptors(descriptors)).toEqual(true);
+    });
   });
 });
