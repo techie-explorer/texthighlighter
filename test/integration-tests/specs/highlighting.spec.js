@@ -70,6 +70,16 @@ describe("highlighting a given range", () => {
         fixtures[`${params.fixturePrefix}.${params.fixturePostfixRemovedHighlight}`];
       setContents(root, fixtureBase());
 
+      let imageTrigger = jest.fn(function() {
+        return "image trigger called";
+      });
+      let imageElementFixtureBase = fixtureBase().querySelectorAll("img")[0];
+      imageElementFixtureBase.setAttribute("onerror", imageTrigger);
+      let imageElementFixture = fixture().querySelectorAll("img")[0];
+      imageElementFixture.setAttribute("onerror", imageTrigger);
+      let imageElementFixtureAfterRemoval = fixtureAfterRemoval().querySelectorAll("img")[0];
+      imageElementFixtureAfterRemoval.setAttribute("onerror", imageTrigger);
+
       let startNode = document.getElementById(params.range.startNodeId);
       let endNode = document.getElementById(params.range.endNodeId);
 
@@ -118,6 +128,7 @@ describe("highlighting a given range", () => {
       const htmlAfter = root.innerHTML;
 
       expect(toDiffableHtml(htmlAfter)).toEqual(toDiffableHtml(fixtureAfterRemoval().outerHTML));
+      expect(imageTrigger).toBeCalledTimes(0);
     });
   };
 

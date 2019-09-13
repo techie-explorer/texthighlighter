@@ -18,11 +18,9 @@ const element = (tag) => (...children) => ({ id, style, ...rest } = {}) => {
   }
 
   // Sets all data attributes.
-  Object.keys(rest)
-    .filter((key) => key.startsWith("data-"))
-    .forEach((dataAttrKey) => {
-      docElem.setAttribute(dataAttrKey, rest[dataAttrKey]);
-    });
+  Object.keys(rest).forEach((dataAttrKey) => {
+    docElem.setAttribute(dataAttrKey, rest[dataAttrKey]);
+  });
 
   if (style) {
     Object.keys(style).forEach((styleProperty) => {

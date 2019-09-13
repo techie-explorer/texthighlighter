@@ -1,4 +1,4 @@
-import { span, highlight, spanWithAttrs } from "../../../utils/dom-elements";
+import { span, highlight, spanWithAttrs, imgWithAttrs } from "../../../utils/dom-elements";
 
 const fixtures = {
   "01.highlighting.base": () => {
@@ -9,6 +9,7 @@ const fixtures = {
         spanWithAttrs({ id: "highlight-1-start-node" })("Lorem ipsum dolor sit amet"),
         span("consectetur adipiscit"),
         span("elit."),
+        imgWithAttrs({ id: "image1" })(),
       ),
       spanWithAttrs({ id: "highlight-2-start-node" })("DDD"),
       "BBB",
@@ -27,6 +28,7 @@ const fixtures = {
         ),
         span("consectetur adipiscit"),
         span("elit."),
+        imgWithAttrs({ id: "image1" })(),
       ),
       spanWithAttrs({ id: "highlight-2-start-node" })("DDD"),
       "BBB",
@@ -45,6 +47,7 @@ const fixtures = {
         ),
         span("consectetur adipiscit"),
         span("elit."),
+        imgWithAttrs({ id: "image1" })(),
       ),
       spanWithAttrs({ id: "highlight-2-start-node" })(
         "DD",

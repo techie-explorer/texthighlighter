@@ -1,4 +1,12 @@
-import { span, highlight, spanWithAttrs, b, i, img } from "../../../utils/dom-elements";
+import {
+  span,
+  highlight,
+  spanWithAttrs,
+  b,
+  imgWithAttrs,
+  img,
+  i,
+} from "../../../utils/dom-elements";
 
 const fixtures = {
   "02.highlighting.base": () => {
@@ -8,7 +16,7 @@ const fixtures = {
         "CCC",
         spanWithAttrs({ id: "highlight-1-start-node" })("Lorem ipsum dolor "),
         b("sit "),
-        img(),
+        imgWithAttrs({ id: "image1" })(),
         i("am"),
         "et",
         span("consectetur adipiscit"),
@@ -30,7 +38,7 @@ const fixtures = {
           ),
         ),
         b(highlight({ color: "red", id: "1", length: 26, startOffset: 6, time: "test" }, "sit ")),
-        img(),
+        imgWithAttrs({ id: "image1" })(),
         i(highlight({ color: "red", id: "1", length: 26, startOffset: 6, time: "test" }, "am")),
         highlight({ color: "red", id: "1", length: 26, startOffset: 6, time: "test" }, "et"),
         span("consectetur adipiscit"),
@@ -53,7 +61,7 @@ const fixtures = {
           ),
         ),
         b("sit "),
-        img(),
+        imgWithAttrs({ id: "image1" })(),
         i("am"),
         "et",
         span("consectetur adipiscit"),
@@ -79,7 +87,7 @@ const fixtures = {
           ),
         ),
         b(highlight({ color: "red", id: "1", length: 26, startOffset: 6, time: "test" }, "sit ")),
-        img(),
+        imgWithAttrs({ id: "image1" })(),
         i(highlight({ color: "red", id: "1", length: 26, startOffset: 6, time: "test" }, "am")),
         highlight({ color: "red", id: "1", length: 26, startOffset: 6, time: "test" }, "et"),
         span("consectetur adipiscit"),
@@ -105,7 +113,7 @@ const fixtures = {
           ),
         ),
         b(highlight({ color: "red", id: "1", length: 26, startOffset: 6, time: "test" }, "sit ")),
-        img(),
+        imgWithAttrs({ id: "image1" })(),
         i(highlight({ color: "red", id: "1", length: 26, startOffset: 6, time: "test" }, "am")),
         highlight({ color: "red", id: "1", length: 26, startOffset: 6, time: "test" }, "et"),
         span("consectetur adipiscit"),

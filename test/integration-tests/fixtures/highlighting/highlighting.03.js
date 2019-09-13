@@ -1,4 +1,13 @@
-import { span, highlight, spanWithAttrs, bWithAttrs, b, i, img } from "../../../utils/dom-elements";
+import {
+  span,
+  highlight,
+  spanWithAttrs,
+  bWithAttrs,
+  b,
+  i,
+  img,
+  imgWithAttrs,
+} from "../../../utils/dom-elements";
 
 const fixtures = {
   "03.highlighting.base": () => {
@@ -8,7 +17,7 @@ const fixtures = {
         "CCC",
         spanWithAttrs({ id: "highlight-1-start-node" })("Lorem ipsum dolor "),
         bWithAttrs({ id: "highlight-1-end-node" })("sit amet elit"),
-        img(),
+        imgWithAttrs({ id: "image1" })(),
         b("am ", i("leonulla")),
         "et",
         span("consectetur ", b("adipiscit")),
@@ -45,7 +54,7 @@ const fixtures = {
           highlight({ color: "blue", id: "2", length: 15, startOffset: 17, time: "test" }, "amet"),
           " elit",
         ),
-        img(),
+        imgWithAttrs({ id: "image1" })(),
         b("am ", i("leonulla")),
         "et",
         span("consectetur ", b("adipiscit")),
@@ -92,7 +101,7 @@ const fixtures = {
           highlight({ color: "blue", id: "2", length: 15, startOffset: 17, time: "test" }, "amet"),
           " elit",
         ),
-        img(),
+        imgWithAttrs({ id: "image1" })(),
         b("am ", i("leonulla")),
         "et",
         span("consectetur ", b("adipiscit")),
@@ -126,7 +135,7 @@ const fixtures = {
           ),
           " elit",
         ),
-        img(),
+        imgWithAttrs({ id: "image1" })(),
         b("am ", i("leonulla")),
         "et",
         span("consectetur ", b("adipiscit")),

@@ -1,5 +1,5 @@
 import dom from "../../../src/utils/dom";
-import { div, style, script, b, i, span, text } from "../../utils/dom-elements";
+import { div, style, script, b, i, span, text, imgWithAttrs, img } from "../../utils/dom-elements";
 
 describe("dom utility functionality", () => {
   let root;
@@ -45,6 +45,332 @@ describe("dom utility functionality", () => {
       children.forEach((child, i) => {
         expect(rootWrapped.getChildIndex(child)).toBe(i);
       });
+    });
+  });
+
+  describe("#turnOffEventHandlersForElement()", () => {
+    it("should remove a single event attribute from an image", () => {
+      const contents = imgWithAttrs({ onerror: () => "event called" })();
+
+      const contentsWithoutEventHandlers = imgWithAttrs({ "temp-id": "1" })();
+      let events = dom(contents).turnOffEventHandlersForElement();
+      events.tempId = "1";
+      expect(events).toEqual({
+        listOfAttributes: [
+          {
+            attribute: "onerror",
+            value: `function onerror() {
+          return \"event called\";
+        }`,
+          },
+        ],
+        tempId: "1",
+      });
+      contents.setAttribute("temp-id", "1");
+      expect(contents).toEqual(contentsWithoutEventHandlers);
+    });
+
+    it("should remove a multiple event attribute from an image", () => {
+      const contents = imgWithAttrs({
+        onerror: () => "event called",
+        onevent: () => "event2 called",
+      })();
+
+      const contentsWithoutEventHandlers = imgWithAttrs({ "temp-id": "1" })();
+      let events = dom(contents).turnOffEventHandlersForElement();
+      events.tempId = "1";
+      expect(events).toEqual({
+        listOfAttributes: [
+          {
+            attribute: "onerror",
+            value: `function onerror() {
+          return \"event called\";
+        }`,
+          },
+          {
+            attribute: "onevent",
+            value: `function onevent() {
+          return \"event2 called\";
+        }`,
+          },
+        ],
+        tempId: "1",
+      });
+      contents.setAttribute("temp-id", "1");
+      expect(contents).toEqual(contentsWithoutEventHandlers);
+    });
+  });
+
+  describe("#addAttributes()", () => {
+    it("should add a single event attribute to an image", () => {
+      const contentsWithAttributes = imgWithAttrs({ onerror: () => "event called" })();
+
+      const contents = img();
+
+      let events = [
+        {
+          attribute: "onerror",
+          value: `function onerror() {
+          return \"event called\";
+        }`,
+        },
+      ];
+      dom(contents).addAttributes(events);
+      expect(contents).toEqual(contentsWithAttributes);
+    });
+
+    it("should add multiple event attributes to an image", () => {
+      const contentsWithAttributes = imgWithAttrs({
+        onerror: () => "event called",
+        onevent: () => "event2 called",
+      })();
+
+      const contents = img();
+
+      let events = [
+        {
+          attribute: "onerror",
+          value: `function onerror() {
+          return \"event called\";
+        }`,
+        },
+        {
+          attribute: "onevent",
+          value: `function onevent() {
+          return \"event2 called\";
+        }`,
+        },
+      ];
+      dom(contents).addAttributes(events);
+      expect(contents).toEqual(contentsWithAttributes);
+    });
+  });
+  describe("#turnOffEventHandlers()", () => {
+    it("should remove a single event attribute from an image nested in a div", () => {
+      const contents = div(imgWithAttrs({ id: "image1", onerror: () => "event called" })());
+
+      const contentsWithoutEventHandlers = div(imgWithAttrs({ id: "image1", "temp-id": "1" })());
+      let events = [];
+      dom(contents).turnOffEventHandlers(events);
+      events[0].tempId = "1";
+      expect(events).toEqual([
+        {
+          listOfAttributes: [
+            {
+              attribute: "onerror",
+              value: `function onerror() {
+          return \"event called\";
+        }`,
+            },
+          ],
+          tempId: "1",
+        },
+      ]);
+      contents.childNodes[0].setAttribute("temp-id", "1");
+      expect(contents).toEqual(contentsWithoutEventHandlers);
+    });
+
+    it("should remove a multiple event attributes from multiple images nested in multiple divs", () => {
+      const contents = div(
+        "test1",
+        div(
+          "test2",
+          div("test3"),
+          imgWithAttrs({ id: "image1", onerror: () => "event1 called" })(),
+        ),
+        imgWithAttrs({
+          id: "image2",
+          onerror: () => "event2 called",
+          onevent: () => "event3 called",
+        })(),
+        "test4",
+      );
+
+      const contentsWithoutEventHandlers = div(
+        "test1",
+        div("test2", div("test3"), imgWithAttrs({ id: "image1", "temp-id": "1" })()),
+        imgWithAttrs({
+          id: "image2",
+          "temp-id": "2",
+        })(),
+        "test4",
+      );
+
+      let events = [];
+      dom(contents).turnOffEventHandlers(events);
+      events[0].tempId = "1";
+      events[1].tempId = "2";
+      expect(events).toEqual([
+        {
+          listOfAttributes: [
+            {
+              attribute: "onerror",
+              value: `function onerror() {
+          return \"event1 called\";
+        }`,
+            },
+          ],
+          tempId: "1",
+        },
+        {
+          listOfAttributes: [
+            {
+              attribute: "onerror",
+              value: `function onerror() {
+          return \"event2 called\";
+        }`,
+            },
+            {
+              attribute: "onevent",
+              value: `function onevent() {
+          return \"event3 called\";
+        }`,
+            },
+          ],
+          tempId: "2",
+        },
+      ]);
+      contents.childNodes[1].childNodes[2].setAttribute("temp-id", "1");
+      contents.childNodes[2].setAttribute("temp-id", "2");
+      expect(contents).toEqual(contentsWithoutEventHandlers);
+    });
+  });
+  describe("#turnOnEventHandlers()", () => {
+    it("should add a single event attribute to an image nested in a div", () => {
+      const contentsWithEventHandlers = div(
+        imgWithAttrs({ id: "image1", onerror: () => "event called" })(),
+      );
+
+      const contents = div(imgWithAttrs({ id: "image1", "temp-id": "1" })());
+
+      let events = [
+        {
+          listOfAttributes: [
+            {
+              attribute: "onerror",
+              value: `function onerror() {
+          return \"event called\";
+        }`,
+            },
+          ],
+          tempId: "1",
+        },
+      ];
+      dom(contents).turnOnEventHandlers(events);
+      expect(contents).toEqual(contentsWithEventHandlers);
+    });
+
+    it("should add multiple event attributes to multiple images nested in multiple divs", () => {
+      const contentsWithEventHandlers = div(
+        "test1",
+        div(
+          "test2",
+          div("test3"),
+          imgWithAttrs({ id: "image1", onerror: () => "event1 called" })(),
+        ),
+        imgWithAttrs({
+          id: "image2",
+          onerror: () => "event2 called",
+          onevent: () => "event3 called",
+        })(),
+        "test4",
+      );
+
+      const contents = div(
+        "test1",
+        div("test2", div("test3"), imgWithAttrs({ id: "image1", "temp-id": "1" })()),
+        imgWithAttrs({
+          id: "image2",
+          "temp-id": "2",
+        })(),
+        "test4",
+      );
+
+      let events = [
+        {
+          listOfAttributes: [
+            {
+              attribute: "onerror",
+              value: `function onerror() {
+          return \"event1 called\";
+        }`,
+            },
+          ],
+          tempId: "1",
+        },
+        {
+          listOfAttributes: [
+            {
+              attribute: "onerror",
+              value: `function onerror() {
+          return \"event2 called\";
+        }`,
+            },
+            {
+              attribute: "onevent",
+              value: `function onevent() {
+          return \"event3 called\";
+        }`,
+            },
+          ],
+          tempId: "2",
+        },
+      ];
+      dom(contents).turnOnEventHandlers(events);
+      expect(contents).toEqual(contentsWithEventHandlers);
+    });
+
+    it("should remove events then add them again for multiple images nested in multiple divs", () => {
+      const contentsWithEventHandlers = div(
+        "test1",
+        div(
+          "test2",
+          div("test3"),
+          imgWithAttrs({ id: "image1", onerror: () => "event1 called" })(),
+        ),
+        imgWithAttrs({
+          id: "image2",
+          onerror: () => "event2 called",
+          onevent: () => "event3 called",
+        })(),
+        "test4",
+      );
+      const contents = div(
+        "test1",
+        div(
+          "test2",
+          div("test3"),
+          imgWithAttrs({ id: "image1", onerror: () => "event1 called" })(),
+        ),
+        imgWithAttrs({
+          id: "image2",
+          onerror: () => "event2 called",
+          onevent: () => "event3 called",
+        })(),
+        "test4",
+      );
+
+      const contentsWithoutEventHandlers = div(
+        "test1",
+        div("test2", div("test3"), imgWithAttrs({ id: "image1", "temp-id": "1" })()),
+        imgWithAttrs({
+          id: "image2",
+          "temp-id": "2",
+        })(),
+        "test4",
+      );
+
+      let events = [];
+      dom(contents).turnOffEventHandlers(events);
+      events[0].tempId = "1";
+      events[1].tempId = "2";
+
+      contents.childNodes[1].childNodes[2].setAttribute("temp-id", "1");
+      contents.childNodes[2].setAttribute("temp-id", "2");
+      expect(contents).toEqual(contentsWithoutEventHandlers);
+
+      dom(contents).turnOnEventHandlers(events);
+      expect(contents).toEqual(contentsWithEventHandlers);
     });
   });
 });
