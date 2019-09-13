@@ -295,6 +295,10 @@ class IndependenciaHighlighter {
       try {
         if (validateIndependenciaDescriptors(hlDescriptor)) {
           deserialise(hlDescriptor);
+        } else {
+          console.warn(
+            "Can't deserialize highlight descriptors. Cause: descriptors are not valid.",
+          );
         }
       } catch (e) {
         if (console && console.warn) {
