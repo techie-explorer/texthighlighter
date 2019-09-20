@@ -50,14 +50,17 @@ class TextHighlighter {
    *   as the source of truth about the text range selected to create the original highlight.
    *   This allows us freedom to manipulate the DOM at will and handle overlapping highlights a lot better.
    *
-   * @param {string} options.color - highlight color.
-   * @param {string} options.excludeNodes - Node types to exclude when calculating offsets and determining where to inject highlights.
-   * @param {string} options.highlightedClass - class added to highlight, 'highlighted' by default.
-   * @param {string} options.contextClass - class added to element to which highlighter is applied,
+   * @param {string} [options.color=#ffff7b] - highlight color.
+   * @param {string[]} [options.excludeNodes=["SCRIPT","STYLE"]] - Node types to exclude when calculating offsets and determining where to inject highlights.
+   * @param {string} [options.highlightedClass=highlighted] - class added to highlight, 'highlighted' by default.
+   * @param {string} [options.contextClass=highlighter-context] - class added to element to which highlighter is applied,
    *  'highlighter-context' by default.
-   * @param {boolean} options.useDefaultEvents - Whether or not to use the default events to listen for text selections.
+   * @param {boolean} [options.useDefaultEvents=true] - Whether or not to use the default events to listen for text selections.
    *  The default events are "mouseup" and "touchend". Set this to false and register TextHiglighter.highlightHandler with your own events.
    *  It is down to you to remove the listener from your custom events when destroying instances of the text highlighter.
+   * @param {boolean} [options.normalizeElements=false] - Whether or not to normalise elements on the DOM when highlights are created, deserialised
+   *  into the DOM, focused and deselected. Normalising events has a huge performance implication when enabling highlighting for a root element
+   *  that contains thousands of nodes. This only applies for the independencia v2-2019 version.
    * @param {function} options.onRemoveHighlight - function called before highlight is removed. Highlight is
    *  passed as param. Function should return true if highlight should be removed, or false - to prevent removal.
    * @param {function} options.onBeforeHighlight - function called before highlight is created. Range object is
@@ -72,8 +75,6 @@ class TextHighlighter {
    * @param {boolean} registerEventsOnConstruction - Whether or not to attempt to register events when the text highlighter is first instantiated.
    *   In the case options.useDefaultEvents is false, even with this enabled the events won't be registered, this is only relevant if you want more
    *   control and register events at a later point.
-   *
-   * @class TextHighlighter
    */
   constructor(element, options = {}, registerEventsOnConstruction = true) {
     if (!element) {
@@ -88,6 +89,7 @@ class TextHighlighter {
       version: "independencia",
       useDefaultEvents: true,
       excludeNodes: ["SCRIPT", "STYLE"],
+      normalizeElements: false,
       onRemoveHighlight: function() {
         return true;
       },

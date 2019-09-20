@@ -18,11 +18,9 @@ const element = (tag) => (...children) => ({ id, style, ...rest } = {}) => {
   }
 
   // Sets all data attributes.
-  Object.keys(rest)
-    .filter((key) => key.startsWith("data-"))
-    .forEach((dataAttrKey) => {
-      docElem.setAttribute(dataAttrKey, rest[dataAttrKey]);
-    });
+  Object.keys(rest).forEach((dataAttrKey) => {
+    docElem.setAttribute(dataAttrKey, rest[dataAttrKey]);
+  });
 
   if (style) {
     Object.keys(style).forEach((styleProperty) => {
@@ -55,6 +53,8 @@ const docFrag = (...children) => {
   return frag;
 };
 
+const text = (textContent) => document.createTextNode(textContent);
+
 const highlight = ({ color, id, startOffset, length, time }, ...children) => {
   const docElem = span(...children);
   docElem.style.backgroundColor = color;
@@ -76,6 +76,7 @@ export {
   div,
   b,
   i,
+  text,
   img,
   highlight,
   style,

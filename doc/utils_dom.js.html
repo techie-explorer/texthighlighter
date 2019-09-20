@@ -1,90 +1,48 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width">
-	<title>TextHighlighter Source: utils/dom.js</title>
-
-	<!--[if lt IE 9]>
-	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-	<![endif]-->
-	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
-
-	<link type="text/css" rel="stylesheet" href="styles/site.cosmo.css">
-
+    
+    <meta charset="utf-8">
+    <title>utils/dom.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-
 <body>
 
-<div class="navbar navbar-default navbar-fixed-top navbar-inverse">
-<div class="container">
-	<div class="navbar-header">
-		<a class="navbar-brand" href="index.html">TextHighlighter</a>
-		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
-			<span class="icon-bar"></span>
-			<span class="icon-bar"></span>
-			<span class="icon-bar"></span>
-        </button>
-	</div>
-	<div class="navbar-collapse collapse" id="topNavigation">
-		<ul class="nav navbar-nav">
-			
-			<li class="dropdown">
-				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
-				<ul class="dropdown-menu inline">
-					<li><a href="IndependenciaHighlighter.html">IndependenciaHighlighter</a></li><li><a href="PrimitivoHighlighter.html">PrimitivoHighlighter</a></li><li><a href="TextHighlighter.html">TextHighlighter</a></li>
-				</ul>
-			</li>
-			
-			<li class="dropdown">
-				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
-				<ul class="dropdown-menu inline">
-					<li><a href="global.html#arrayToLower">arrayToLower</a></li><li><a href="global.html#createWrapper">createWrapper</a></li><li><a href="global.html#DATA_ATTR">DATA_ATTR</a></li><li><a href="global.html#dom">dom</a></li><li><a href="global.html#findNodesAndOffsets">findNodesAndOffsets</a></li><li><a href="global.html#getHighlightedTextForRange">getHighlightedTextForRange</a></li><li><a href="global.html#getHighlightedTextRelativeToRoot">getHighlightedTextRelativeToRoot</a></li><li><a href="global.html#groupHighlights">groupHighlights</a></li><li><a href="global.html#haveSameColor">haveSameColor</a></li><li><a href="global.html#IGNORE_TAGS">IGNORE_TAGS</a></li><li><a href="global.html#isClosestHighlightParent">isClosestHighlightParent</a></li><li><a href="global.html#mergeSiblingTextNodesInDirection">mergeSiblingTextNodesInDirection</a></li><li><a href="global.html#nodesInBetween">nodesInBetween</a></li><li><a href="global.html#refineRangeBoundaries">refineRangeBoundaries</a></li><li><a href="global.html#scaleFromTransformMatrix">scaleFromTransformMatrix</a></li><li><a href="global.html#sortByDepth">sortByDepth</a></li><li><a href="global.html#TIMESTAMP_ATTR">TIMESTAMP_ATTR</a></li><li><a href="global.html#unique">unique</a></li>
-				</ul>
-			</li>
-			
-			<li class="dropdown">
-				<a href="externals.list.html" class="dropdown-toggle" data-toggle="dropdown">Externals<b class="caret"></b></a>
-				<ul class="dropdown-menu inline">
-					<li><a href="external-_jQuery.fn_.html">jQuery.fn</a></li>
-				</ul>
-			</li>
-			
-		</ul>
-        
-            <div class="col-sm-3 col-md-3">
-                <form class="navbar-form" role="search">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
-                        <div class="input-group-btn">
-                            <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        
-	</div>
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
 
-</div>
-</div>
+<label for="nav-trigger" class="overlay"></label>
 
-
-<div class="container" id="toc-content">
-<div class="row">
-
-	
-	<div class="col-md-12">
-	
-		<div id="main">
-			
-
-		<h1 class="page-title">Source: utils/dom.js</h1>
+<nav >
     
-<section>
-    <article>
-        <pre
-            class="sunlight-highlight-javascript linenums">import { isElementHighlight } from "./highlights";
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="IndependenciaHighlighter.html">IndependenciaHighlighter</a><ul class='methods'><li data-type='method'><a href="IndependenciaHighlighter.html#deserializeHighlights">deserializeHighlights</a></li><li data-type='method'><a href="IndependenciaHighlighter.html#doHighlight">doHighlight</a></li><li data-type='method'><a href="IndependenciaHighlighter.html#focusUsingId">focusUsingId</a></li><li data-type='method'><a href="IndependenciaHighlighter.html#getHighlights">getHighlights</a></li><li data-type='method'><a href="IndependenciaHighlighter.html#isHighlight">isHighlight</a></li><li data-type='method'><a href="IndependenciaHighlighter.html#normalizeHighlights">normalizeHighlights</a></li><li data-type='method'><a href="IndependenciaHighlighter.html#removeHighlights">removeHighlights</a></li><li data-type='method'><a href="IndependenciaHighlighter.html#serializeHighlights">serializeHighlights</a></li></ul></li><li><a href="PrimitivoHighlighter.html">PrimitivoHighlighter</a><ul class='methods'><li data-type='method'><a href="PrimitivoHighlighter.html#deserializeHighlights">deserializeHighlights</a></li><li data-type='method'><a href="PrimitivoHighlighter.html#doHighlight">doHighlight</a></li><li data-type='method'><a href="PrimitivoHighlighter.html#flattenNestedHighlights">flattenNestedHighlights</a></li><li data-type='method'><a href="PrimitivoHighlighter.html#getHighlights">getHighlights</a></li><li data-type='method'><a href="PrimitivoHighlighter.html#highlightRange">highlightRange</a></li><li data-type='method'><a href="PrimitivoHighlighter.html#isHighlight">isHighlight</a></li><li data-type='method'><a href="PrimitivoHighlighter.html#mergeSiblingHighlights">mergeSiblingHighlights</a></li><li data-type='method'><a href="PrimitivoHighlighter.html#normalizeHighlights">normalizeHighlights</a></li><li data-type='method'><a href="PrimitivoHighlighter.html#removeHighlights">removeHighlights</a></li><li data-type='method'><a href="PrimitivoHighlighter.html#serializeHighlights">serializeHighlights</a></li></ul></li><li><a href="TextHighlighter.html">TextHighlighter</a><ul class='methods'><li data-type='method'><a href="TextHighlighter.html#.createWrapper">createWrapper</a></li><li data-type='method'><a href="TextHighlighter.html#deserializeHighlights">deserializeHighlights</a></li><li data-type='method'><a href="TextHighlighter.html#destroy">destroy</a></li><li data-type='method'><a href="TextHighlighter.html#find">find</a></li><li data-type='method'><a href="TextHighlighter.html#focusUsingId">focusUsingId</a></li><li data-type='method'><a href="TextHighlighter.html#getColor">getColor</a></li><li data-type='method'><a href="TextHighlighter.html#getHighlights">getHighlights</a></li><li data-type='method'><a href="TextHighlighter.html#highlightHandler">highlightHandler</a></li><li data-type='method'><a href="TextHighlighter.html#highlightRange">highlightRange</a></li><li data-type='method'><a href="TextHighlighter.html#isHighlight">isHighlight</a></li><li data-type='method'><a href="TextHighlighter.html#normalizeHighlights">normalizeHighlights</a></li><li data-type='method'><a href="TextHighlighter.html#registerDefaultEvents">registerDefaultEvents</a></li><li data-type='method'><a href="TextHighlighter.html#removeHighlights">removeHighlights</a></li><li data-type='method'><a href="TextHighlighter.html#serializeHighlights">serializeHighlights</a></li><li data-type='method'><a href="TextHighlighter.html#setColor">setColor</a></li></ul></li></ul><h3>Externals</h3><ul><li><a href="external-_jQuery.fn_.html">jQuery.fn</a><ul class='methods'><li data-type='method'><a href="external-_jQuery.fn_.html#.textHighlighter">textHighlighter</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#arrayToLower">arrayToLower</a></li><li><a href="global.html#createWrapper">createWrapper</a></li><li><a href="global.html#DATA_ATTR">DATA_ATTR</a></li><li><a href="global.html#dom">dom</a></li><li><a href="global.html#findNodesAndOffsets">findNodesAndOffsets</a></li><li><a href="global.html#getHighlightedTextForRange">getHighlightedTextForRange</a></li><li><a href="global.html#getHighlightedTextRelativeToRoot">getHighlightedTextRelativeToRoot</a></li><li><a href="global.html#groupHighlights">groupHighlights</a></li><li><a href="global.html#haveSameColor">haveSameColor</a></li><li><a href="global.html#IGNORE_TAGS">IGNORE_TAGS</a></li><li><a href="global.html#isClosestHighlightParent">isClosestHighlightParent</a></li><li><a href="global.html#nodesInBetween">nodesInBetween</a></li><li><a href="global.html#refineRangeBoundaries">refineRangeBoundaries</a></li><li><a href="global.html#scaleFromTransformMatrix">scaleFromTransformMatrix</a></li><li><a href="global.html#sortByDepth">sortByDepth</a></li><li><a href="global.html#TIMESTAMP_ATTR">TIMESTAMP_ATTR</a></li><li><a href="global.html#unique">unique</a></li><li><a href="global.html#validateIndependenciaDescriptors">validateIndependenciaDescriptors</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">utils/dom.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { isElementHighlight } from "./highlights";
 import { DATA_ATTR } from "../config";
 export const NODE_TYPE = { ELEMENT_NODE: 1, TEXT_NODE: 3 };
 
@@ -442,8 +400,9 @@ const dom = function(el) {
      */
     textContentExcludingTags: function(excludeTags) {
       // Ensure we simply return the text content in the case the element is a text node.
-      if (el.nodeType !== NODE_TYPE.TEXT_NODE) {
+      if (el &amp;&amp; el.nodeType !== NODE_TYPE.TEXT_NODE) {
         const elCopy = el.cloneNode(true);
+
         const elementsToBeExcluded = excludeTags.reduce((accum, tag) => {
           return [...accum, ...elCopy.querySelectorAll(tag)];
         }, []);
@@ -454,143 +413,149 @@ const dom = function(el) {
       }
       return el.textContent;
     },
+
+    /**
+     * Gets the index of a child element in the base element.
+     * It is important we use childNodes as we want to include both
+     * html element nodes and text nodes.
+     *
+     * @param {HTMLElement} childElement
+     * @return {number}
+     */
+    getChildIndex: function(childElement) {
+      let currentChild = el.firstChild;
+      let i = 0;
+
+      while (currentChild &amp;&amp; childElement !== currentChild) {
+        if (currentChild !== childElement) {
+          currentChild = currentChild.nextSibling;
+          i++;
+        }
+      }
+
+      return currentChild ? i : -1;
+    },
+
+    /**
+     * Loop through the elements in the dom and remove any events attached to elements that are not text nodes and have no children.
+     *
+     * @param {listOfElementAttributes} - list of events and their values which have been turned off, along with a temporary id for each element which has been altered.
+     */
+    turnOffEventHandlers: function(listOfElementAttributes) {
+      if (!el) {
+        return;
+      }
+      if (el.childNodes &amp;&amp; el.childNodes.length > 0) {
+        dom(el.firstChild).turnOffEventHandlers(listOfElementAttributes);
+      } else if (el.nodeType !== NODE_TYPE.TEXT_NODE) {
+        let eventsForObject = dom(el).turnOffEventHandlersForElement();
+        if (eventsForObject) {
+          listOfElementAttributes.push(eventsForObject);
+        }
+      }
+      dom(el.nextSibling).turnOffEventHandlers(listOfElementAttributes);
+    },
+
+    /**
+     * Loop through the elements in the dom and add back in any events that were previously removed from elements.
+     *
+     * @param {listOfElementAttributes} - list of events and their values which have recently been turned off, along with a temporary id for each element which has been altered.
+     */
+    turnOnEventHandlers: function(listOfElementAttributes) {
+      if (!el || !listOfElementAttributes || listOfElementAttributes.length === 0) {
+        return;
+      }
+      let elements = Array.prototype.slice.call(el.querySelectorAll("[temp-id]"));
+      listOfElementAttributes.forEach((elementAttribute) => {
+        let tempId = elementAttribute.tempId;
+        let attributeList = elementAttribute.listOfAttributes;
+        let element = elements.filter((element) => element.getAttribute("temp-id") === tempId)[0];
+        if (element) {
+          dom(element).addAttributes(attributeList);
+          element.removeAttribute("temp-id");
+        }
+      });
+    },
+
+    /**
+     * Loop through the attributes of an element and turn off all attributes that have names starting with 'on'.
+     * This will turn of all events for elements that have no children and are not text nodes (images etc.)
+     *
+     * @return {object} - list of events and their values which have been turned off
+     */
+    turnOffEventHandlersForElement: function() {
+      if (!el) {
+        return null;
+      }
+
+      if (el.nodeType !== NODE_TYPE.TEXT_NODE &amp;&amp; el.childNodes &amp;&amp; el.childNodes.length === 0) {
+        var attributes = [].slice.call(el.attributes);
+
+        var listOfAttributes = [];
+        let i;
+        for (i = 0; i &lt; attributes.length; i++) {
+          var att = attributes[i].name;
+          if (att.indexOf("on") === 0) {
+            var eventHandlers = {};
+            eventHandlers.attribute = attributes[i].name;
+            eventHandlers.value = attributes[i].value;
+            listOfAttributes.push(eventHandlers);
+            el.attributes.removeNamedItem(att);
+          }
+        }
+        if (listOfAttributes.length > 0) {
+          const uniqueId = `hlt-${Math.random()
+            .toString(36)
+            .substring(2, 15) +
+            Math.random()
+              .toString(36)
+              .substring(2, 15)}`;
+          el.setAttribute("temp-id", uniqueId);
+          return { tempId: uniqueId, listOfAttributes };
+        }
+      }
+    },
+
+    /**
+     * Loop through the a list of attribues and add each and their value to the element.
+     *
+     * @param {array} - list of attributes and their values
+     */
+    addAttributes: function(attributes) {
+      if (!el) {
+        return;
+      }
+      let i;
+      for (i = 0; i &lt; attributes.length; i++) {
+        let attribute = attributes[i];
+        el.setAttribute(attribute.attribute, attribute.value);
+      }
+    },
   };
 };
 
 export default dom;
-</pre>
-    </article>
-</section>
+</code></pre>
+        </article>
+    </section>
 
 
 
 
-
-		</div>
-	</div>
-
-	<div class="clearfix"></div>
-
-	
-
-</div>
+    
+    
 </div>
 
-
-    <div class="modal fade" id="searchResults">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title">Search results</h4>
-          </div>
-          <div class="modal-body"></div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          </div>
-        </div><!-- /.modal-content -->
-      </div><!-- /.modal-dialog -->
-    </div>
-
+<br class="clear">
 
 <footer>
-
-
-	<span class="copyright">
-	TextHighlighter Copyright © 2019 by Perlego Limited.
-	</span>
-
-<span class="jsdoc-message">
-	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a>
-	
-		on Tue Sep 10th 2019
-	
-	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
-</span>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Fri Sep 20 2019 15:57:20 GMT+0100 (British Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
-<script src="scripts/docstrap.lib.js"></script>
-<script src="scripts/toc.js"></script>
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
 
-    <script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
-
-
-<script>
-$( function () {
-	$( "[id*='$']" ).each( function () {
-		var $this = $( this );
-
-		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
-	} );
-
-	$( ".tutorial-section pre, .readme-section pre, pre.prettyprint.source" ).each( function () {
-		var $this = $( this );
-
-		var example = $this.find( "code" );
-		exampleText = example.html();
-		var lang = /{@lang (.*?)}/.exec( exampleText );
-		if ( lang && lang[1] ) {
-			exampleText = exampleText.replace( lang[0], "" );
-			example.html( exampleText );
-			lang = lang[1];
-		} else {
-			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
-			lang = langClassMatch ? langClassMatch[1] : "javascript";
-		}
-
-		if ( lang ) {
-
-			$this
-			.addClass( "sunlight-highlight-" + lang )
-			.addClass( "linenums" )
-			.html( example.html() );
-
-		}
-	} );
-
-	Sunlight.highlightAll( {
-		lineNumbers : true,
-		showMenu : true,
-		enableDoclinks : true
-	} );
-
-	$.catchAnchorLinks( {
-        navbarOffset: 10
-	} );
-	$( "#toc" ).toc( {
-		anchorName  : function ( i, heading, prefix ) {
-			return $( heading ).attr( "id" ) || ( prefix + i );
-		},
-		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
-		showAndHide : false,
-		smoothScrolling: true
-	} );
-
-	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
-	$( '.dropdown-toggle' ).dropdown();
-
-    $( "table" ).each( function () {
-      var $this = $( this );
-      $this.addClass('table');
-    } );
-
-} );
-</script>
-
-
-
-<!--Navigation and Symbol Display-->
-
-
-<!--Google Analytics-->
-
-
-
-    <script type="text/javascript">
-        $(document).ready(function() {
-            SearcherDisplay.init();
-        });
-    </script>
 
 
 </body>

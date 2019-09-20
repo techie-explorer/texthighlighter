@@ -356,8 +356,9 @@ const dom = function(el) {
      */
     textContentExcludingTags: function(excludeTags) {
       // Ensure we simply return the text content in the case the element is a text node.
-      if (el.nodeType !== NODE_TYPE.TEXT_NODE) {
+      if (el && el.nodeType !== NODE_TYPE.TEXT_NODE) {
         const elCopy = el.cloneNode(true);
+
         const elementsToBeExcluded = excludeTags.reduce((accum, tag) => {
           return [...accum, ...elCopy.querySelectorAll(tag)];
         }, []);
@@ -367,6 +368,124 @@ const dom = function(el) {
         return elCopy.textContent;
       }
       return el.textContent;
+    },
+
+    /**
+     * Gets the index of a child element in the base element.
+     * It is important we use childNodes as we want to include both
+     * html element nodes and text nodes.
+     *
+     * @param {HTMLElement} childElement
+     * @return {number}
+     */
+    getChildIndex: function(childElement) {
+      let currentChild = el.firstChild;
+      let i = 0;
+
+      while (currentChild && childElement !== currentChild) {
+        if (currentChild !== childElement) {
+          currentChild = currentChild.nextSibling;
+          i++;
+        }
+      }
+
+      return currentChild ? i : -1;
+    },
+
+    /**
+     * Loop through the elements in the dom and remove any events attached to elements that are not text nodes and have no children.
+     *
+     * @param {listOfElementAttributes} - list of events and their values which have been turned off, along with a temporary id for each element which has been altered.
+     */
+    turnOffEventHandlers: function(listOfElementAttributes) {
+      if (!el) {
+        return;
+      }
+      if (el.childNodes && el.childNodes.length > 0) {
+        dom(el.firstChild).turnOffEventHandlers(listOfElementAttributes);
+      } else if (el.nodeType !== NODE_TYPE.TEXT_NODE) {
+        let eventsForObject = dom(el).turnOffEventHandlersForElement();
+        if (eventsForObject) {
+          listOfElementAttributes.push(eventsForObject);
+        }
+      }
+      dom(el.nextSibling).turnOffEventHandlers(listOfElementAttributes);
+    },
+
+    /**
+     * Loop through the elements in the dom and add back in any events that were previously removed from elements.
+     *
+     * @param {listOfElementAttributes} - list of events and their values which have recently been turned off, along with a temporary id for each element which has been altered.
+     */
+    turnOnEventHandlers: function(listOfElementAttributes) {
+      if (!el || !listOfElementAttributes || listOfElementAttributes.length === 0) {
+        return;
+      }
+      let elements = Array.prototype.slice.call(el.querySelectorAll("[temp-id]"));
+      listOfElementAttributes.forEach((elementAttribute) => {
+        let tempId = elementAttribute.tempId;
+        let attributeList = elementAttribute.listOfAttributes;
+        let element = elements.filter((element) => element.getAttribute("temp-id") === tempId)[0];
+        if (element) {
+          dom(element).addAttributes(attributeList);
+          element.removeAttribute("temp-id");
+        }
+      });
+    },
+
+    /**
+     * Loop through the attributes of an element and turn off all attributes that have names starting with 'on'.
+     * This will turn of all events for elements that have no children and are not text nodes (images etc.)
+     *
+     * @return {object} - list of events and their values which have been turned off
+     */
+    turnOffEventHandlersForElement: function() {
+      if (!el) {
+        return null;
+      }
+
+      if (el.nodeType !== NODE_TYPE.TEXT_NODE && el.childNodes && el.childNodes.length === 0) {
+        var attributes = [].slice.call(el.attributes);
+
+        var listOfAttributes = [];
+        let i;
+        for (i = 0; i < attributes.length; i++) {
+          var att = attributes[i].name;
+          if (att.indexOf("on") === 0) {
+            var eventHandlers = {};
+            eventHandlers.attribute = attributes[i].name;
+            eventHandlers.value = attributes[i].value;
+            listOfAttributes.push(eventHandlers);
+            el.attributes.removeNamedItem(att);
+          }
+        }
+        if (listOfAttributes.length > 0) {
+          const uniqueId = `hlt-${Math.random()
+            .toString(36)
+            .substring(2, 15) +
+            Math.random()
+              .toString(36)
+              .substring(2, 15)}`;
+          el.setAttribute("temp-id", uniqueId);
+          return { tempId: uniqueId, listOfAttributes };
+        }
+      }
+    },
+
+    /**
+     * Loop through the a list of attribues and add each and their value to the element.
+     *
+     * @param {array} - list of attributes and their values
+     */
+    addAttributes: function(attributes) {
+      if (!el) {
+        return;
+      }
+      let i;
+      for (i = 0; i < attributes.length; i++) {
+        let attribute = attributes[i];
+        el.setAttribute(attribute.attribute, attribute.value);
+      }
     },
   };
 };

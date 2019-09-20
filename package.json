@@ -1,6 +1,6 @@
 {
   "name": "@perlego/text-highlighter",
-  "version": "2.0.0-alpha.3",
+  "version": "2.0.0-alpha.5",
   "description": "TextHighlighter allows you to highlight text on web pages.",
   "dependencies": {},
   "devDependencies": {
@@ -12,7 +12,9 @@
     "babel-eslint": "^10.0.3",
     "babel-jest": "^24.9.0",
     "babelify": "^10.0.0",
+    "core-js": "^3.2.1",
     "diffable-html": "^4.0.0",
+    "docdash": "^1.1.1",
     "eslint": "^6.2.2",
     "eslint-config-prettier": "^6.1.0",
     "eslint-plugin-jest": "^22.15.2",
@@ -31,9 +33,8 @@
     "jsdom": "^15.1.1",
     "load-grunt-tasks": "^5.1.0",
     "prettier": "^1.18.2",
-    "sanitize-html": "^1.20.1",
-    "core-js": "^3.2.1",
-    "regenerator-runtime": "^0.13.3"
+    "regenerator-runtime": "^0.13.3",
+    "sanitize-html": "^1.20.1"
   },
   "jest": {
     "testURL": "https://localhost",
@@ -64,7 +65,8 @@
     "test:integration": "jest test/integration-tests",
     "start": "grunt --gruntfile gruntfile.dev.js watch",
     "build": "grunt",
-    "build:dev": "grunt --gruntfile gruntfile.dev.js"
+    "build:dev": "grunt --gruntfile gruntfile.dev.js",
+    "jsdoc": "grunt jsdoc"
   },
   "repository": {
     "type": "git",
