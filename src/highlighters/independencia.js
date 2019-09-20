@@ -380,6 +380,7 @@ class IndependenciaHighlighter {
         highlightWrapper,
         this.el,
         this.options.highlightedClass,
+        this.options.normalizeElements,
       );
     } else if (descriptors) {
       // No elements in the DOM for the highlight?
