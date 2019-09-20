@@ -14,33 +14,33 @@ module.exports = function(grunt) {
       dist: {
         files: {
           // destination for transpiled js : source js
-          [`${BUILD_DIR}TextHighlighter.js`]: "src/global-script.js"
+          [`${BUILD_DIR}TextHighlighter.js`]: "src/global-script.js",
         },
         options: {
           transform: [["babelify"]],
           browserifyOptions: {
-            debug: true
-          }
-        }
-      }
+            debug: true,
+          },
+        },
+      },
     },
     uglify: {
       my_target: {
         files: {
-          "<%= _TARGET %>": [`${BUILD_DIR}/TextHighlighter.js`]
-        }
-      }
+          "<%= _TARGET %>": [`${BUILD_DIR}/TextHighlighter.js`],
+        },
+      },
     },
     watch: {
       scripts: {
         files: ["src/**/*.js"],
         tasks: ["build"],
         options: {
-          spawn: false
-        }
-      }
+          spawn: false,
+        },
+      },
     },
-    clean: [BUILD_DIR, DOC_DIR]
+    clean: [BUILD_DIR, DOC_DIR],
   });
 
   grunt.loadNpmTasks("grunt-contrib-clean");

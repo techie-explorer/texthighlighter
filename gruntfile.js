@@ -14,15 +14,15 @@ module.exports = function(grunt) {
       dist: {
         files: {
           // destination for transpiled js : source js
-          [`${BUILD_DIR}TextHighlighter.js`]: "src/global-script.js"
+          [`${BUILD_DIR}TextHighlighter.js`]: "src/global-script.js",
         },
         options: {
           transform: [["babelify"]],
           browserifyOptions: {
-            debug: false
-          }
-        }
-      }
+            debug: false,
+          },
+        },
+      },
     },
     jsdoc: {
       dist: {
@@ -31,27 +31,27 @@ module.exports = function(grunt) {
           configure: "jsdoc.conf.json",
           destination: DOC_DIR,
           private: false,
-          template: "node_modules/ink-docstrap/template"
-        }
-      }
+          template: "node_modules/docdash",
+        },
+      },
     },
     uglify: {
       my_target: {
         files: {
-          "<%= _TARGET %>": [`${BUILD_DIR}/TextHighlighter.js`]
-        }
-      }
+          "<%= _TARGET %>": [`${BUILD_DIR}/TextHighlighter.js`],
+        },
+      },
     },
     watch: {
       scripts: {
         files: ["src/**/*.js"],
         tasks: ["build"],
         options: {
-          spawn: false
-        }
-      }
+          spawn: false,
+        },
+      },
     },
-    clean: [BUILD_DIR, DOC_DIR]
+    clean: [BUILD_DIR, DOC_DIR],
   });
 
   grunt.loadNpmTasks("grunt-contrib-clean");
