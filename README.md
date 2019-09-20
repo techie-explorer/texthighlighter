@@ -243,6 +243,11 @@ class ArticleView {
 }
 ```
 
+## Options
+
+See the [TextHighlighter API Reference](http://perlego.github.io/texthighlighter/doc/TextHighlighter.html) for the list of all the options,
+their default values and detailed descriptions.
+
 ## Compatibility
 
 Should work in all decent browsers and IE 11.
