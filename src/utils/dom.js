@@ -177,18 +177,24 @@ const dom = function(el) {
      *
      * This is used in scenarios where you have already consumed the parents while
      * traversing the tree but not the siblings of parents.
+     * 
+     * @param {HTMLElement | undefined} rootNode  The root node which acts as a threshold
+     * for how deep we can go in the tree when getting siblings or their parents.
      *
      * @returns {HTMLElement | null}
      */
-    nextClosestSibling: function() {
+    nextClosestSibling: function(rootNode) {
       let current = el;
       let nextClosestSibling;
 
       do {
         nextClosestSibling = current.nextSibling;
         current = current.parentNode;
-      } while (!nextClosestSibling && current.parentNode);
+      } while (!nextClosestSibling && current.parentNode && rootNode.contains(current));
 
+      if(!rootNode.contains(current)) {
+        nextClosestSibling = null;
+      }
       return nextClosestSibling;
     },
 
