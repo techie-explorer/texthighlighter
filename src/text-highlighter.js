@@ -2,7 +2,7 @@ import dom from "./utils/dom";
 import { bindEvents, unbindEvents } from "./utils/events";
 import Primitivo from "./highlighters/primitivo";
 import Independencia from "./highlighters/independencia";
-import { DATA_ATTR } from "./config";
+import { DATA_ATTR, IGNORE_TAGS } from "./config";
 import { createWrapper } from "./utils/highlights";
 
 const highlighters = {
@@ -51,7 +51,7 @@ class TextHighlighter {
    *   This allows us freedom to manipulate the DOM at will and handle overlapping highlights a lot better.
    *
    * @param {string} [options.color=#ffff7b] - highlight color.
-   * @param {string[]} [options.excludeNodes=["SCRIPT","STYLE"]] - Node types to exclude when calculating offsets and determining where to inject highlights.
+   * @param {string[]} [options.excludeNodes=["SCRIPT", "STYLE", "SELECT", "OPTION", "BUTTON", "OBJECT", "APPLET", "VIDEO", "AUDIO", "CANVAS", "EMBED", "PARAM", "METER", "PROGRESS"]] - Node types to exclude when calculating offsets and determining where to inject highlights.
    * @param {string} [options.highlightedClass=highlighted] - class added to highlight, 'highlighted' by default.
    * @param {string} [options.contextClass=highlighter-context] - class added to element to which highlighter is applied,
    *  'highlighter-context' by default.
@@ -88,7 +88,7 @@ class TextHighlighter {
       contextClass: "highlighter-context",
       version: "independencia",
       useDefaultEvents: true,
-      excludeNodes: ["SCRIPT", "STYLE"],
+      excludeNodes: IGNORE_TAGS,
       normalizeElements: false,
       onRemoveHighlight: function() {
         return true;

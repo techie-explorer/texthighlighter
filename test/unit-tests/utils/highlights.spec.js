@@ -41,7 +41,22 @@ describe("highlighting utility functionality", () => {
         b("Some bold text after"),
       );
       root.appendChild(contents);
-      expect(getElementOffset(child, root, ["SCRIPT", "STYLE"])).toEqual(6);
+      expect(getElementOffset(child, root, [
+        "SCRIPT",
+        "STYLE",
+        "SELECT",
+        "OPTION",
+        "BUTTON",
+        "OBJECT",
+        "APPLET",
+        "VIDEO",
+        "AUDIO",
+        "CANVAS",
+        "EMBED",
+        "PARAM",
+        "METER",
+        "PROGRESS",
+      ])).toEqual(6);
     });
   });
 
@@ -76,7 +91,22 @@ describe("highlighting utility functionality", () => {
         },
       };
 
-      expect(getHighlightedTextForRange(range, ["script", "style"])).toEqual(
+      expect(getHighlightedTextForRange(range, [
+        "SCRIPT",
+        "STYLE",
+        "SELECT",
+        "OPTION",
+        "BUTTON",
+        "OBJECT",
+        "APPLET",
+        "VIDEO",
+        "AUDIO",
+        "CANVAS",
+        "EMBED",
+        "PARAM",
+        "METER",
+        "PROGRESS",
+      ])).toEqual(
         "This really is the beginning of something wonderful, improving the foundations for what is to come",
       );
     });
@@ -245,7 +275,22 @@ describe("highlighting utility functionality", () => {
             length: 50,
           },
           root,
-          ["SCRIPT", "STYLE"],
+          [
+            "SCRIPT",
+            "STYLE",
+            "SELECT",
+            "OPTION",
+            "BUTTON",
+            "OBJECT",
+            "APPLET",
+            "VIDEO",
+            "AUDIO",
+            "CANVAS",
+            "EMBED",
+            "PARAM",
+            "METER",
+            "PROGRESS",
+          ],
         );
 
         expect(prepareNodes(nodes)).toEqual([
@@ -272,6 +317,35 @@ describe("highlighting utility functionality", () => {
         ]);
       },
     );
+
+    it('should not get the closest sibling if the current node is the parent node', () => {
+      const parentDiv = div(div("Trust"), span(i("Some")));
+      const siblingDiv = div("Cat");
+      const contents = div(
+        parentDiv,
+        siblingDiv
+      );
+      root.appendChild(contents);
+      const nodes = findNodesAndOffsets(
+        {
+          offset: 0,
+          length: 10,
+        },
+        parentDiv,
+      );
+      expect(prepareNodes(nodes)).toEqual([
+        {
+          length: 5,
+          nodeText: 'Trust',
+          offset: 0,
+        },
+        {
+          length: 4,
+          nodeText: 'Some',
+          offset: 0,
+        }
+      ]);
+    });
   });
   describe("#validateIndependenciaDescriptors()", () => {
     it("Should fail for descriptors of incorrect length", () => {
