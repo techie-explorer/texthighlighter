@@ -42,6 +42,23 @@ module.exports = function(grunt) {
         },
       },
     },
+    babel: {
+      options: {
+        sourceMap: false,
+        presets: ["@babel/preset-env"],
+        plugins: ["@babel/plugin-transform-modules-commonjs"],
+      },
+      dist: {
+        files: [
+          {
+            expand: true,
+            cwd: "src/",
+            src: ["**/*.js", "!jquery-plugin.js", "!global-script.js"],
+            dest: "cjs/",
+          },
+        ],
+      },
+    },
     watch: {
       scripts: {
         files: ["src/**/*.js"],
