@@ -19,7 +19,8 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var NODE_TYPE = {
   ELEMENT_NODE: 1,
-  TEXT_NODE: 3
+  TEXT_NODE: 3,
+  COMMENT_NODE: 8
 };
 /**
  * Utility functions to make DOM manipulation easier.
@@ -198,7 +199,7 @@ var dom = function dom(el) {
        *
        * This is used in scenarios where you have already consumed the parents while
        * traversing the tree but not the siblings of parents.
-       * 
+       *
        * @param {HTMLElement | undefined} rootNode  The root node which acts as a threshold
        * for how deep we can go in the tree when getting siblings or their parents.
        *
@@ -379,9 +380,19 @@ var dom = function dom(el) {
        * @returns {string}
        */
       textContentExcludingTags: function textContentExcludingTags(excludeTags) {
-        // Ensure we simply return the text content in the case the element is a text node.
+        if (el && el.nodeType === NODE_TYPE.COMMENT_NODE) {
+          return "";
+        }
+
         if (el && el.nodeType !== NODE_TYPE.TEXT_NODE) {
+          // Ensure we simply return the text content in the case the element is a text node.
           var elCopy = el.cloneNode(true);
+          var commentsInCopy = [elCopy.querySelectorAll("*")].filter(function (element) {
+            return element.nodeType === NODE_TYPE.COMMENT_NODE;
+          });
+          commentsInCopy.forEach(function (toExcludeFromCopy) {
+            toExcludeFromCopy.remove();
+          });
           var elementsToBeExcluded = excludeTags.reduce(function (accum, tag) {
             return [].concat(_toConsumableArray(accum), _toConsumableArray(elCopy.querySelectorAll(tag)));
           }, []);
@@ -428,7 +439,7 @@ var dom = function dom(el) {
 
         if (el.childNodes && el.childNodes.length > 0) {
           dom(el.firstChild).turnOffEventHandlers(listOfElementAttributes);
-        } else if (el.nodeType !== NODE_TYPE.TEXT_NODE) {
+        } else if (el.nodeType !== NODE_TYPE.TEXT_NODE && el.attributes) {
           var eventsForObject = dom(el).turnOffEventHandlersForElement();
 
           if (eventsForObject) {
@@ -475,7 +486,7 @@ var dom = function dom(el) {
           return null;
         }
 
-        if (el.nodeType !== NODE_TYPE.TEXT_NODE && el.childNodes && el.childNodes.length === 0) {
+        if (el.nodeType !== NODE_TYPE.TEXT_NODE && el.nodeType !== NODE_TYPE.COMMENT_NODE && el.childNodes && el.childNodes.length === 0) {
           var attributes = [].slice.call(el.attributes);
           var listOfAttributes = [];
           var i;
@@ -504,7 +515,7 @@ var dom = function dom(el) {
       },
 
       /**
-       * Loop through the a list of attribues and add each and their value to the element.
+       * Loop through the a list of attributes and add each and their value to the element.
        *
        * @param {array} - list of attributes and their values
        */
