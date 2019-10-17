@@ -15,6 +15,7 @@ import {
   docFrag,
   spanWithAttrs,
   highlight,
+  comment,
 } from "../../utils/dom-elements";
 
 describe("highlighting a given range", () => {
@@ -520,6 +521,28 @@ describe("highlighting a given range", () => {
             " dolor ",
           ),
         ),
+      );
+    },
+  });
+  testHighlighting({
+    title:
+      "should highlight and remove correctly for a single highlight with a document containing comments",
+    fixturePrefix: "04.highlighting",
+    fixturePostfixAfterHighlight: "singleHighlightWithEventsAndComments",
+    fixturePostfixBeforeHighlight: "baseWithEventsAndComments",
+    fixturePostfixRemovedHighlight: "baseWithEventsAndComments",
+    range: {
+      startNodeId: "highlight-1-start-node",
+      startOffset: 0,
+      endNodeId: "highlight-1-end-node",
+      endOffset: 3,
+    },
+    colour: "red",
+    cloneContents: () => {
+      return docFrag(
+        spanWithAttrs({ id: "highlight-1-start-node" })("Lorem ipsum dolor sit amet"),
+        comment("section2"),
+        spanWithAttrs({ id: "highlight-1-end-node" })("consectetur adipiscit"),
       );
     },
   });

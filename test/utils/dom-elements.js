@@ -53,6 +53,11 @@ const docFrag = (...children) => {
   return frag;
 };
 
+const comment = (commentText) => {
+  const docComment = document.createComment(commentText);
+  return docComment;
+};
+
 const text = (textContent) => document.createTextNode(textContent);
 
 const highlight = ({ color, id, startOffset, length, time }, ...children) => {
@@ -89,4 +94,5 @@ export {
   styleWithAttrs,
   scriptWithAttrs,
   docFrag,
+  comment,
 };
