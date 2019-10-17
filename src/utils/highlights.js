@@ -165,7 +165,7 @@ export function findNodesAndOffsets(highlight, parentNode, excludeNodeNames = IG
         }
       } else {
         currentOffset = endOfCurrentNodeOffset;
-        if(currentNode !== parentNode) {
+        if (currentNode !== parentNode) {
           currentNode = currentNode.nextSibling;
         } else {
           currentNode = null;
@@ -179,11 +179,7 @@ export function findNodesAndOffsets(highlight, parentNode, excludeNodeNames = IG
   return nodesAndOffsets;
 }
 
-export function getElementOffset(
-  childElement,
-  rootElement,
-  excludeNodeNames = IGNORE_TAGS,
-) {
+export function getElementOffset(childElement, rootElement, excludeNodeNames = IGNORE_TAGS) {
   let offset = 0;
   let childNodes;
 
@@ -444,12 +440,7 @@ export function getHighlightedTextRelativeToRoot({
   return tempContainer.innerText;
 }
 
-export function createDescriptors({
-  rootElement,
-  range,
-  wrapper,
-  excludeNodeNames = IGNORE_TAGS,
-}) {
+export function createDescriptors({ rootElement, range, wrapper, excludeNodeNames = IGNORE_TAGS }) {
   const wrapperClone = wrapper.cloneNode(true);
 
   const startOffset =
