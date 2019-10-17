@@ -27,6 +27,7 @@ describe("highlighting a given range", () => {
   beforeEach(() => {
     highlighter = new TextHighlighter(root, {
       version: "independencia",
+      normalizeElements: true,
       onAfterHighlight: (range, descriptors, timestamp) => {
         return descriptors;
       },

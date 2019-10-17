@@ -5,7 +5,7 @@ import {
   findNodesAndOffsets,
   isElementHighlight
 } from "./src/utils/highlights";
-import { DATA_ATTR } from "./src/config";
+import { DATA_ATTR, IGNORE_TAGS } from "./src/config";
 
 // Add our root div node.
 const root = global.document.createElement("div");
@@ -37,7 +37,7 @@ expect.extend({
     const nodesAndOffsets = findNodesAndOffsets(
       { offset: Number.parseInt(offset), length: Number.parseInt(length) },
       rootElement,
-      ["SCRIPT", "STYLE"]
+      IGNORE_TAGS
     );
 
     const { failures, pass } = nodesAndOffsets.reduce(

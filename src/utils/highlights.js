@@ -1,5 +1,5 @@
 import dom, { NODE_TYPE } from "./dom";
-import { DATA_ATTR, START_OFFSET_ATTR, LENGTH_ATTR, TIMESTAMP_ATTR } from "../config";
+import { DATA_ATTR, START_OFFSET_ATTR, LENGTH_ATTR, TIMESTAMP_ATTR, IGNORE_TAGS } from "../config";
 import { arrayToLower } from "./arrays";
 import { scaleFromTransformMatrix } from "./transform";
 
@@ -123,7 +123,7 @@ function textContentExcludingTags(node, excludeNodeNames) {
  * @param {*} highlight
  * @param {*} parentNode
  */
-export function findNodesAndOffsets(highlight, parentNode, excludeNodeNames = ["SCRIPT", "STYLE"]) {
+export function findNodesAndOffsets(highlight, parentNode, excludeNodeNames = IGNORE_TAGS) {
   const nodesAndOffsets = [];
   let currentNode = parentNode;
   let currentOffset = 0;
@@ -159,16 +159,20 @@ export function findNodesAndOffsets(highlight, parentNode, excludeNodeNames = ["
 
           // It doesn't matter if it is a text node or not at this point,
           // we still need to get the next sibling of the node or it's ancestors.
-          currentNode = dom(currentNode).nextClosestSibling();
+          currentNode = dom(currentNode).nextClosestSibling(parentNode);
         } else {
           currentNode = currentNode.childNodes[0];
         }
       } else {
         currentOffset = endOfCurrentNodeOffset;
-        currentNode = currentNode.nextSibling;
+        if(currentNode !== parentNode) {
+          currentNode = currentNode.nextSibling;
+        } else {
+          currentNode = null;
+        }
       }
     } else {
-      currentNode = dom(currentNode).nextClosestSibling();
+      currentNode = dom(currentNode).nextClosestSibling(parentNode);
     }
   }
 
@@ -178,7 +182,7 @@ export function findNodesAndOffsets(highlight, parentNode, excludeNodeNames = ["
 export function getElementOffset(
   childElement,
   rootElement,
-  excludeNodeNames = ["SCRIPT", "STYLE"],
+  excludeNodeNames = IGNORE_TAGS,
 ) {
   let offset = 0;
   let childNodes;
@@ -401,7 +405,7 @@ export function addNodesToHighlightAfterElement({
  *
  * @return {string} The human-readable highlighted text for the given range.
  */
-export function getHighlightedTextForRange(range, excludeTags = ["script", "style"]) {
+export function getHighlightedTextForRange(range, excludeTags = IGNORE_TAGS) {
   // Strip out all carriage returns and excess html layout space.
 
   return dom(range.cloneContents())
@@ -425,7 +429,7 @@ export function getHighlightedTextRelativeToRoot({
   rootElement,
   startOffset,
   length,
-  excludeTags = ["script", "style"],
+  excludeTags = IGNORE_TAGS,
 }) {
   const textContent = dom(rootElement).textContentExcludingTags(arrayToLower(excludeTags));
   const highlightedRawText = textContent.substring(
@@ -444,7 +448,7 @@ export function createDescriptors({
   rootElement,
   range,
   wrapper,
-  excludeNodeNames = ["SCRIPT", "STYLE"],
+  excludeNodeNames = IGNORE_TAGS,
 }) {
   const wrapperClone = wrapper.cloneNode(true);
 
@@ -552,6 +556,8 @@ function isClosestHighlightParent(node, id, rootElement) {
  * @param {HTMLElement} highlightWrapper  The highlight wrapper representing the highlight to be focused.
  *
  * @param {HTMLElement} rootElement The root context element to normalise elements within.
+ * @param {string} highlightedClass The class used to identify highlights.
+ * @param {boolean} normalizeElements Whether or not elements should be normalised.
  */
 export function focusHighlightNodes(
   id,
@@ -559,6 +565,7 @@ export function focusHighlightNodes(
   highlightWrapper,
   rootElement,
   highlightedClass,
+  normalizeElements,
 ) {
   nodeInfoList.forEach((nodeInfo) => {
     const node = nodeInfo.node;
@@ -595,9 +602,11 @@ export function focusHighlightNodes(
     }
   });
 
-  // Ensure we normalise all nodes in the root container to merge sibling elements
-  // of the same highlight together that get copied for the purpose of focusing.
-  dom(rootElement).normalizeElements(highlightedClass);
+  if (normalizeElements) {
+    // Ensure we normalise all nodes in the root container to merge sibling elements
+    // of the same highlight together that get copied for the purpose of focusing.
+    dom(rootElement).normalizeElements(highlightedClass);
+  }
 }
 
 /**

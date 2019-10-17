@@ -47,6 +47,9 @@ class IndependenciaHighlighter {
    * @param {object} [options] - additional options.
    * @param {string} options.color - highlight color.
    * @param {string} options.excludeNodes - Node types to exclude when calculating offsets and determining where to inject highlights.
+   * @param {boolean} options.normalizeElements - Whether or not to normalise elements on the DOM when highlights are created, deserialised
+   *  into the DOM, focused and deselected. Normalising events has a huge performance implication when enabling highlighting for a root element
+   *  that contains thousands of nodes.
    * @param {string} options.highlightedClass - class added to highlight, 'highlighted' by default.
    * @param {string} options.contextClass - class added to element to which highlighter is applied,
    *  'highlighter-context' by default.
@@ -152,7 +155,9 @@ class IndependenciaHighlighter {
       }
     });
 
-    this.normalizeHighlights(highlights);
+    if (this.options.normalizeElements) {
+      this.normalizeHighlights(highlights);
+    }
   }
 
   /**
@@ -321,7 +326,9 @@ class IndependenciaHighlighter {
       }
     });
 
-    this.normalizeHighlights();
+    if (this.options.normalizeElements) {
+      this.normalizeHighlights();
+    }
 
     dom(this.el).turnOnEventHandlers(eventItems);
 
@@ -373,6 +380,7 @@ class IndependenciaHighlighter {
         highlightWrapper,
         this.el,
         this.options.highlightedClass,
+        this.options.normalizeElements,
       );
     } else if (descriptors) {
       // No elements in the DOM for the highlight?

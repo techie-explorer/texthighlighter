@@ -23,6 +23,19 @@ const highlighter = new TextHighlighter(sandboxRef.current);
 // Example using an element accessed directly from the DOM.
 const highlighter = new TextHighlighter(document.getElementById("sandbox"));
 ```
+
+#### CommonJS with Node environments
+
+```javascript
+const TextHighlighter = require('@perlego/text-highlighter/cjs');
+
+// Example using a React ref if you are building a react application.
+const highlighter = new TextHighlighter(sandboxRef.current);
+
+// Example using an element accessed directly from the DOM.
+const highlighter = new TextHighlighter(document.getElementById("sandbox"));
+```
+
 #### Supporting IE11
 
 One thing to note when using this library as a package, you are responsible for providing the polyfills
@@ -243,6 +256,11 @@ class ArticleView {
 }
 ```
 
+## Options
+
+See the [TextHighlighter API Reference](http://perlego.github.io/texthighlighter/doc/TextHighlighter.html) for the list of all the options,
+their default values and detailed descriptions.
+
 ## Compatibility
 
 Should work in all decent browsers and IE 11.
@@ -287,6 +305,19 @@ node webserver.js
 ```
 
 Then go to `http://localhost:5002/test/test.html` and the tests will run on page load.
+
+## Building the library for NodeJS (CommonJS modules)
+
+There is a cjs version of the library that gets tracked in version control that is built whenever changes are made.
+
+This is done automatically through a commit hook whenever you make a commit to the repo.
+
+If you need to build this version of the library manually, you can use the following:
+```bash
+npm run build:cjs
+```
+
+And then commit the changes in the cjs folder to version control.
 
 ## Building the API reference documentation
 
