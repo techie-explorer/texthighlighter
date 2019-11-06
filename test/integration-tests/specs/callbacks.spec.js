@@ -366,4 +366,79 @@ describe("highlighting a given range", () => {
       preprocessDescriptors: 1,
     },
   });
+  testCallbacks({
+    title:
+      "should not create a highlight if the meta cancel property is set in the preprocess descriptors",
+    fixturePrefix: "01.callbacks",
+    fixturePostfix: "base",
+    fixtureAfterRemoval: "base",
+    range: {
+      startNodeId: "highlight-1-start-node",
+      startOffset: 0,
+      endNodeId: "highlight-1-start-node",
+      endOffset: 26,
+    },
+    colour: "red",
+    cloneContents: () => {
+      return docFrag(span("Lorem ipsum dolor sit amet"));
+    },
+    onBeforeHighlight: () => {
+      return true;
+    },
+    preprocessDescriptors: function(range, descriptors) {
+      var descriptorsWithIds = descriptors.map((descriptor) => {
+        var [wrapper, ...rest] = descriptor;
+        return [wrapper.replace('class="highlighted"', `class="highlighted testId"`), ...rest];
+      });
+      return { descriptors: descriptorsWithIds, meta: { cancel: true } };
+    },
+    onAfterHighlight: () => {},
+    onRemoveHighlight: () => {
+      return true;
+    },
+    expectedCallCount: {
+      onBeforeHighlight: 1,
+      onAfterHighlight: 0,
+      onRemoveHighlight: 0,
+      preprocessDescriptors: 1,
+    },
+  });
+
+  testCallbacks({
+    title:
+      "should create a highlight if the meta cancel property is set in the preprocess descriptors is set to false",
+    fixturePrefix: "01.callbacks",
+    fixturePostfix: "singleHighlightWithId",
+    fixtureAfterRemoval: "base",
+    range: {
+      startNodeId: "highlight-1-start-node",
+      startOffset: 0,
+      endNodeId: "highlight-1-start-node",
+      endOffset: 26,
+    },
+    colour: "red",
+    cloneContents: () => {
+      return docFrag(span("Lorem ipsum dolor sit amet"));
+    },
+    onBeforeHighlight: () => {
+      return true;
+    },
+    preprocessDescriptors: function(range, descriptors) {
+      var descriptorsWithIds = descriptors.map((descriptor) => {
+        var [wrapper, ...rest] = descriptor;
+        return [wrapper.replace('class="highlighted"', `class="highlighted testId"`), ...rest];
+      });
+      return { descriptors: descriptorsWithIds, meta: { cancel: false } };
+    },
+    onAfterHighlight: () => {},
+    onRemoveHighlight: () => {
+      return true;
+    },
+    expectedCallCount: {
+      onBeforeHighlight: 1,
+      onAfterHighlight: 1,
+      onRemoveHighlight: 1,
+      preprocessDescriptors: 1,
+    },
+  });
 });

@@ -105,8 +105,10 @@ class IndependenciaHighlighter {
         descriptors,
         timestamp,
       );
-      this.deserializeHighlights(JSON.stringify(processedDescriptors));
-      this.options.onAfterHighlight(range, processedDescriptors, timestamp, meta);
+      if (!meta[this.options.cancelProperty]) {
+        this.deserializeHighlights(JSON.stringify(processedDescriptors));
+        this.options.onAfterHighlight(range, processedDescriptors, timestamp, meta);
+      }
     }
 
     if (!keepRange) {
