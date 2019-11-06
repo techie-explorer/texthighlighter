@@ -92,6 +92,7 @@ class TextHighlighter {
       excludeNodes: IGNORE_TAGS,
       normalizeElements: false,
       keepRange: false,
+      cancelProperty: "cancel",
       onRemoveHighlight: function() {
         return true;
       },
