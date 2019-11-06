@@ -129,6 +129,7 @@ function () {
       excludeNodes: _config.IGNORE_TAGS,
       normalizeElements: false,
       keepRange: false,
+      cancelProperty: "cancel",
       onRemoveHighlight: function onRemoveHighlight() {
         return true;
       },
