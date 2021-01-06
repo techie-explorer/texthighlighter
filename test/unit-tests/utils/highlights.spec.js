@@ -120,7 +120,7 @@ describe("highlighting utility functionality", () => {
         div("Trust me when I say we are improving things"),
       );
       root.appendChild(contents);
-      const nodes = findNodesAndOffsets(
+      const {nodesAndOffsets: nodes} = findNodesAndOffsets(
         {
           offset: 21,
           length: 5,
@@ -143,7 +143,7 @@ describe("highlighting utility functionality", () => {
         div("Trust me when I say we are improving things"),
       );
       root.appendChild(contents);
-      const nodes = findNodesAndOffsets(
+      const {nodesAndOffsets: nodes} = findNodesAndOffsets(
         {
           offset: 29,
           length: 12,
@@ -166,7 +166,7 @@ describe("highlighting utility functionality", () => {
         div("Trust me when I say we are improving things"),
       );
       root.appendChild(contents);
-      const nodes = findNodesAndOffsets(
+      const {nodesAndOffsets: nodes} = findNodesAndOffsets(
         {
           offset: 17,
           length: 5,
@@ -189,7 +189,7 @@ describe("highlighting utility functionality", () => {
         div("Trust me when I say we are improving things"),
       );
       root.appendChild(contents);
-      const nodes = findNodesAndOffsets(
+      const {nodesAndOffsets: nodes} = findNodesAndOffsets(
         {
           offset: 17,
           length: 24,
@@ -218,7 +218,7 @@ describe("highlighting utility functionality", () => {
         ),
       );
       root.appendChild(contents);
-      const nodes = findNodesAndOffsets(
+      const {nodesAndOffsets: nodes} = findNodesAndOffsets(
         {
           offset: 24,
           length: 50,
@@ -269,7 +269,7 @@ describe("highlighting utility functionality", () => {
         );
 
         root.appendChild(contents);
-        const nodes = findNodesAndOffsets(
+        const {nodesAndOffsets: nodes} = findNodesAndOffsets(
           {
             offset: 24,
             length: 50,
@@ -326,7 +326,7 @@ describe("highlighting utility functionality", () => {
         siblingDiv
       );
       root.appendChild(contents);
-      const nodes = findNodesAndOffsets(
+      const {nodesAndOffsets: nodes} = findNodesAndOffsets(
         {
           offset: 0,
           length: 10,

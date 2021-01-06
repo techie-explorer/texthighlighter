@@ -34,7 +34,7 @@ Object.defineProperty(global.Element.prototype, "innerText", {
 // Custom jest matchers.
 expect.extend({
   toHaveFocus({ id, offset, length }, rootElement) {
-    const nodesAndOffsets = findNodesAndOffsets(
+    const { nodesAndOffsets } = findNodesAndOffsets(
       { offset: Number.parseInt(offset), length: Number.parseInt(length) },
       rootElement,
       IGNORE_TAGS

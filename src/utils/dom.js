@@ -222,13 +222,13 @@ const dom = function(el) {
     /**
      * Normalizes elements that have the a same id and are next to eachother in the child list
      */
-    normalizeElements: function(highlightedClass) {
+    normalizeElements: function(highlightedClass, dataAttr = DATA_ATTR) {
       if (!el) {
         return;
       }
 
       if (el.nodeType !== NODE_TYPE.TEXT_NODE) {
-        if (isElementHighlight(el, DATA_ATTR)) {
+        if (isElementHighlight(el, dataAttr)) {
           let className = el.className;
           while (
             className &&
@@ -240,7 +240,7 @@ const dom = function(el) {
             el.innerHTML += el.nextSibling.innerHTML;
             el.parentNode.removeChild(el.nextSibling);
           }
-          dom(el.firstChild).normalizeElements(highlightedClass);
+          dom(el.firstChild).normalizeElements(highlightedClass, dataAttr);
         } else {
           let id = el.id;
           while (
@@ -252,12 +252,12 @@ const dom = function(el) {
             el.innerHTML += el.nextSibling.innerHTML;
             el.parentNode.removeChild(el.nextSibling);
           }
-          dom(el.firstChild).normalizeElements(highlightedClass);
+          dom(el.firstChild).normalizeElements(highlightedClass, dataAttr);
         }
       } else {
         dom(el).normalizeTextNodes();
       }
-      dom(el.nextSibling).normalizeElements(highlightedClass);
+      dom(el.nextSibling).normalizeElements(highlightedClass, dataAttr);
     },
 
     /**

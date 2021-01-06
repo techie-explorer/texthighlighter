@@ -123,8 +123,10 @@ function () {
             processedDescriptors = _this$options$preproc.descriptors,
             meta = _this$options$preproc.meta;
 
-        this.deserializeHighlights(JSON.stringify(processedDescriptors));
-        this.options.onAfterHighlight(range, processedDescriptors, timestamp, meta);
+        if (!meta[this.options.cancelProperty]) {
+          this.deserializeHighlights(JSON.stringify(processedDescriptors));
+          this.options.onAfterHighlight(range, processedDescriptors, timestamp, meta);
+        }
       }
 
       if (!keepRange) {

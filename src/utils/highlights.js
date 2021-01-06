@@ -1,7 +1,6 @@
 import dom, { NODE_TYPE } from "./dom";
-import { DATA_ATTR, START_OFFSET_ATTR, LENGTH_ATTR, TIMESTAMP_ATTR, IGNORE_TAGS } from "../config";
+import { DATA_ATTR, START_OFFSET_ATTR, LENGTH_ATTR, IGNORE_TAGS } from "../config";
 import { arrayToLower } from "./arrays";
-import { scaleFromTransformMatrix } from "./transform";
 
 /**
  * Takes range object as parameter and refines it boundaries
@@ -115,6 +114,16 @@ function textContentExcludingTags(node, excludeNodeNames) {
 }
 
 /**
+ * Deals with normalising text for when carriage returns and white space
+ * that directly follows should be ignored.
+ *
+ * @param {string} text
+ */
+function normaliseText(text) {
+  return text.replace(/((\r\n|\n\r|\n|\r)\s*)/g, "");
+}
+
+/**
  * Determine where to inject a highlight based on it's offset.
  * A highlight can span multiple nodes, so in here we accumulate
  * all those nodes with offset and length of the content in the node
@@ -122,17 +131,32 @@ function textContentExcludingTags(node, excludeNodeNames) {
  *
  * @param {*} highlight
  * @param {*} parentNode
+ * @param {*} excludeNodeNames
+ * @param {boolean} excludeWhiteSpaceAndReturns
  */
-export function findNodesAndOffsets(highlight, parentNode, excludeNodeNames = IGNORE_TAGS) {
+export function findNodesAndOffsets(
+  highlight,
+  parentNode,
+  excludeNodeNames = IGNORE_TAGS,
+  excludeWhiteSpaceAndReturns = false,
+) {
   const nodesAndOffsets = [];
   let currentNode = parentNode;
   let currentOffset = 0;
   const highlightEndOffset = highlight.offset + highlight.length;
+  let allText = "";
 
   while (currentNode && currentOffset < highlightEndOffset) {
     // Ensure we ignore node types that the caller has specified should be excluded.
     if (!excludeNodeNames.includes(currentNode.nodeName)) {
-      const textLength = textContentExcludingTags(currentNode, excludeNodeNames).length;
+      const textContent = textContentExcludingTags(currentNode, excludeNodeNames);
+      const reducedTextContent = excludeWhiteSpaceAndReturns
+        ? normaliseText(textContent)
+        : textContent;
+      if (currentNode == parentNode) {
+        allText = reducedTextContent;
+      }
+      const textLength = reducedTextContent.length;
 
       const endOfCurrentNodeOffset = currentOffset + textLength;
 
@@ -148,11 +172,16 @@ export function findNodesAndOffsets(highlight, parentNode, excludeNodeNames = IG
                 ? textLength - offsetWithinNode
                 : highlightEndOffset - currentOffset - offsetWithinNode;
 
-            nodesAndOffsets.push({
-              node: currentNode,
-              offset: offsetWithinNode,
-              length: lengthInHighlight,
-            });
+            if (lengthInHighlight > 0) {
+              nodesAndOffsets.push({
+                node: currentNode,
+                offset: offsetWithinNode,
+                length: lengthInHighlight,
+                normalisedText: excludeWhiteSpaceAndReturns 
+                  ? normaliseText(currentNode.textContent) 
+                  : currentNode.textContent,
+              });
+            }
 
             currentOffset = endOfCurrentNodeOffset;
           }
@@ -176,7 +205,7 @@ export function findNodesAndOffsets(highlight, parentNode, excludeNodeNames = IG
     }
   }
 
-  return nodesAndOffsets;
+  return { nodesAndOffsets, allText };
 }
 
 export function getElementOffset(childElement, rootElement, excludeNodeNames = IGNORE_TAGS) {
@@ -440,7 +469,7 @@ export function getHighlightedTextRelativeToRoot({
   return tempContainer.innerText;
 }
 
-export function createDescriptors({ rootElement, range, wrapper, excludeNodeNames = IGNORE_TAGS }) {
+export function createDescriptors({ rootElement, range, wrapper, excludeNodeNames = IGNORE_TAGS, dataAttr = DATA_ATTR }) {
   const wrapperClone = wrapper.cloneNode(true);
 
   const startOffset =
@@ -453,7 +482,7 @@ export function createDescriptors({ rootElement, range, wrapper, excludeNodeName
 
   const length = endOffset - startOffset;
 
-  wrapperClone.setAttribute(DATA_ATTR, true);
+  wrapperClone.setAttribute(dataAttr, true);
   wrapperClone.setAttribute(START_OFFSET_ATTR, startOffset);
   wrapperClone.setAttribute(LENGTH_ATTR, length);
 
@@ -476,15 +505,16 @@ export function createDescriptors({ rootElement, range, wrapper, excludeNodeName
  * @param {HTMLElement} node  The element we need to get parent information for.
  * @param {string} id The unique id of the collection of elements representing a highlight.
  * @param {HTMLElement} rootElement The root element of the context to stop at.
+ * @param {string} dataAttr The namespace data attribute for highlights for a provided text highlighter instance.
  *
  * @return {boolean}
  */
-function isClosestHighlightParent(node, id, rootElement) {
+function isClosestHighlightParent(node, id, rootElement, dataAttr = DATA_ATTR) {
   let isClosestHighlightParent = true;
   let currentNode = node.parentNode;
 
   while (currentNode && currentNode !== rootElement && isClosestHighlightParent) {
-    if (isElementHighlight(currentNode, DATA_ATTR) && !currentNode.classList.contains(id)) {
+    if (isElementHighlight(currentNode, dataAttr) && !currentNode.classList.contains(id)) {
       // The case there is a closer parent than the highlight for the provided id.
       isClosestHighlightParent = false;
     } else {
@@ -549,6 +579,7 @@ function isClosestHighlightParent(node, id, rootElement) {
  * @param {HTMLElement} rootElement The root context element to normalise elements within.
  * @param {string} highlightedClass The class used to identify highlights.
  * @param {boolean} normalizeElements Whether or not elements should be normalised.
+ * @param {string} dataAttr The namespace data attribute for highlights for a provided text highlighter instance.
  */
 export function focusHighlightNodes(
   id,
@@ -557,15 +588,16 @@ export function focusHighlightNodes(
   rootElement,
   highlightedClass,
   normalizeElements,
+  dataAttr = DATA_ATTR
 ) {
   nodeInfoList.forEach((nodeInfo) => {
     const node = nodeInfo.node;
     // Only wrap the node if the closest highlight parent isn't one with the given id.
-    if (!isClosestHighlightParent(node, id, rootElement)) {
+    if (!isClosestHighlightParent(node, id, rootElement, dataAttr)) {
       // Ensure any ancestors that aren't direct parents that represent the same highlight wrapper are removed.
       const ancestors = dom(node).parentsUpTo(rootElement);
       ancestors.forEach((ancestor) => {
-        if (isElementHighlight(ancestor, DATA_ATTR) && ancestor.classList.contains(id)) {
+        if (isElementHighlight(ancestor, dataAttr) && ancestor.classList.contains(id)) {
           // Ensure a copy of the ancestor is wrapped back around any
           // other children that do not contain the current node.
           ancestor.childNodes.forEach((ancestorChild) => {
@@ -596,7 +628,7 @@ export function focusHighlightNodes(
   if (normalizeElements) {
     // Ensure we normalise all nodes in the root container to merge sibling elements
     // of the same highlight together that get copied for the purpose of focusing.
-    dom(rootElement).normalizeElements(highlightedClass);
+    dom(rootElement).normalizeElements(highlightedClass, dataAttr);
   }
 }
 
