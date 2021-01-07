@@ -1,3 +1,18 @@
+/**
+ * @typedef {Object} NodeAndOffset
+ * @property {Node} node - The DOM node that makes up a portion of a highlight.
+ * @property {number} offset - Offset within the node for a portion of a highlight.
+ * @property {number} normalisedOffset - Offset within the node's original text that excludes
+ *                                       characters that are normalised away.
+ * @property {number} length - Length of the portion highlighted in the node.
+ * @property {string} normalisedText - Node's text content stripped of carriage returns
+ *                                     and white spaces that follow carriage returns.
+ * 
+ * @typedef {Object} NodesAndOffsetsResult
+ * @property {NodeAndOffset[]} nodesAndOffsets
+ * @property {string} allText 
+ */
+
 import dom, { NODE_TYPE } from "./dom";
 import { DATA_ATTR, START_OFFSET_ATTR, LENGTH_ATTR, IGNORE_TAGS } from "../config";
 import { arrayToLower } from "./arrays";
@@ -124,15 +139,36 @@ function normaliseText(text) {
 }
 
 /**
+ * 
+ * @param {number} offsetWithinNode 
+ * @param {string} text
+ * 
+ * @return {number}
+ */
+function normaliseOffset(offsetWithinNode, text) {
+   const matchResults = text.match(/^((\r\n|\n\r|\n|\r)\s*)/g);
+   if (!matchResults) {
+     return offsetWithinNode;
+   }
+   return offsetWithinNode + matchResults[0].length;
+}
+
+/**
  * Determine where to inject a highlight based on it's offset.
  * A highlight can span multiple nodes, so in here we accumulate
  * all those nodes with offset and length of the content in the node
  * included in the highlight.
+ * 
+ * The normalisedOffset returned for each node when excludeWithSpaceAndReturns
+ * is set to true represents the normalised offset in the original text and NOT
+ * the normalised text.
  *
  * @param {*} highlight
  * @param {*} parentNode
  * @param {*} excludeNodeNames
  * @param {boolean} excludeWhiteSpaceAndReturns
+ *
+ * @return {NodesAndOffsetsResult}
  */
 export function findNodesAndOffsets(
   highlight,
@@ -150,14 +186,14 @@ export function findNodesAndOffsets(
     // Ensure we ignore node types that the caller has specified should be excluded.
     if (!excludeNodeNames.includes(currentNode.nodeName)) {
       const textContent = textContentExcludingTags(currentNode, excludeNodeNames);
-      const reducedTextContent = excludeWhiteSpaceAndReturns
-        ? normaliseText(textContent)
-        : textContent;
-      if (currentNode == parentNode) {
-        allText = reducedTextContent;
-      }
-      const textLength = reducedTextContent.length;
+      const reducedTextContent = excludeWhiteSpaceAndReturns 
+        ? normaliseText(textContent) 
+        : "";
 
+      if (currentNode == parentNode) {
+        allText = excludeWhiteSpaceAndReturns ? reducedTextContent : textContent;
+      }
+      const textLength = textContent.length;
       const endOfCurrentNodeOffset = currentOffset + textLength;
 
       if (endOfCurrentNodeOffset > highlight.offset) {
@@ -166,16 +202,22 @@ export function findNodesAndOffsets(
           if (currentNode.nodeType === NODE_TYPE.TEXT_NODE) {
             const offsetWithinNode =
               highlight.offset > currentOffset ? highlight.offset - currentOffset : 0;
+            
+            const normalisedOffset = excludeWhiteSpaceAndReturns 
+              ? normaliseOffset(offsetWithinNode, textContent) 
+              : offsetWithinNode;
+
+            const normalisedDiff = Math.abs(normalisedOffset - offsetWithinNode);
 
             const lengthInHighlight =
               highlightEndOffset > endOfCurrentNodeOffset
-                ? textLength - offsetWithinNode
-                : highlightEndOffset - currentOffset - offsetWithinNode;
+                ? textLength - normalisedOffset
+                : highlightEndOffset - currentOffset - normalisedOffset;
 
             if (lengthInHighlight > 0) {
               nodesAndOffsets.push({
                 node: currentNode,
-                offset: offsetWithinNode,
+                offset: normalisedOffset,
                 length: lengthInHighlight,
                 normalisedText: excludeWhiteSpaceAndReturns 
                   ? normaliseText(currentNode.textContent) 
@@ -183,7 +225,7 @@ export function findNodesAndOffsets(
               });
             }
 
-            currentOffset = endOfCurrentNodeOffset;
+            currentOffset = endOfCurrentNodeOffset - normalisedDiff;
           }
 
           // It doesn't matter if it is a text node or not at this point,
