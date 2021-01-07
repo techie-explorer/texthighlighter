@@ -7,10 +7,10 @@
  * @property {number} length - Length of the portion highlighted in the node.
  * @property {string} normalisedText - Node's text content stripped of carriage returns
  *                                     and white spaces that follow carriage returns.
- * 
+ *
  * @typedef {Object} NodesAndOffsetsResult
  * @property {NodeAndOffset[]} nodesAndOffsets
- * @property {string} allText 
+ * @property {string} allText
  */
 
 import dom, { NODE_TYPE } from "./dom";
@@ -139,18 +139,18 @@ function normaliseText(text) {
 }
 
 /**
- * 
- * @param {number} offsetWithinNode 
+ *
+ * @param {number} offsetWithinNode
  * @param {string} text
- * 
+ *
  * @return {number}
  */
 function normaliseOffset(offsetWithinNode, text) {
-   const matchResults = text.match(/^((\r\n|\n\r|\n|\r)\s*)/g);
-   if (!matchResults) {
-     return offsetWithinNode;
-   }
-   return offsetWithinNode + matchResults[0].length;
+  const matchResults = text.match(/^((\r\n|\n\r|\n|\r)\s*)/g);
+  if (!matchResults) {
+    return offsetWithinNode;
+  }
+  return offsetWithinNode + matchResults[0].length;
 }
 
 /**
@@ -158,7 +158,7 @@ function normaliseOffset(offsetWithinNode, text) {
  * A highlight can span multiple nodes, so in here we accumulate
  * all those nodes with offset and length of the content in the node
  * included in the highlight.
- * 
+ *
  * The normalisedOffset returned for each node when excludeWithSpaceAndReturns
  * is set to true represents the normalised offset in the original text and NOT
  * the normalised text.
@@ -186,9 +186,7 @@ export function findNodesAndOffsets(
     // Ensure we ignore node types that the caller has specified should be excluded.
     if (!excludeNodeNames.includes(currentNode.nodeName)) {
       const textContent = textContentExcludingTags(currentNode, excludeNodeNames);
-      const reducedTextContent = excludeWhiteSpaceAndReturns 
-        ? normaliseText(textContent) 
-        : "";
+      const reducedTextContent = excludeWhiteSpaceAndReturns ? normaliseText(textContent) : "";
 
       if (currentNode == parentNode) {
         allText = excludeWhiteSpaceAndReturns ? reducedTextContent : textContent;
@@ -202,9 +200,9 @@ export function findNodesAndOffsets(
           if (currentNode.nodeType === NODE_TYPE.TEXT_NODE) {
             const offsetWithinNode =
               highlight.offset > currentOffset ? highlight.offset - currentOffset : 0;
-            
-            const normalisedOffset = excludeWhiteSpaceAndReturns 
-              ? normaliseOffset(offsetWithinNode, textContent) 
+
+            const normalisedOffset = excludeWhiteSpaceAndReturns
+              ? normaliseOffset(offsetWithinNode, textContent)
               : offsetWithinNode;
 
             const normalisedDiff = Math.abs(normalisedOffset - offsetWithinNode);
@@ -219,8 +217,8 @@ export function findNodesAndOffsets(
                 node: currentNode,
                 offset: normalisedOffset,
                 length: lengthInHighlight,
-                normalisedText: excludeWhiteSpaceAndReturns 
-                  ? normaliseText(currentNode.textContent) 
+                normalisedText: excludeWhiteSpaceAndReturns
+                  ? normaliseText(currentNode.textContent)
                   : currentNode.textContent,
               });
             }
@@ -511,7 +509,13 @@ export function getHighlightedTextRelativeToRoot({
   return tempContainer.innerText;
 }
 
-export function createDescriptors({ rootElement, range, wrapper, excludeNodeNames = IGNORE_TAGS, dataAttr = DATA_ATTR }) {
+export function createDescriptors({
+  rootElement,
+  range,
+  wrapper,
+  excludeNodeNames = IGNORE_TAGS,
+  dataAttr = DATA_ATTR,
+}) {
   const wrapperClone = wrapper.cloneNode(true);
 
   const startOffset =
@@ -630,7 +634,7 @@ export function focusHighlightNodes(
   rootElement,
   highlightedClass,
   normalizeElements,
-  dataAttr = DATA_ATTR
+  dataAttr = DATA_ATTR,
 ) {
   nodeInfoList.forEach((nodeInfo) => {
     const node = nodeInfo.node;

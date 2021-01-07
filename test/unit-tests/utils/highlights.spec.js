@@ -14,7 +14,7 @@ import { span, b, i, div, img, style, script, docFrag, text } from "../../utils/
  * @param {*} nodes
  */
 const prepareNodes = (nodes) =>
-  nodes.map(({node, ...rest}) => ({
+  nodes.map(({ node, ...rest }) => ({
     ...rest,
     nodeText: node.textContent,
   }));
@@ -40,22 +40,24 @@ describe("highlighting utility functionality", () => {
         b("Some bold text after"),
       );
       root.appendChild(contents);
-      expect(getElementOffset(child, root, [
-        "SCRIPT",
-        "STYLE",
-        "SELECT",
-        "OPTION",
-        "BUTTON",
-        "OBJECT",
-        "APPLET",
-        "VIDEO",
-        "AUDIO",
-        "CANVAS",
-        "EMBED",
-        "PARAM",
-        "METER",
-        "PROGRESS",
-      ])).toEqual(6);
+      expect(
+        getElementOffset(child, root, [
+          "SCRIPT",
+          "STYLE",
+          "SELECT",
+          "OPTION",
+          "BUTTON",
+          "OBJECT",
+          "APPLET",
+          "VIDEO",
+          "AUDIO",
+          "CANVAS",
+          "EMBED",
+          "PARAM",
+          "METER",
+          "PROGRESS",
+        ]),
+      ).toEqual(6);
     });
   });
 
@@ -90,22 +92,24 @@ describe("highlighting utility functionality", () => {
         },
       };
 
-      expect(getHighlightedTextForRange(range, [
-        "SCRIPT",
-        "STYLE",
-        "SELECT",
-        "OPTION",
-        "BUTTON",
-        "OBJECT",
-        "APPLET",
-        "VIDEO",
-        "AUDIO",
-        "CANVAS",
-        "EMBED",
-        "PARAM",
-        "METER",
-        "PROGRESS",
-      ])).toEqual(
+      expect(
+        getHighlightedTextForRange(range, [
+          "SCRIPT",
+          "STYLE",
+          "SELECT",
+          "OPTION",
+          "BUTTON",
+          "OBJECT",
+          "APPLET",
+          "VIDEO",
+          "AUDIO",
+          "CANVAS",
+          "EMBED",
+          "PARAM",
+          "METER",
+          "PROGRESS",
+        ]),
+      ).toEqual(
         "This really is the beginning of something wonderful, improving the foundations for what is to come",
       );
     });
@@ -119,7 +123,7 @@ describe("highlighting utility functionality", () => {
         div("Trust me when I say we are improving things"),
       );
       root.appendChild(contents);
-      const {nodesAndOffsets: nodes} = findNodesAndOffsets(
+      const { nodesAndOffsets: nodes } = findNodesAndOffsets(
         {
           offset: 21,
           length: 5,
@@ -143,7 +147,7 @@ describe("highlighting utility functionality", () => {
         div("Trust me when I say we are improving things"),
       );
       root.appendChild(contents);
-      const {nodesAndOffsets: nodes} = findNodesAndOffsets(
+      const { nodesAndOffsets: nodes } = findNodesAndOffsets(
         {
           offset: 29,
           length: 12,
@@ -167,7 +171,7 @@ describe("highlighting utility functionality", () => {
         div("Trust me when I say we are improving things"),
       );
       root.appendChild(contents);
-      const {nodesAndOffsets: nodes} = findNodesAndOffsets(
+      const { nodesAndOffsets: nodes } = findNodesAndOffsets(
         {
           offset: 17,
           length: 5,
@@ -191,7 +195,7 @@ describe("highlighting utility functionality", () => {
         div("Trust me when I say we are improving things"),
       );
       root.appendChild(contents);
-      const {nodesAndOffsets: nodes} = findNodesAndOffsets(
+      const { nodesAndOffsets: nodes } = findNodesAndOffsets(
         {
           offset: 17,
           length: 24,
@@ -221,7 +225,7 @@ describe("highlighting utility functionality", () => {
         ),
       );
       root.appendChild(contents);
-      const {nodesAndOffsets: nodes} = findNodesAndOffsets(
+      const { nodesAndOffsets: nodes } = findNodesAndOffsets(
         {
           offset: 24,
           length: 50,
@@ -276,7 +280,7 @@ describe("highlighting utility functionality", () => {
         );
 
         root.appendChild(contents);
-        const {nodesAndOffsets: nodes} = findNodesAndOffsets(
+        const { nodesAndOffsets: nodes } = findNodesAndOffsets(
           {
             offset: 24,
             length: 50,
@@ -329,15 +333,12 @@ describe("highlighting utility functionality", () => {
       },
     );
 
-    it('should not get the closest sibling if the current node is the parent node', () => {
+    it("should not get the closest sibling if the current node is the parent node", () => {
       const parentDiv = div(div("Trust"), span(i("Some")));
       const siblingDiv = div("Cat");
-      const contents = div(
-        parentDiv,
-        siblingDiv
-      );
+      const contents = div(parentDiv, siblingDiv);
       root.appendChild(contents);
-      const {nodesAndOffsets: nodes} = findNodesAndOffsets(
+      const { nodesAndOffsets: nodes } = findNodesAndOffsets(
         {
           offset: 0,
           length: 10,
@@ -347,47 +348,55 @@ describe("highlighting utility functionality", () => {
       expect(prepareNodes(nodes)).toEqual([
         {
           length: 5,
-          nodeText: 'Trust',
+          nodeText: "Trust",
           offset: 0,
-          normalisedText: 'Trust'
+          normalisedText: "Trust",
         },
         {
           length: 4,
-          nodeText: 'Some',
+          nodeText: "Some",
           offset: 0,
-          normalisedText: 'Some'
-        }
+          normalisedText: "Some",
+        },
       ]);
     });
 
-    it("should correctly calculate an offset and length " + 
-    "excluding all carriage returns and one or more white spaces that follow a carriage return", () => {
-      const parentDiv = div(
-        div("\n     Something excellent is happening \n"),
-        span(text("\n  "), i("here!"), text("\n    ")),
-        text("\n\n")
-      );
-      const { nodesAndOffsets, allText } = findNodesAndOffsets({
-        offset: 0,
-        length: 43,
-      }, parentDiv, [], true);
-      expect(allText).toEqual("Something excellent is happening here!");
-      const nodesOutput = prepareNodes(nodesAndOffsets);
-      expect(nodesOutput).toEqual([
-        {
-          nodeText: '\n     Something excellent is happening \n',
-          offset: 6,
-          length: 34,
-          normalisedText: 'Something excellent is happening '
-        },
-        {
-          nodeText: "here!",
-          offset: 0,
-          length: 5,
-          normalisedText: 'here!'
-        }
-      ])
-    });
+    it(
+      "should correctly calculate an offset and length " +
+        "excluding all carriage returns and one or more white spaces that follow a carriage return",
+      () => {
+        const parentDiv = div(
+          div("\n     Something excellent is happening \n"),
+          span(text("\n  "), i("here!"), text("\n    ")),
+          text("\n\n"),
+        );
+        const { nodesAndOffsets, allText } = findNodesAndOffsets(
+          {
+            offset: 0,
+            length: 43,
+          },
+          parentDiv,
+          [],
+          true,
+        );
+        expect(allText).toEqual("Something excellent is happening here!");
+        const nodesOutput = prepareNodes(nodesAndOffsets);
+        expect(nodesOutput).toEqual([
+          {
+            nodeText: "\n     Something excellent is happening \n",
+            offset: 6,
+            length: 34,
+            normalisedText: "Something excellent is happening ",
+          },
+          {
+            nodeText: "here!",
+            offset: 0,
+            length: 5,
+            normalisedText: "here!",
+          },
+        ]);
+      },
+    );
   });
 
   describe("#validateIndependenciaDescriptors()", () => {
