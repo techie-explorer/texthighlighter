@@ -367,13 +367,13 @@ describe("highlighting utility functionality", () => {
       () => {
         const parentDiv = div(
           div("\n     Something excellent is happening \n"),
-          span(text("\n  "), i("here!"), text("\n    ")),
+          span(text("\n  "), i("here\n   !"), text("\n    ")),
           text("\n\n"),
         );
         const { nodesAndOffsets, allText } = findNodesAndOffsets(
           {
             offset: 0,
-            length: 43,
+            length: 38,
           },
           parentDiv,
           [],
@@ -389,9 +389,15 @@ describe("highlighting utility functionality", () => {
             normalisedText: "Something excellent is happening ",
           },
           {
-            nodeText: "here!",
+            nodeText: "\n  ",
+            normalisedText: "",
             offset: 0,
-            length: 5,
+            length: 3,
+          },
+          {
+            nodeText: "here\n   !",
+            offset: 0,
+            length: 9,
             normalisedText: "here!",
           },
         ]);

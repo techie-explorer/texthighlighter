@@ -102,7 +102,8 @@ class IndependenciaHighlighter {
         range,
         wrapper,
         excludeNodeNames: this.options.excludeNodes,
-        dataAttr: this.options.nnamespaceDataAttribute
+        dataAttr: this.options.namespaceDataAttribute,
+        excludeWhiteSpaceAndReturns: this.options.excludeWhiteSpaceAndReturns,
       });
 
       const { descriptors: processedDescriptors, meta } = this.options.preprocessDescriptors(
@@ -130,7 +131,10 @@ class IndependenciaHighlighter {
    * @memberof IndependenciaHighlighter
    */
   normalizeHighlights() {
-    dom(this.el).normalizeElements(this.options.highlightedClass, this.options.namespaceDataAttribute);
+    dom(this.el).normalizeElements(
+      this.options.highlightedClass,
+      this.options.namespaceDataAttribute,
+    );
   }
 
   /**
@@ -145,7 +149,10 @@ class IndependenciaHighlighter {
    */
   removeHighlights(element, id) {
     const container = element || this.el;
-    let highlights = this.getHighlights({ container, dataAttr: this.options.namespaceDataAttribute }),
+    let highlights = this.getHighlights({
+        container,
+        dataAttr: this.options.namespaceDataAttribute,
+      }),
       self = this;
 
     highlights.forEach(function(hl) {
@@ -294,9 +301,19 @@ class IndependenciaHighlighter {
 
       const parentNode = self.el;
       const { nodesAndOffsets: highlightNodes } = findNodesAndOffsets(
-        hl, parentNode, self.options.excludeNodes, 
-        self.options.excludeWhiteSpaceAndReturns
+        hl,
+        parentNode,
+        self.options.excludeNodes,
+        self.options.excludeWhiteSpaceAndReturns,
       );
+      if (self.options.excludeWhiteSpaceAndReturns) {
+        console.log({
+          highlightNodes: highlightNodes.map(({ node, ...rest }) => ({
+            nodeText: node.textContent,
+            ...rest,
+          })),
+        });
+      }
 
       highlightNodes.forEach(({ node, offset: offsetWithinNode, length: lengthInNode }) => {
         // Don't call innerText to prevent DOM layout reflow.
@@ -393,7 +410,7 @@ class IndependenciaHighlighter {
         this.el,
         this.options.highlightedClass,
         this.options.normalizeElements,
-        this.options.namespaceDataAttribute
+        this.options.namespaceDataAttribute,
       );
     } else if (descriptors) {
       // No elements in the DOM for the highlight?

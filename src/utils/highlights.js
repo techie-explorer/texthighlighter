@@ -192,38 +192,76 @@ export function findNodesAndOffsets(
         allText = excludeWhiteSpaceAndReturns ? reducedTextContent : textContent;
       }
       const textLength = textContent.length;
+      const normalisedTextLength = normaliseText(textContent).length;
       const endOfCurrentNodeOffset = currentOffset + textLength;
+      const normalisedEOCNodeOffset = excludeWhiteSpaceAndReturns
+        ? currentOffset + normalisedTextLength
+        : endOfCurrentNodeOffset;
 
-      if (endOfCurrentNodeOffset > highlight.offset) {
+      if (normalisedEOCNodeOffset > highlight.offset) {
         const isTerminalNode = currentNode.childNodes.length === 0;
         if (isTerminalNode) {
+          if (excludeWhiteSpaceAndReturns)
+            console.log({
+              endOfCurrentNodeOffset,
+              textLength,
+              highlightOffset: highlight.offset,
+              textContent,
+            });
+
           if (currentNode.nodeType === NODE_TYPE.TEXT_NODE) {
             const offsetWithinNode =
               highlight.offset > currentOffset ? highlight.offset - currentOffset : 0;
 
-            const normalisedOffset = excludeWhiteSpaceAndReturns
-              ? normaliseOffset(offsetWithinNode, textContent)
-              : offsetWithinNode;
+            // Only exclude text normalised away at the start of the entire highlight.
+            const normalisedOffset =
+              excludeWhiteSpaceAndReturns && nodesAndOffsets.length === 0
+                ? normaliseOffset(offsetWithinNode, textContent)
+                : offsetWithinNode;
+            const normalisedOffsetDiff = Math.abs(normalisedOffset - offsetWithinNode);
 
-            const normalisedDiff = Math.abs(normalisedOffset - offsetWithinNode);
+            // Remove further carriage returns and white spaces that directly follow
+            // from the length in the node
+            // that may be in the middle or at the end of the node.
+            const textFromNormalisedOffset = textContent.substr(normalisedOffset);
+            const charactersToIgnoreInside = excludeWhiteSpaceAndReturns
+              ? textFromNormalisedOffset.length - normaliseText(textFromNormalisedOffset).length
+              : 0;
+
+            const nextNodeOffset =
+              endOfCurrentNodeOffset - normalisedOffsetDiff - charactersToIgnoreInside;
+            if (excludeWhiteSpaceAndReturns)
+              console.log({
+                endOfCurrentNodeOffset,
+                normalisedOffsetDiff,
+                charactersToIgnoreInside,
+                nextNodeOffset,
+              });
 
             const lengthInHighlight =
-              highlightEndOffset > endOfCurrentNodeOffset
-                ? textLength - normalisedOffset
-                : highlightEndOffset - currentOffset - normalisedOffset;
+              highlightEndOffset >= nextNodeOffset
+                ? textLength - offsetWithinNode
+                : highlightEndOffset - currentOffset - offsetWithinNode;
 
-            if (lengthInHighlight > 0) {
+            // Only exclude text normalised away from the node at the start of the
+            // entire highlight.
+            const normalisedLengthInHighlight =
+              excludeWhiteSpaceAndReturns && nodesAndOffsets.length === 0
+                ? lengthInHighlight - normalisedOffsetDiff
+                : lengthInHighlight;
+
+            if (normalisedLengthInHighlight > 0) {
               nodesAndOffsets.push({
                 node: currentNode,
                 offset: normalisedOffset,
-                length: lengthInHighlight,
+                length: normalisedLengthInHighlight,
                 normalisedText: excludeWhiteSpaceAndReturns
                   ? normaliseText(currentNode.textContent)
                   : currentNode.textContent,
               });
             }
 
-            currentOffset = endOfCurrentNodeOffset - normalisedDiff;
+            currentOffset = nextNodeOffset;
           }
 
           // It doesn't matter if it is a text node or not at this point,
@@ -248,7 +286,12 @@ export function findNodesAndOffsets(
   return { nodesAndOffsets, allText };
 }
 
-export function getElementOffset(childElement, rootElement, excludeNodeNames = IGNORE_TAGS) {
+export function getElementOffset(
+  childElement,
+  rootElement,
+  excludeNodeNames = IGNORE_TAGS,
+  excludeWhiteSpaceAndReturns = false,
+) {
   let offset = 0;
   let childNodes;
 
@@ -262,6 +305,7 @@ export function getElementOffset(childElement, rootElement, excludeNodeNames = I
         childNodes,
         childElementIndex,
         excludeNodeNames,
+        excludeWhiteSpaceAndReturns,
       );
       offset += offsetInCurrentParent;
     }
@@ -272,7 +316,12 @@ export function getElementOffset(childElement, rootElement, excludeNodeNames = I
   return offset;
 }
 
-function getTextOffsetBefore(childNodes, cutIndex, excludeNodeNames) {
+function getTextOffsetBefore(
+  childNodes,
+  cutIndex,
+  excludeNodeNames,
+  excludeWhiteSpaceAndReturns = false,
+) {
   let textOffset = 0;
   for (let i = 0; i < cutIndex; i++) {
     const currentNode = childNodes[i];
@@ -286,7 +335,7 @@ function getTextOffsetBefore(childNodes, cutIndex, excludeNodeNames) {
     const text = dom(currentNode).textContentExcludingTags(arrayToLower(excludeNodeNames));
 
     if (!excludeNodeNames.includes(currentNode.nodeName) && text && text.length > 0) {
-      textOffset += text.length;
+      textOffset += excludeWhiteSpaceAndReturns ? normaliseText(text).length : text.length;
     }
   }
   return textOffset;
@@ -515,16 +564,38 @@ export function createDescriptors({
   wrapper,
   excludeNodeNames = IGNORE_TAGS,
   dataAttr = DATA_ATTR,
+  excludeWhiteSpaceAndReturns = false,
 }) {
   const wrapperClone = wrapper.cloneNode(true);
 
+  const normalisedStartOffset = excludeWhiteSpaceAndReturns
+    ? normaliseOffset(range.startOffset, range.startContainer.textContent)
+    : range.startOffset;
+
   const startOffset =
-    getElementOffset(range.startContainer, rootElement, excludeNodeNames) + range.startOffset;
+    getElementOffset(
+      range.startContainer,
+      rootElement,
+      excludeNodeNames,
+      excludeWhiteSpaceAndReturns,
+    ) + normalisedStartOffset;
+
+  if (excludeWhiteSpaceAndReturns)
+    console.log({ rangeStartOffset: range.startOffset, startOffset, normalisedStartOffset });
+
+  const normalisedEndOffset = excludeWhiteSpaceAndReturns
+    ? normaliseOffset(range.endOffset, range.endContainer.textContent)
+    : range.endOffset;
 
   const endOffset =
     range.startContainer === range.endContainer
-      ? startOffset + (range.endOffset - range.startOffset)
-      : getElementOffset(range.endContainer, rootElement, excludeNodeNames) + range.endOffset;
+      ? startOffset + (normalisedEndOffset - normalisedStartOffset)
+      : getElementOffset(
+          range.endContainer,
+          rootElement,
+          excludeNodeNames,
+          excludeWhiteSpaceAndReturns,
+        ) + normalisedEndOffset;
 
   const length = endOffset - startOffset;
 
@@ -542,6 +613,7 @@ export function createDescriptors({
     startOffset,
     length,
   ];
+  if (excludeWhiteSpaceAndReturns) console.log({ descriptor });
   return [descriptor];
 }
 

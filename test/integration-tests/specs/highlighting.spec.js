@@ -8,10 +8,8 @@ import {
   span,
   b,
   i,
-  div,
   img,
-  style,
-  script,
+  text,
   docFrag,
   spanWithAttrs,
   highlight,
@@ -23,16 +21,6 @@ describe("highlighting a given range", () => {
 
   beforeAll(() => {
     root = document.getElementById("root");
-  });
-
-  beforeEach(() => {
-    highlighter = new TextHighlighter(root, {
-      version: "independencia",
-      normalizeElements: true,
-      onAfterHighlight: (range, descriptors, timestamp) => {
-        return descriptors;
-      },
-    });
   });
 
   afterEach(() => {
@@ -59,12 +47,24 @@ describe("highlighting a given range", () => {
    * @param {string} params.fixturePostfixAfterHighlight - fixture name postfix after highlight is made
    * @param {string} params.fixturePostfixRemovedHighlight - fixture name postfix after highlight is removed
    * @param {string} params.colour - colour of the highlighter
+   * @param {string} params.excludeWhiteSpaceAndReturns - Don't count carriage returns and
+   *                                                      following white spaces in the offset
+   *                                                      and length of a highlight.
    * @param {string} params.highlightId - id of the new highlight
    * @param {string} params.highlightIdToRemove - id of the highlight to remove, if this isn't set then remove them all
    * @param {function} params.cloneContents - the return of the range clone contents function
    */
   const testHighlighting = (params) => {
     it(params.title, () => {
+      highlighter = new TextHighlighter(root, {
+        version: "independencia",
+        normalizeElements: true,
+        excludeWhiteSpaceAndReturns: params.excludeWhiteSpaceAndReturns,
+        onAfterHighlight: (range, descriptors, timestamp) => {
+          return descriptors;
+        },
+      });
+
       const fixture = fixtures[`${params.fixturePrefix}.${params.fixturePostfixAfterHighlight}`];
       const fixtureBase =
         fixtures[`${params.fixturePrefix}.${params.fixturePostfixBeforeHighlight}`];
@@ -120,7 +120,9 @@ describe("highlighting a given range", () => {
 
       const htmlDuring = root.innerHTML;
 
+      if (params.excludeWhiteSpaceAndReturns) console.log(toDiffableHtml(htmlDuring));
       expect(toDiffableHtml(htmlDuring)).toEqual(toDiffableHtml(fixture().outerHTML));
+
       if (params.highlightIdToRemove) {
         highlighter.removeHighlights(null, params.highlightIdToRemove);
       } else {
@@ -542,6 +544,34 @@ describe("highlighting a given range", () => {
       return docFrag(
         spanWithAttrs({ id: "highlight-1-start-node" })("Lorem ipsum dolor sit amet"),
         comment("section2"),
+        spanWithAttrs({ id: "highlight-1-end-node" })("consectetur adipiscit"),
+      );
+    },
+  });
+
+  testHighlighting({
+    title: "should correctly highlight when in excludeWhiteSpaceAndReturns mode",
+    fixturePrefix: "05.highlighting",
+    fixturePostfixAfterHighlight: "singleHighlight",
+    fixturePostfixBeforeHighlight: "baseExcludeWhiteSpaceAndReturns",
+    fixturePostfixRemovedHighlight: "baseExcludeWhiteSpaceAndReturns",
+    range: {
+      startNodeId: "highlight-1-start-node",
+      startOffset: 0,
+      endNodeId: "highlight-1-end-node",
+      endOffset: 3,
+    },
+    colour: "red",
+    excludeWhiteSpaceAndReturns: true,
+    cloneContents: () => {
+      return docFrag(
+        spanWithAttrs({ id: "highlight-1-start-node" })(
+          "\n    Lorem ipsum \n      \n  dolor \n   sit amet",
+        ),
+        text("Some text here"),
+        text("\n     \n\n     "),
+        span("Some more \n   text here"),
+        text("\n\n\n    \n   "),
         spanWithAttrs({ id: "highlight-1-end-node" })("consectetur adipiscit"),
       );
     },
