@@ -9,14 +9,14 @@ const highlighters = {
   primitivo: Primitivo,
   "v1-2014": Primitivo,
   independencia: Independencia,
-  "v2-2019": Independencia
+  "v2-2019": Independencia,
 };
 
 const versionNames = {
   "v1-2014": "Primitivo (v1-2014)",
   primitivo: "Primitivo (v1-2014)",
   "v2-2019": "Independencia (v2-2019)",
-  independencia: "Independencia (v2-2019)"
+  independencia: "Independencia (v2-2019)",
 };
 
 /**

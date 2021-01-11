@@ -253,7 +253,7 @@ class IndependenciaHighlighter {
         startOffset: offset,
         length,
         excludeTags: this.options.excludeNodes,
-        excludeWhiteSpaceAndReturns: this.options.excludeWhiteSpaceAndReturns
+        excludeWhiteSpaceAndReturns: this.options.excludeWhiteSpaceAndReturns,
       }),
       offset,
       length,

@@ -57,10 +57,7 @@ const fixtures = {
         span("consectetur ", b("adipiscit")),
         span("elit."),
       ),
-      span(
-        highlight({ color: "blue", id: "test-node-2", startOffset: 81, length: 2 }, "DD"),
-        "D",
-      ),
+      span(highlight({ color: "blue", id: "test-node-2", startOffset: 81, length: 2 }, "DD"), "D"),
       "BBB",
     );
   },

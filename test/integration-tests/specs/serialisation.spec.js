@@ -35,9 +35,9 @@ describe("serialisation and deserialisation of highlights", () => {
    */
   const testSerialisation = (params) => {
     it(params.title, () => {
-      highlighter = new TextHighlighter(root, { 
-        version: "independencia", 
-        excludeWhiteSpaceAndReturns: params.excludeWhiteSpaceAndReturns 
+      highlighter = new TextHighlighter(root, {
+        version: "independencia",
+        excludeWhiteSpaceAndReturns: params.excludeWhiteSpaceAndReturns,
       });
 
       const fixture = fixtures[`${params.fixturePrefix}.${params.fixturePostfix}`];
