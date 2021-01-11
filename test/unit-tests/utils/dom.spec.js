@@ -1,5 +1,16 @@
 import dom from "../../../src/utils/dom";
-import { div, style, script, b, i, span, text, imgWithAttrs, img } from "../../utils/dom-elements";
+import {
+  div,
+  style,
+  script,
+  b,
+  i,
+  span,
+  text,
+  imgWithAttrs,
+  img,
+  comment,
+} from "../../utils/dom-elements";
 
 describe("dom utility functionality", () => {
   let root;
@@ -173,11 +184,13 @@ describe("dom utility functionality", () => {
     it("should remove a multiple event attributes from multiple images nested in multiple divs", () => {
       const contents = div(
         "test1",
+        comment("section1"),
         div(
           "test2",
           div("test3"),
           imgWithAttrs({ id: "image1", onerror: () => "event1 called" })(),
         ),
+        comment("section2"),
         imgWithAttrs({
           id: "image2",
           onerror: () => "event2 called",
@@ -188,7 +201,9 @@ describe("dom utility functionality", () => {
 
       const contentsWithoutEventHandlers = div(
         "test1",
+        comment("section1"),
         div("test2", div("test3"), imgWithAttrs({ id: "image1", "temp-id": "1" })()),
+        comment("section2"),
         imgWithAttrs({
           id: "image2",
           "temp-id": "2",
@@ -230,8 +245,8 @@ describe("dom utility functionality", () => {
           tempId: "2",
         },
       ]);
-      contents.childNodes[1].childNodes[2].setAttribute("temp-id", "1");
-      contents.childNodes[2].setAttribute("temp-id", "2");
+      contents.childNodes[2].childNodes[2].setAttribute("temp-id", "1");
+      contents.childNodes[4].setAttribute("temp-id", "2");
       expect(contents).toEqual(contentsWithoutEventHandlers);
     });
   });
@@ -263,11 +278,13 @@ describe("dom utility functionality", () => {
     it("should add multiple event attributes to multiple images nested in multiple divs", () => {
       const contentsWithEventHandlers = div(
         "test1",
+        comment("section1"),
         div(
           "test2",
           div("test3"),
           imgWithAttrs({ id: "image1", onerror: () => "event1 called" })(),
         ),
+        comment("section2"),
         imgWithAttrs({
           id: "image2",
           onerror: () => "event2 called",
@@ -278,7 +295,9 @@ describe("dom utility functionality", () => {
 
       const contents = div(
         "test1",
+        comment("section1"),
         div("test2", div("test3"), imgWithAttrs({ id: "image1", "temp-id": "1" })()),
+        comment("section2"),
         imgWithAttrs({
           id: "image2",
           "temp-id": "2",
@@ -323,11 +342,13 @@ describe("dom utility functionality", () => {
     it("should remove events then add them again for multiple images nested in multiple divs", () => {
       const contentsWithEventHandlers = div(
         "test1",
+        comment("section1"),
         div(
           "test2",
           div("test3"),
           imgWithAttrs({ id: "image1", onerror: () => "event1 called" })(),
         ),
+        comment("section2"),
         imgWithAttrs({
           id: "image2",
           onerror: () => "event2 called",
@@ -337,11 +358,13 @@ describe("dom utility functionality", () => {
       );
       const contents = div(
         "test1",
+        comment("section1"),
         div(
           "test2",
           div("test3"),
           imgWithAttrs({ id: "image1", onerror: () => "event1 called" })(),
         ),
+        comment("section2"),
         imgWithAttrs({
           id: "image2",
           onerror: () => "event2 called",
@@ -352,7 +375,9 @@ describe("dom utility functionality", () => {
 
       const contentsWithoutEventHandlers = div(
         "test1",
+        comment("section1"),
         div("test2", div("test3"), imgWithAttrs({ id: "image1", "temp-id": "1" })()),
+        comment("section2"),
         imgWithAttrs({
           id: "image2",
           "temp-id": "2",
@@ -365,8 +390,8 @@ describe("dom utility functionality", () => {
       events[0].tempId = "1";
       events[1].tempId = "2";
 
-      contents.childNodes[1].childNodes[2].setAttribute("temp-id", "1");
-      contents.childNodes[2].setAttribute("temp-id", "2");
+      contents.childNodes[2].childNodes[2].setAttribute("temp-id", "1");
+      contents.childNodes[4].setAttribute("temp-id", "2");
       expect(contents).toEqual(contentsWithoutEventHandlers);
 
       dom(contents).turnOnEventHandlers(events);

@@ -62,12 +62,16 @@ function () {
    * @param {object} [options] - additional options.
    * @param {string} options.color - highlight color.
    * @param {string} options.excludeNodes - Node types to exclude when calculating offsets and determining where to inject highlights.
+   * @param {boolean} options.excludeWhiteSpaceAndReturns - Whether or not to exclude white space and carriage returns while calculating text content
+   *                                                        offsets. The white space that is excluded is only the white space that comes directly
+   *                                                        after carriage returns.
    * @param {boolean} options.normalizeElements - Whether or not to normalise elements on the DOM when highlights are created, deserialised
    *  into the DOM, focused and deselected. Normalising events has a huge performance implication when enabling highlighting for a root element
    *  that contains thousands of nodes.
    * @param {string} options.highlightedClass - class added to highlight, 'highlighted' by default.
    * @param {string} options.contextClass - class added to element to which highlighter is applied,
    *  'highlighter-context' by default.
+   * @param {string} options.namespaceDataAttribute - Data attribute to identify highlights that belong to a particular highlight instance.
    * @param {function} options.onRemoveHighlight - function called before highlight is removed. Highlight is
    *  passed as param. Function should return true if highlight should be removed, or false - to prevent removal.
    * @param {function} options.onBeforeHighlight - function called before highlight is created. Range object is
@@ -116,15 +120,19 @@ function () {
           rootElement: this.el,
           range: range,
           wrapper: wrapper,
-          excludeNodeNames: this.options.excludeNodes
+          excludeNodeNames: this.options.excludeNodes,
+          dataAttr: this.options.namespaceDataAttribute,
+          excludeWhiteSpaceAndReturns: this.options.excludeWhiteSpaceAndReturns
         });
 
         var _this$options$preproc = this.options.preprocessDescriptors(range, descriptors, timestamp),
             processedDescriptors = _this$options$preproc.descriptors,
             meta = _this$options$preproc.meta;
 
-        this.deserializeHighlights(JSON.stringify(processedDescriptors));
-        this.options.onAfterHighlight(range, processedDescriptors, timestamp, meta);
+        if (!meta[this.options.cancelProperty]) {
+          this.deserializeHighlights(JSON.stringify(processedDescriptors));
+          this.options.onAfterHighlight(range, processedDescriptors, timestamp, meta);
+        }
       }
 
       if (!keepRange) {
@@ -143,7 +151,7 @@ function () {
   }, {
     key: "normalizeHighlights",
     value: function normalizeHighlights() {
-      (0, _dom["default"])(this.el).normalizeElements(this.options.highlightedClass);
+      (0, _dom["default"])(this.el).normalizeElements(this.options.highlightedClass, this.options.namespaceDataAttribute);
     }
     /**
      * Removes one highlight if an ID is provided, removes all highlights in the provided
@@ -161,7 +169,8 @@ function () {
     value: function removeHighlights(element, id) {
       var container = element || this.el;
       var highlights = this.getHighlights({
-        container: container
+        container: container,
+        dataAttr: this.options.namespaceDataAttribute
       }),
           self = this;
       highlights.forEach(function (hl) {
@@ -189,6 +198,7 @@ function () {
      * @param params
      * @param {HTMLElement} [params.container] - return highlights from this element. Default: the element the
      * highlighter is applied to.
+     * @param {string} [params.dataAttr] - Namespaced used to identify highlights for a specific highlighter instance.
      * @param {boolean} [params.andSelf] - if set to true and container is a highlight itself, add container to
      * returned results. Default: true.
      * @param {boolean} [params.grouped] - if set to true, highlights are grouped in logical groups of highlights added
@@ -203,7 +213,7 @@ function () {
     value: function getHighlights(params) {
       var mergedParams = _objectSpread({
         container: this.el,
-        dataAttr: _config.DATA_ATTR,
+        dataAttr: params.dataAttr,
         timestampAttr: _config.TIMESTAMP_ATTR
       }, params);
 
@@ -233,7 +243,9 @@ function () {
   }, {
     key: "serializeHighlights",
     value: function serializeHighlights(id) {
-      var highlights = this.getHighlights(),
+      var highlights = this.getHighlights({
+        dataAttr: this.options.namespaceDataAttribute
+      }),
           self = this;
       (0, _highlights.sortByDepth)(highlights, false);
 
@@ -263,7 +275,8 @@ function () {
         rootElement: self.el,
         startOffset: offset,
         length: length,
-        excludeTags: this.options.excludeNodes
+        excludeTags: this.options.excludeNodes,
+        excludeWhiteSpaceAndReturns: this.options.excludeWhiteSpaceAndReturns
       }), offset, length];
       (0, _dom["default"])(this.el).turnOnEventHandlers(eventItems);
       return JSON.stringify([descriptor]);
@@ -307,7 +320,10 @@ function () {
             hlNode,
             highlight;
         var parentNode = self.el;
-        var highlightNodes = (0, _highlights.findNodesAndOffsets)(hl, parentNode, self.options.excludeNodes);
+
+        var _findNodesAndOffsets = (0, _highlights.findNodesAndOffsets)(hl, parentNode, self.options.excludeNodes, self.options.excludeWhiteSpaceAndReturns),
+            highlightNodes = _findNodesAndOffsets.nodesAndOffsets;
+
         highlightNodes.forEach(function (_ref) {
           var node = _ref.node,
               offsetWithinNode = _ref.offset,
@@ -386,13 +402,16 @@ function () {
 
       if (highlightElements.length > 0) {
         var firstHighlightElement = highlightElements[0];
-        var nodesAndOffsets = (0, _highlights.findNodesAndOffsets)({
+
+        var _findNodesAndOffsets2 = (0, _highlights.findNodesAndOffsets)({
           offset: Number.parseInt(firstHighlightElement.getAttribute(_config.START_OFFSET_ATTR)),
           length: Number.parseInt(firstHighlightElement.getAttribute(_config.LENGTH_ATTR))
-        }, this.el, this.options.excludeNodes);
+        }, this.el, this.options.excludeNodes, this.options.excludeWhiteSpaceAndReturns),
+            nodesAndOffsets = _findNodesAndOffsets2.nodesAndOffsets;
+
         var highlightWrapper = firstHighlightElement.cloneNode(true);
         highlightWrapper.innerHTML = "";
-        (0, _highlights.focusHighlightNodes)(id, nodesAndOffsets, highlightWrapper, this.el, this.options.highlightedClass, this.options.normalizeElements);
+        (0, _highlights.focusHighlightNodes)(id, nodesAndOffsets, highlightWrapper, this.el, this.options.highlightedClass, this.options.normalizeElements, this.options.namespaceDataAttribute);
       } else if (descriptors) {
         // No elements in the DOM for the highlight?
         // let's deserialize the descriptor to bring the highlight into focus.

@@ -70,7 +70,7 @@ function () {
      * @param {HTMLElement} element - DOM element to which highlighted will be applied.
      * @param {object} [options] - additional options.
      * @param {string} options.version - The version of the text highlighting functionality to use.
-     * There are two options:
+     * There are three options:
      *   primitivo (v1-2014) is for the initial implementation using interdependent highlight locators.
      *   (Lots of issues for requirements beyond simple all or nothing highlights)
      *
@@ -82,6 +82,10 @@ function () {
      * @param {string} [options.color=#ffff7b] - highlight color.
      * @param {string[]} [options.excludeNodes=["SCRIPT", "STYLE", "SELECT", "OPTION", "BUTTON", "OBJECT", "APPLET", "VIDEO", "AUDIO", "CANVAS", "EMBED", "PARAM", "METER", "PROGRESS"]] - Node types to exclude when calculating offsets and determining where to inject highlights.
      * @param {string} [options.highlightedClass=highlighted] - class added to highlight, 'highlighted' by default.
+     * @param {string} [options.namespaceDataAttribute=data-highlighted] - Namespace data attribute to identify highlights for a particular highlighter instance.
+     * @param {boolean} options.excludeWhiteSpaceAndReturns - Whether or not to exclude white space and carriage returns while calculating text content
+     *                                                        offsets. The white space that is excluded is only the white space that comes directly
+     *                                                        after carriage returns.
      * @param {string} [options.contextClass=highlighter-context] - class added to element to which highlighter is applied,
      *  'highlighter-context' by default.
      * @param {boolean} [options.useDefaultEvents=true] - Whether or not to use the default events to listen for text selections.
@@ -90,6 +94,7 @@ function () {
      * @param {boolean} [options.normalizeElements=false] - Whether or not to normalise elements on the DOM when highlights are created, deserialised
      *  into the DOM, focused and deselected. Normalising events has a huge performance implication when enabling highlighting for a root element
      *  that contains thousands of nodes. This only applies for the independencia v2-2019 version.
+     * @param {boolean} [options.keepRange=false] - Whether or not to keep the highlight selection after highlights are created. If set to true then the selection will stay active.
      * @param {function} options.onRemoveHighlight - function called before highlight is removed. Highlight is
      *  passed as param. Function should return true if highlight should be removed, or false - to prevent removal.
      * @param {function} options.onBeforeHighlight - function called before highlight is created. Range object is
@@ -126,7 +131,11 @@ function () {
       version: "independencia",
       useDefaultEvents: true,
       excludeNodes: _config.IGNORE_TAGS,
+      excludeWhiteSpaceAndReturns: false,
+      namespaceDataAttribute: _config.DATA_ATTR,
       normalizeElements: false,
+      keepRange: false,
+      cancelProperty: "cancel",
       onRemoveHighlight: function onRemoveHighlight() {
         return true;
       },
@@ -201,8 +210,8 @@ function () {
     }
   }, {
     key: "doHighlight",
-    value: function doHighlight(keepRange) {
-      this.highlighter.doHighlight(keepRange);
+    value: function doHighlight() {
+      this.highlighter.doHighlight(this.options.keepRange);
     }
     /**
      * Highlights range.
@@ -276,6 +285,7 @@ function () {
      * highlighter is applied to.
      * @param {boolean} [params.andSelf] - if set to true and container is a highlight itself, add container to
      * returned results. Default: true.
+     * @param {string} [params.dataAttr] - Namespaced used to identify highlights for a specific highlighter instance.
      * @param {boolean} [params.grouped] - if set to true, highlights are grouped in logical groups of highlights added
      * in the same moment. Each group is an object which has got array of highlights, 'toString' method and 'timestamp'
      * property. Default: false.
@@ -292,6 +302,7 @@ function () {
      * Returns true if element is a highlight.
      * All highlights have 'data-highlighted' attribute.
      * @param el - element to check.
+     * @param dataAttr - namespace used to identify highlights for a specific highlighter instance.
      * @returns {boolean}
      * @memberof TextHighlighter
      */
@@ -299,7 +310,8 @@ function () {
   }, {
     key: "isHighlight",
     value: function isHighlight(el) {
-      return this.highlighter.isHighlight(el, _config.DATA_ATTR);
+      var dataAttr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _config.DATA_ATTR;
+      return this.highlighter.isHighlight(el, dataAttr);
     }
     /**
      * Serializes all highlights in the element the highlighter is applied to.

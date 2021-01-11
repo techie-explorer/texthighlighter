@@ -9,7 +9,7 @@ import {
   focusHighlightNodes,
   validateIndependenciaDescriptors,
 } from "../utils/highlights";
-import { START_OFFSET_ATTR, LENGTH_ATTR, DATA_ATTR, TIMESTAMP_ATTR } from "../config";
+import { START_OFFSET_ATTR, LENGTH_ATTR, TIMESTAMP_ATTR } from "../config";
 import dom from "../utils/dom";
 
 /**
@@ -47,12 +47,16 @@ class IndependenciaHighlighter {
    * @param {object} [options] - additional options.
    * @param {string} options.color - highlight color.
    * @param {string} options.excludeNodes - Node types to exclude when calculating offsets and determining where to inject highlights.
+   * @param {boolean} options.excludeWhiteSpaceAndReturns - Whether or not to exclude white space and carriage returns while calculating text content
+   *                                                        offsets. The white space that is excluded is only the white space that comes directly
+   *                                                        after carriage returns.
    * @param {boolean} options.normalizeElements - Whether or not to normalise elements on the DOM when highlights are created, deserialised
    *  into the DOM, focused and deselected. Normalising events has a huge performance implication when enabling highlighting for a root element
    *  that contains thousands of nodes.
    * @param {string} options.highlightedClass - class added to highlight, 'highlighted' by default.
    * @param {string} options.contextClass - class added to element to which highlighter is applied,
    *  'highlighter-context' by default.
+   * @param {string} options.namespaceDataAttribute - Data attribute to identify highlights that belong to a particular highlight instance.
    * @param {function} options.onRemoveHighlight - function called before highlight is removed. Highlight is
    *  passed as param. Function should return true if highlight should be removed, or false - to prevent removal.
    * @param {function} options.onBeforeHighlight - function called before highlight is created. Range object is
@@ -98,6 +102,8 @@ class IndependenciaHighlighter {
         range,
         wrapper,
         excludeNodeNames: this.options.excludeNodes,
+        dataAttr: this.options.namespaceDataAttribute,
+        excludeWhiteSpaceAndReturns: this.options.excludeWhiteSpaceAndReturns,
       });
 
       const { descriptors: processedDescriptors, meta } = this.options.preprocessDescriptors(
@@ -105,8 +111,10 @@ class IndependenciaHighlighter {
         descriptors,
         timestamp,
       );
-      this.deserializeHighlights(JSON.stringify(processedDescriptors));
-      this.options.onAfterHighlight(range, processedDescriptors, timestamp, meta);
+      if (!meta[this.options.cancelProperty]) {
+        this.deserializeHighlights(JSON.stringify(processedDescriptors));
+        this.options.onAfterHighlight(range, processedDescriptors, timestamp, meta);
+      }
     }
 
     if (!keepRange) {
@@ -123,7 +131,10 @@ class IndependenciaHighlighter {
    * @memberof IndependenciaHighlighter
    */
   normalizeHighlights() {
-    dom(this.el).normalizeElements(this.options.highlightedClass);
+    dom(this.el).normalizeElements(
+      this.options.highlightedClass,
+      this.options.namespaceDataAttribute,
+    );
   }
 
   /**
@@ -138,7 +149,10 @@ class IndependenciaHighlighter {
    */
   removeHighlights(element, id) {
     const container = element || this.el;
-    let highlights = this.getHighlights({ container }),
+    let highlights = this.getHighlights({
+        container,
+        dataAttr: this.options.namespaceDataAttribute,
+      }),
       self = this;
 
     highlights.forEach(function(hl) {
@@ -165,6 +179,7 @@ class IndependenciaHighlighter {
    * @param params
    * @param {HTMLElement} [params.container] - return highlights from this element. Default: the element the
    * highlighter is applied to.
+   * @param {string} [params.dataAttr] - Namespaced used to identify highlights for a specific highlighter instance.
    * @param {boolean} [params.andSelf] - if set to true and container is a highlight itself, add container to
    * returned results. Default: true.
    * @param {boolean} [params.grouped] - if set to true, highlights are grouped in logical groups of highlights added
@@ -176,7 +191,7 @@ class IndependenciaHighlighter {
   getHighlights(params) {
     const mergedParams = {
       container: this.el,
-      dataAttr: DATA_ATTR,
+      dataAttr: params.dataAttr,
       timestampAttr: TIMESTAMP_ATTR,
       ...params,
     };
@@ -202,7 +217,7 @@ class IndependenciaHighlighter {
    * @memberof IndependenciaHighlighter
    */
   serializeHighlights(id) {
-    const highlights = this.getHighlights(),
+    const highlights = this.getHighlights({ dataAttr: this.options.namespaceDataAttribute }),
       self = this;
 
     sortByDepth(highlights, false);
@@ -238,6 +253,7 @@ class IndependenciaHighlighter {
         startOffset: offset,
         length,
         excludeTags: this.options.excludeNodes,
+        excludeWhiteSpaceAndReturns: this.options.excludeWhiteSpaceAndReturns,
       }),
       offset,
       length,
@@ -285,7 +301,12 @@ class IndependenciaHighlighter {
         highlight;
 
       const parentNode = self.el;
-      const highlightNodes = findNodesAndOffsets(hl, parentNode, self.options.excludeNodes);
+      const { nodesAndOffsets: highlightNodes } = findNodesAndOffsets(
+        hl,
+        parentNode,
+        self.options.excludeNodes,
+        self.options.excludeWhiteSpaceAndReturns,
+      );
 
       highlightNodes.forEach(({ node, offset: offsetWithinNode, length: lengthInNode }) => {
         // Don't call innerText to prevent DOM layout reflow.
@@ -363,13 +384,14 @@ class IndependenciaHighlighter {
     // from the serialised descriptors.
     if (highlightElements.length > 0) {
       const firstHighlightElement = highlightElements[0];
-      const nodesAndOffsets = findNodesAndOffsets(
+      const { nodesAndOffsets } = findNodesAndOffsets(
         {
           offset: Number.parseInt(firstHighlightElement.getAttribute(START_OFFSET_ATTR)),
           length: Number.parseInt(firstHighlightElement.getAttribute(LENGTH_ATTR)),
         },
         this.el,
         this.options.excludeNodes,
+        this.options.excludeWhiteSpaceAndReturns,
       );
 
       const highlightWrapper = firstHighlightElement.cloneNode(true);
@@ -381,6 +403,7 @@ class IndependenciaHighlighter {
         this.el,
         this.options.highlightedClass,
         this.options.normalizeElements,
+        this.options.namespaceDataAttribute,
       );
     } else if (descriptors) {
       // No elements in the DOM for the highlight?

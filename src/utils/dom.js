@@ -1,6 +1,6 @@
 import { isElementHighlight } from "./highlights";
 import { DATA_ATTR } from "../config";
-export const NODE_TYPE = { ELEMENT_NODE: 1, TEXT_NODE: 3 };
+export const NODE_TYPE = { ELEMENT_NODE: 1, TEXT_NODE: 3, COMMENT_NODE: 8 };
 
 /**
  * Utility functions to make DOM manipulation easier.
@@ -177,7 +177,7 @@ const dom = function(el) {
      *
      * This is used in scenarios where you have already consumed the parents while
      * traversing the tree but not the siblings of parents.
-     * 
+     *
      * @param {HTMLElement | undefined} rootNode  The root node which acts as a threshold
      * for how deep we can go in the tree when getting siblings or their parents.
      *
@@ -192,7 +192,7 @@ const dom = function(el) {
         current = current.parentNode;
       } while (!nextClosestSibling && current.parentNode && rootNode.contains(current));
 
-      if(!rootNode.contains(current)) {
+      if (!rootNode.contains(current)) {
         nextClosestSibling = null;
       }
       return nextClosestSibling;
@@ -222,13 +222,13 @@ const dom = function(el) {
     /**
      * Normalizes elements that have the a same id and are next to eachother in the child list
      */
-    normalizeElements: function(highlightedClass) {
+    normalizeElements: function(highlightedClass, dataAttr = DATA_ATTR) {
       if (!el) {
         return;
       }
 
       if (el.nodeType !== NODE_TYPE.TEXT_NODE) {
-        if (isElementHighlight(el, DATA_ATTR)) {
+        if (isElementHighlight(el, dataAttr)) {
           let className = el.className;
           while (
             className &&
@@ -240,7 +240,7 @@ const dom = function(el) {
             el.innerHTML += el.nextSibling.innerHTML;
             el.parentNode.removeChild(el.nextSibling);
           }
-          dom(el.firstChild).normalizeElements(highlightedClass);
+          dom(el.firstChild).normalizeElements(highlightedClass, dataAttr);
         } else {
           let id = el.id;
           while (
@@ -252,12 +252,12 @@ const dom = function(el) {
             el.innerHTML += el.nextSibling.innerHTML;
             el.parentNode.removeChild(el.nextSibling);
           }
-          dom(el.firstChild).normalizeElements(highlightedClass);
+          dom(el.firstChild).normalizeElements(highlightedClass, dataAttr);
         }
       } else {
         dom(el).normalizeTextNodes();
       }
-      dom(el.nextSibling).normalizeElements(highlightedClass);
+      dom(el.nextSibling).normalizeElements(highlightedClass, dataAttr);
     },
 
     /**
@@ -361,9 +361,18 @@ const dom = function(el) {
      * @returns {string}
      */
     textContentExcludingTags: function(excludeTags) {
-      // Ensure we simply return the text content in the case the element is a text node.
+      if (el && el.nodeType === NODE_TYPE.COMMENT_NODE) {
+        return "";
+      }
       if (el && el.nodeType !== NODE_TYPE.TEXT_NODE) {
+        // Ensure we simply return the text content in the case the element is a text node.
         const elCopy = el.cloneNode(true);
+        let commentsInCopy = [elCopy.querySelectorAll("*")].filter(
+          (element) => element.nodeType === NODE_TYPE.COMMENT_NODE,
+        );
+        commentsInCopy.forEach((toExcludeFromCopy) => {
+          toExcludeFromCopy.remove();
+        });
 
         const elementsToBeExcluded = excludeTags.reduce((accum, tag) => {
           return [...accum, ...elCopy.querySelectorAll(tag)];
@@ -371,6 +380,7 @@ const dom = function(el) {
         elementsToBeExcluded.forEach((toExcludeFromCopy) => {
           toExcludeFromCopy.remove();
         });
+
         return elCopy.textContent;
       }
       return el.textContent;
@@ -409,7 +419,7 @@ const dom = function(el) {
       }
       if (el.childNodes && el.childNodes.length > 0) {
         dom(el.firstChild).turnOffEventHandlers(listOfElementAttributes);
-      } else if (el.nodeType !== NODE_TYPE.TEXT_NODE) {
+      } else if (el.nodeType !== NODE_TYPE.TEXT_NODE && el.attributes) {
         let eventsForObject = dom(el).turnOffEventHandlersForElement();
         if (eventsForObject) {
           listOfElementAttributes.push(eventsForObject);
@@ -450,7 +460,12 @@ const dom = function(el) {
         return null;
       }
 
-      if (el.nodeType !== NODE_TYPE.TEXT_NODE && el.childNodes && el.childNodes.length === 0) {
+      if (
+        el.nodeType !== NODE_TYPE.TEXT_NODE &&
+        el.nodeType !== NODE_TYPE.COMMENT_NODE &&
+        el.childNodes &&
+        el.childNodes.length === 0
+      ) {
         var attributes = [].slice.call(el.attributes);
 
         var listOfAttributes = [];
@@ -479,7 +494,7 @@ const dom = function(el) {
     },
 
     /**
-     * Loop through the a list of attribues and add each and their value to the element.
+     * Loop through the a list of attributes and add each and their value to the element.
      *
      * @param {array} - list of attributes and their values
      */
