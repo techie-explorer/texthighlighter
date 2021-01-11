@@ -57,6 +57,12 @@ class IndependenciaHighlighter {
    * @param {string} options.contextClass - class added to element to which highlighter is applied,
    *  'highlighter-context' by default.
    * @param {string} options.namespaceDataAttribute - Data attribute to identify highlights that belong to a particular highlight instance.
+   * @param {Record<string, number>} options.priorities - Defines priorities for multiple highlighters, the keys
+   *                                                      are the namespaces for highlighters and the values are the priorities
+   *                                                      where the higher number has the higher priority.
+   *                                                      For example { userHighlights: 1, staticHighlights: 2 } would mean
+   *                                                      that highlights from the "static" highlighter will always appear above highlights
+   *                                                      from the "user" highlighter.
    * @param {function} options.onRemoveHighlight - function called before highlight is removed. Highlight is
    *  passed as param. Function should return true if highlight should be removed, or false - to prevent removal.
    * @param {function} options.onBeforeHighlight - function called before highlight is created. Range object is
