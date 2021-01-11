@@ -201,14 +201,6 @@ export function findNodesAndOffsets(
       if (normalisedEOCNodeOffset > highlight.offset) {
         const isTerminalNode = currentNode.childNodes.length === 0;
         if (isTerminalNode) {
-          if (excludeWhiteSpaceAndReturns)
-            console.log({
-              endOfCurrentNodeOffset,
-              textLength,
-              highlightOffset: highlight.offset,
-              textContent,
-            });
-
           if (currentNode.nodeType === NODE_TYPE.TEXT_NODE) {
             const offsetWithinNode =
               highlight.offset > currentOffset ? highlight.offset - currentOffset : 0;
@@ -230,18 +222,14 @@ export function findNodesAndOffsets(
 
             const nextNodeOffset =
               endOfCurrentNodeOffset - normalisedOffsetDiff - charactersToIgnoreInside;
-            if (excludeWhiteSpaceAndReturns)
-              console.log({
-                endOfCurrentNodeOffset,
-                normalisedOffsetDiff,
-                charactersToIgnoreInside,
-                nextNodeOffset,
-              });
 
             const lengthInHighlight =
               highlightEndOffset >= nextNodeOffset
                 ? textLength - offsetWithinNode
-                : highlightEndOffset - currentOffset - offsetWithinNode;
+                // While counting the actual amount of text in the DOM node, we need to retain
+                // any characters that are ignored when determining nodes from a highlight offset and length
+                // to know exactly where to inject the highlight's spans without modifying the original text.
+                : highlightEndOffset - currentOffset - offsetWithinNode + charactersToIgnoreInside;
 
             // Only exclude text normalised away from the node at the start of the
             // entire highlight.
@@ -271,7 +259,7 @@ export function findNodesAndOffsets(
           currentNode = currentNode.childNodes[0];
         }
       } else {
-        currentOffset = endOfCurrentNodeOffset;
+        currentOffset = normalisedEOCNodeOffset;
         if (currentNode !== parentNode) {
           currentNode = currentNode.nextSibling;
         } else {
@@ -291,6 +279,8 @@ export function getElementOffset(
   rootElement,
   excludeNodeNames = IGNORE_TAGS,
   excludeWhiteSpaceAndReturns = false,
+  startOffset = 0,
+  isStartOfRange = false
 ) {
   let offset = 0;
   let childNodes;
@@ -305,7 +295,7 @@ export function getElementOffset(
         childNodes,
         childElementIndex,
         excludeNodeNames,
-        excludeWhiteSpaceAndReturns,
+        excludeWhiteSpaceAndReturns
       );
       offset += offsetInCurrentParent;
     }
@@ -313,7 +303,7 @@ export function getElementOffset(
     currentElement = currentElement.parentNode;
   } while (currentElement !== rootElement || !currentElement);
 
-  return offset;
+  return excludeWhiteSpaceAndReturns && isStartOfRange ? offset : offset + startOffset;
 }
 
 function getTextOffsetBefore(
@@ -544,9 +534,11 @@ export function getHighlightedTextRelativeToRoot({
   startOffset,
   length,
   excludeTags = IGNORE_TAGS,
+  excludeWhiteSpaceAndReturns = false
 }) {
   const textContent = dom(rootElement).textContentExcludingTags(arrayToLower(excludeTags));
-  const highlightedRawText = textContent.substring(
+  const finalTextContent = excludeWhiteSpaceAndReturns ? normaliseText(textContent) : textContent;
+  const highlightedRawText = finalTextContent.substring(
     startOffset,
     Number.parseInt(startOffset) + Number.parseInt(length),
   );
@@ -578,10 +570,9 @@ export function createDescriptors({
       rootElement,
       excludeNodeNames,
       excludeWhiteSpaceAndReturns,
-    ) + normalisedStartOffset;
-
-  if (excludeWhiteSpaceAndReturns)
-    console.log({ rangeStartOffset: range.startOffset, startOffset, normalisedStartOffset });
+      normalisedStartOffset,
+      true
+    );
 
   const normalisedEndOffset = excludeWhiteSpaceAndReturns
     ? normaliseOffset(range.endOffset, range.endContainer.textContent)
@@ -595,7 +586,9 @@ export function createDescriptors({
           rootElement,
           excludeNodeNames,
           excludeWhiteSpaceAndReturns,
-        ) + normalisedEndOffset;
+          normalisedEndOffset,
+          false
+        );
 
   const length = endOffset - startOffset;
 
@@ -613,7 +606,6 @@ export function createDescriptors({
     startOffset,
     length,
   ];
-  if (excludeWhiteSpaceAndReturns) console.log({ descriptor });
   return [descriptor];
 }
 

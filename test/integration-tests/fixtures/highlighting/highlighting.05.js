@@ -17,20 +17,14 @@ const fixtures = {
           { color: "red", id: "", length: 62, startOffset: 7, time: "test" },
           text("Some text here"), //40
         ),
-        highlight(
-          { color: "red", id: "", length: 62, startOffset: 7, time: "test" },
-          text("\n     \n\n     "),
-        ),
+        text("\n     \n\n     "),
         span(
           highlight(
             { color: "red", id: "", length: 62, startOffset: 7, time: "test" },
             "Some more \n   text here", //59
           ),
         ),
-        highlight(
-          { color: "red", id: "", length: 62, startOffset: 7, time: "test" },
-          text("\n\n\n    \n   "),
-        ),
+        text("\n\n\n    \n   "),
         spanWithAttrs({ id: "highlight-1-end-node" })(
           highlight({ color: "red", id: "", length: 62, startOffset: 7, time: "test" }, "con"), //62
           "sectetur adipiscit",

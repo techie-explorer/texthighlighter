@@ -253,6 +253,7 @@ class IndependenciaHighlighter {
         startOffset: offset,
         length,
         excludeTags: this.options.excludeNodes,
+        excludeWhiteSpaceAndReturns: this.options.excludeWhiteSpaceAndReturns
       }),
       offset,
       length,
@@ -306,14 +307,6 @@ class IndependenciaHighlighter {
         self.options.excludeNodes,
         self.options.excludeWhiteSpaceAndReturns,
       );
-      if (self.options.excludeWhiteSpaceAndReturns) {
-        console.log({
-          highlightNodes: highlightNodes.map(({ node, ...rest }) => ({
-            nodeText: node.textContent,
-            ...rest,
-          })),
-        });
-      }
 
       highlightNodes.forEach(({ node, offset: offsetWithinNode, length: lengthInNode }) => {
         // Don't call innerText to prevent DOM layout reflow.

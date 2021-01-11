@@ -119,8 +119,7 @@ describe("highlighting a given range", () => {
       });
 
       const htmlDuring = root.innerHTML;
-
-      if (params.excludeWhiteSpaceAndReturns) console.log(toDiffableHtml(htmlDuring));
+      
       expect(toDiffableHtml(htmlDuring)).toEqual(toDiffableHtml(fixture().outerHTML));
 
       if (params.highlightIdToRemove) {

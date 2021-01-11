@@ -2,7 +2,6 @@ import dom from "./utils/dom";
 import { bindEvents, unbindEvents } from "./utils/events";
 import Primitivo from "./highlighters/primitivo";
 import Independencia from "./highlighters/independencia";
-import Estatico from "./highlighters/estatico";
 import { DATA_ATTR, IGNORE_TAGS } from "./config";
 import { createWrapper } from "./utils/highlights";
 
@@ -10,18 +9,14 @@ const highlighters = {
   primitivo: Primitivo,
   "v1-2014": Primitivo,
   independencia: Independencia,
-  "v2-2019": Independencia,
-  estatico: Estatico,
-  "v2-estatico-2021": Estatico 
+  "v2-2019": Independencia
 };
 
 const versionNames = {
   "v1-2014": "Primitivo (v1-2014)",
   primitivo: "Primitivo (v1-2014)",
   "v2-2019": "Independencia (v2-2019)",
-  independencia: "Independencia (v2-2019)",
-  "v2-estatico-2021": "Estatico (v2-2021)",
-  estatico: "Estatico (v2-2021)"
+  independencia: "Independencia (v2-2019)"
 };
 
 /**
@@ -54,10 +49,6 @@ class TextHighlighter {
    *   from eachother and other element nodes within the context DOM object. v2 uses data attributes
    *   as the source of truth about the text range selected to create the original highlight.
    *   This allows us freedom to manipulate the DOM at will and handle overlapping highlights a lot better.
-   *  
-   *   estatico (v2-2021) is for programmatically injecting highlights into a root node
-   *   with all the functionality of independencia without the ability to create new highlights from
-   *   text selections.
    *
    * @param {string} [options.color=#ffff7b] - highlight color.
    * @param {string[]} [options.excludeNodes=["SCRIPT", "STYLE", "SELECT", "OPTION", "BUTTON", "OBJECT", "APPLET", "VIDEO", "AUDIO", "CANVAS", "EMBED", "PARAM", "METER", "PROGRESS"]] - Node types to exclude when calculating offsets and determining where to inject highlights.

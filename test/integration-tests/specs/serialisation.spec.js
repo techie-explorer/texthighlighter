@@ -10,10 +10,6 @@ describe("serialisation and deserialisation of highlights", () => {
     root = document.getElementById("root");
   });
 
-  beforeEach(() => {
-    highlighter = new TextHighlighter(root, { version: "independencia" });
-  });
-
   afterEach(() => {
     root.innerHTML = "";
   });
@@ -33,9 +29,17 @@ describe("serialisation and deserialisation of highlights", () => {
    * @param {string} params.fixturePrefix - fixture name prefix
    * @param {string} params.fixturePostfix - fixture name postfix
    * @param {string} params.expectedText - expected text content of serialized highlights
+   * @param {string} params.excludeWhiteSpaceAndReturns - Don't count carriage returns and
+   *                                                      following white spaces in the offset
+   *                                                      and length of a highlight.
    */
   const testSerialisation = (params) => {
     it(params.title, () => {
+      highlighter = new TextHighlighter(root, { 
+        version: "independencia", 
+        excludeWhiteSpaceAndReturns: params.excludeWhiteSpaceAndReturns 
+      });
+
       const fixture = fixtures[`${params.fixturePrefix}.${params.fixturePostfix}`];
       const fixtureBase = fixtures[`${params.fixturePrefix}.base`];
       setContents(root, fixture());
@@ -59,13 +63,12 @@ describe("serialisation and deserialisation of highlights", () => {
         { text: [], descriptors: [] },
       );
 
-      expect(text).toEqual(params.expectedText);
-
       setContents(root, fixtureBase());
       highlighter.deserializeHighlights(JSON.stringify(descriptors));
       const htmlAfter = root.innerHTML;
 
       expect(toDiffableHtml(htmlAfter)).toEqual(toDiffableHtml(htmlBefore));
+      expect(text).toEqual(params.expectedText);
     });
   };
 
@@ -132,5 +135,16 @@ describe("serialisation and deserialisation of highlights", () => {
     ids: ["test-multiple-1", "test-multiple-2"],
     fixturePostfix: "multiple",
     expectedText: ["AZZZZZCCCLorem ipsum", "DD"],
+  });
+
+  testSerialisation({
+    title:
+      "should serialise and deserialise correctly for excludeWhiteSpaceAndReturns mode " +
+      "disregarding content in style and script tags",
+    fixturePrefix: "05.serialisation",
+    ids: ["test-node-1", "test-node-2"],
+    fixturePostfix: "excludeWhiteSpaceAndReturns",
+    expectedText: ["AZZZZZCCCLorem ipsum", "DD"],
+    excludeWhiteSpaceAndReturns: true,
   });
 });
