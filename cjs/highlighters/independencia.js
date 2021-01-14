@@ -72,6 +72,12 @@ function () {
    * @param {string} options.contextClass - class added to element to which highlighter is applied,
    *  'highlighter-context' by default.
    * @param {string} options.namespaceDataAttribute - Data attribute to identify highlights that belong to a particular highlight instance.
+   * @param {Record<string, number>} options.priorities - Defines priorities for multiple highlighters, the keys
+   *                                                      are the namespaces for highlighters and the values are the priorities
+   *                                                      where the higher number has the higher priority.
+   *                                                      For example { userHighlights: 1, staticHighlights: 2 } would mean
+   *                                                      that highlights from the "static" highlighter will always appear above highlights
+   *                                                      from the "user" highlighter.
    * @param {function} options.onRemoveHighlight - function called before highlight is removed. Highlight is
    *  passed as param. Function should return true if highlight should be removed, or false - to prevent removal.
    * @param {function} options.onBeforeHighlight - function called before highlight is created. Range object is
@@ -328,9 +334,14 @@ function () {
           var node = _ref.node,
               offsetWithinNode = _ref.offset,
               lengthInNode = _ref.length;
-          // Don't call innerText to prevent DOM layout reflow.
-          // Visible text content may be a bit of naive name but represents
+          var _self$options = self.options,
+              priorities = _self$options.priorities,
+              namespaceDataAttribute = _self$options.namespaceDataAttribute;
+          var higherPriorityHighlights = (0, _highlights.findHigherPriorityHighlights)(parentNode, node, priorities, namespaceDataAttribute); // Don't call innerText to prevent DOM layout reflow for every single node,
+          // in some cases there can be thousands of nodes subject to highlighting.
+          // Visible text content may be a bit of a naive name but represents
           // everything excluding new lines and white space.
+
           var visibleTextContent = node.textContent.trim().replace(/(\r\n|\n|\r)/gm, "");
 
           if (visibleTextContent.length > 0) {
@@ -343,8 +354,14 @@ function () {
 
             if (hlNode.previousSibling && !hlNode.previousSibling.nodeValue) {
               (0, _dom["default"])(hlNode.previousSibling).remove();
-            }
+            } // Ensure highlights from higher priority highlighters retain
+            // focus by nesting their wrappers.
 
+
+            higherPriorityHighlights.forEach(function (otherHighlightNode) {
+              var otherHlNodeCopy = otherHighlightNode.cloneNode(false);
+              hlNode = (0, _dom["default"])(hlNode).wrap(otherHlNodeCopy);
+            });
             highlight = (0, _dom["default"])(hlNode).wrap((0, _dom["default"])().fromHTML(hl.wrapper)[0]);
             highlights.push(highlight);
           }
@@ -395,7 +412,7 @@ function () {
   }, {
     key: "focusUsingId",
     value: function focusUsingId(id, descriptors) {
-      var highlightElements = this.el.querySelectorAll(".".concat(id));
+      var highlightElements = this.el.querySelectorAll(".".concat(id, "[").concat(this.options.namespaceDataAttribute, "=\"true\"]"));
       var eventItems = [];
       (0, _dom["default"])(this.el).turnOffEventHandlers(eventItems); // For the future, we may save by accepting the offset and length as parameters as the caller should have this data
       // from the serialised descriptors.
@@ -411,7 +428,7 @@ function () {
 
         var highlightWrapper = firstHighlightElement.cloneNode(true);
         highlightWrapper.innerHTML = "";
-        (0, _highlights.focusHighlightNodes)(id, nodesAndOffsets, highlightWrapper, this.el, this.options.highlightedClass, this.options.normalizeElements, this.options.namespaceDataAttribute);
+        (0, _highlights.focusHighlightNodes)(id, nodesAndOffsets, highlightWrapper, this.el, this.options.highlightedClass, this.options.normalizeElements, this.options.priorities, this.options.namespaceDataAttribute);
       } else if (descriptors) {
         // No elements in the DOM for the highlight?
         // let's deserialize the descriptor to bring the highlight into focus.

@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>config.js - Documentation</title>
+    <title>utils/priorities.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -32,7 +32,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">config.js</h1>
+    <h1 class="page-title">utils/priorities.js</h1>
     
 
     
@@ -43,39 +43,29 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/**
- * Attribute added by default to every highlight.
- * @type {string}
+ * Determines whether the provided highlighter has
+ * the highest priority of a set of highlighters applied to
+ * the same document.
+ *
+ * @param {string} highlighterNamespace
+ * @param {Record&lt;string, number>} priorities
+ *
+ * @return boolean
  */
-export const DATA_ATTR = "data-highlighted";
+export function isHighestPriority(highlighterNamespace, priorities) {
+  const keys = Object.keys(priorities);
+  if (keys.length === 0) return true;
+  if (!(highlighterNamespace in priorities)) return false;
 
-/**
- * Attribute used to group highlight wrappers.
- * @type {string}
- */
-export const TIMESTAMP_ATTR = "data-timestamp";
-export const START_OFFSET_ATTR = "data-start-offset";
-export const LENGTH_ATTR = "data-length";
-
-/**
- * Don't highlight content of these tags.
- * @type {string[]}
- */
-export const IGNORE_TAGS = [
-  "SCRIPT",
-  "STYLE",
-  "SELECT",
-  "OPTION",
-  "BUTTON",
-  "OBJECT",
-  "APPLET",
-  "VIDEO",
-  "AUDIO",
-  "CANVAS",
-  "EMBED",
-  "PARAM",
-  "METER",
-  "PROGRESS",
-];
+  const highlighterPriority = priorities[highlighterNamespace];
+  let hasHighestPriority = true;
+  let i = 0;
+  while (hasHighestPriority &amp;&amp; i &lt; keys.length) {
+    hasHighestPriority = priorities[keys[i]] &lt;= highlighterPriority;
+    i = i + 1;
+  }
+  return hasHighestPriority;
+}
 </code></pre>
         </article>
     </section>

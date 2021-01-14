@@ -86,6 +86,12 @@ function () {
      * @param {boolean} options.excludeWhiteSpaceAndReturns - Whether or not to exclude white space and carriage returns while calculating text content
      *                                                        offsets. The white space that is excluded is only the white space that comes directly
      *                                                        after carriage returns.
+     * @param {Record<string, number>} options.priorities - Defines priorities for multiple highlighters, the keys
+     *                                                      are the namespaces for highlighters and the values are the priorities
+     *                                                      where the higher number has the higher priority.
+     *                                                      For example { userHighlights: 1, staticHighlights: 2 } would mean
+     *                                                      that highlights from the "static" highlighter will always appear above highlights
+     *                                                      from the "user" highlighter.
      * @param {string} [options.contextClass=highlighter-context] - class added to element to which highlighter is applied,
      *  'highlighter-context' by default.
      * @param {boolean} [options.useDefaultEvents=true] - Whether or not to use the default events to listen for text selections.
@@ -133,6 +139,7 @@ function () {
       excludeNodes: _config.IGNORE_TAGS,
       excludeWhiteSpaceAndReturns: false,
       namespaceDataAttribute: _config.DATA_ATTR,
+      priorities: {},
       normalizeElements: false,
       keepRange: false,
       cancelProperty: "cancel",
@@ -153,6 +160,7 @@ function () {
       },
       onAfterHighlight: function onAfterHighlight() {}
     }, options);
+    this.highlightHandler = this.highlightHandler.bind(this);
 
     if (!highlighters[this.options.version]) {
       throw new Error("Please provide a valid version of the text highlighting functionality");
