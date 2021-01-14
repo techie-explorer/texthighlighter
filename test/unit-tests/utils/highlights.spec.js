@@ -4,8 +4,20 @@ import {
   findNodesAndOffsets,
   getElementOffset,
   validateIndependenciaDescriptors,
+  findHigherPriorityHighlights,
 } from "../../../src/utils/highlights";
-import { span, b, i, div, img, style, script, docFrag, text } from "../../utils/dom-elements";
+import {
+  span,
+  b,
+  i,
+  div,
+  img,
+  style,
+  script,
+  docFrag,
+  text,
+  highlight,
+} from "../../utils/dom-elements";
 
 /**
  * Extracts text from nodes so we can do equality comparisons
@@ -18,6 +30,58 @@ const prepareNodes = (nodes) =>
     ...rest,
     nodeText: node.textContent,
   }));
+
+function createShouldShowHighlightNodeFixture() {
+  const targetNode1 = text("Fantastic");
+  const targetNode2 = text("Wonderful");
+  const parentDiv = div(
+    div("\n     Something excellent is happening \n"),
+    span(text("\n  "), i("here\n   !"), text("\n    ")),
+    highlight(
+      {
+        color: "green",
+        id: "test-overlapping-highlights-3",
+        startOffset: 13,
+        length: 9,
+        dataAttr: "data-highlighter-3",
+      },
+      "good",
+      highlight(
+        {
+          color: "green",
+          id: "test-overlapping-highlights-1",
+          startOffset: 13,
+          length: 9,
+          dataAttr: "data-highlighter-1",
+        },
+        "awesome",
+        highlight(
+          {
+            color: "red",
+            id: "test-overlapping-highlights-4",
+            startOffset: 10,
+            length: 9,
+            dataAttr: "data-highlighter-4",
+          },
+          "marvellous",
+          highlight(
+            {
+              color: "green",
+              id: "test-overlapping-highlights-2",
+              startOffset: 13,
+              length: 9,
+              dataAttr: "data-highlighter-2",
+            },
+            targetNode1,
+          ),
+        ),
+      ),
+    ),
+    text("\n\n"),
+    targetNode2,
+  );
+  return { targetNode1, targetNode2, parentDiv };
+}
 
 describe("highlighting utility functionality", () => {
   let root;
@@ -401,6 +465,71 @@ describe("highlighting utility functionality", () => {
             normalisedText: "here!",
           },
         ]);
+      },
+    );
+  });
+
+  describe("#findHigherPriorityHighlights()", () => {
+    it(
+      "should find all higher priority highlights when there are" +
+        " some highlights with a lower priority and some with a higher one",
+      () => {
+        const { targetNode1: targetNode, parentDiv } = createShouldShowHighlightNodeFixture();
+        const otherHighlights = findHigherPriorityHighlights(
+          parentDiv,
+          targetNode,
+          {
+            "data-highlighter-1": 5,
+            "data-highlighter-2": 114,
+            "data-highlighter-3": 116,
+            "data-highlighter-4": 115,
+          },
+          "data-highlighter-2",
+        );
+        expect(otherHighlights.length).toEqual(2);
+        // Order must be by highest priority first.
+        expect(otherHighlights[0].getAttribute("data-highlighter-3")).not.toBeNull();
+        expect(otherHighlights[1].getAttribute("data-highlighter-4")).not.toBeNull();
+      },
+    );
+
+    it(
+      "should not find any higher priority highlights from another highlighter " +
+        "when the current highlighter has the highest priority",
+      () => {
+        const { targetNode1: targetNode, parentDiv } = createShouldShowHighlightNodeFixture();
+        const otherHighlights = findHigherPriorityHighlights(
+          parentDiv,
+          targetNode,
+          {
+            "data-highlighter-1": 5,
+            "data-highlighter-2": 114,
+            "data-highlighter-3": 103,
+            "data-highlighter-4": 100,
+          },
+          "data-highlighter-2",
+        );
+        expect(otherHighlights.length).toBe(0);
+      },
+    );
+
+    it(
+      "should not find any other highlights for a node when another highlighter" +
+        " has a higher priority but doesn't have any highlights that include the current node",
+      () => {
+        const { targetNode2: targetNode, parentDiv } = createShouldShowHighlightNodeFixture();
+        const otherHighlights = findHigherPriorityHighlights(
+          parentDiv,
+          targetNode,
+          {
+            "data-highlighter-2": 5,
+            "data-highlighter-1": 114,
+            "data-highlighter-3": 112,
+            "data-highlighter-4": 125,
+          },
+          "data-highlighter-2",
+        );
+        expect(otherHighlights.length).toBe(0);
       },
     );
   });

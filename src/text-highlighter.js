@@ -122,6 +122,8 @@ class TextHighlighter {
       ...options,
     };
 
+    this.highlightHandler = this.highlightHandler.bind(this);
+
     if (!highlighters[this.options.version]) {
       throw new Error("Please provide a valid version of the text highlighting functionality");
     }

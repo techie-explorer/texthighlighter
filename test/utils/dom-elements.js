@@ -60,7 +60,10 @@ const comment = (commentText) => {
 
 const text = (textContent) => document.createTextNode(textContent);
 
-const highlight = ({ color, id, startOffset, length, time }, ...children) => {
+const highlight = (
+  { color, id, startOffset, length, time, dataAttr = "data-highlighted" },
+  ...children
+) => {
   const docElem = span(...children);
   docElem.style.backgroundColor = color;
   docElem.classList.add("highlighted");
@@ -68,7 +71,7 @@ const highlight = ({ color, id, startOffset, length, time }, ...children) => {
     docElem.classList.add(id);
   }
   docElem.setAttribute(TIMESTAMP_ATTR, time);
-  docElem.setAttribute("data-highlighted", true);
+  docElem.setAttribute(dataAttr, true);
   docElem.setAttribute(START_OFFSET_ATTR, startOffset);
   docElem.setAttribute(LENGTH_ATTR, length);
 

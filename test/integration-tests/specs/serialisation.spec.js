@@ -28,6 +28,8 @@ describe("serialisation and deserialisation of highlights", () => {
    * @param {string[]} params.ids - The unique identifier for collections of highlight elements representing the same highlight.
    * @param {string} params.fixturePrefix - fixture name prefix
    * @param {string} params.fixturePostfix - fixture name postfix
+   * @param {Record<string, number>} params.priorities - The priorities for multiple highlighters.
+   * @param {string} params.namespaceDataAttribute - The namespace for the highlighter instance under test.
    * @param {string} params.expectedText - expected text content of serialized highlights
    * @param {string} params.excludeWhiteSpaceAndReturns - Don't count carriage returns and
    *                                                      following white spaces in the offset
@@ -35,10 +37,15 @@ describe("serialisation and deserialisation of highlights", () => {
    */
   const testSerialisation = (params) => {
     it(params.title, () => {
-      highlighter = new TextHighlighter(root, {
+      const options = {
         version: "independencia",
         excludeWhiteSpaceAndReturns: params.excludeWhiteSpaceAndReturns,
-      });
+        priorities: params.priorities || {},
+      };
+      if (params.namespaceDataAttribute) {
+        options.namespaceDataAttribute = params.namespaceDataAttribute;
+      }
+      highlighter = new TextHighlighter(root, options);
 
       const fixture = fixtures[`${params.fixturePrefix}.${params.fixturePostfix}`];
       const fixtureBase = fixtures[`${params.fixturePrefix}.base`];
@@ -146,5 +153,20 @@ describe("serialisation and deserialisation of highlights", () => {
     fixturePostfix: "excludeWhiteSpaceAndReturns",
     expectedText: ["AZZZZZCCCLorem ipsum", "DD"],
     excludeWhiteSpaceAndReturns: true,
+  });
+
+  testSerialisation({
+    title:
+      "should not deserialise parts of a highlight into the DOM when " +
+      "a highlight created by a highlighter with a higher priority is in focus",
+    fixturePrefix: "06.serialisation",
+    ids: ["test-node-1", "test-node-2"],
+    priorities: {
+      "data-highlighter-1": 2,
+      "data-highlighter-2": 24,
+    },
+    namespaceDataAttribute: "data-highlighter-1",
+    fixturePostfix: "priorityHighlighter",
+    expectedText: ["AZZZZZ\n    CCC\n    Lorem \n  ipsum", "DD"],
   });
 });

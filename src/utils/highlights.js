@@ -14,6 +14,7 @@
  */
 
 import dom, { NODE_TYPE } from "./dom";
+import { isHighestPriority } from "./priorities";
 import { DATA_ATTR, START_OFFSET_ATTR, LENGTH_ATTR, IGNORE_TAGS } from "../config";
 import { arrayToLower } from "./arrays";
 
@@ -609,29 +610,86 @@ export function createDescriptors({
 }
 
 /**
+ * Returns the namespaces for the provided element given a list of namespaces
+ * @param {HTMLElement} element
+ * @param {Array<string>} namespaces
  *
+ * @param {string}
+ */
+
+function getHighlighterNamespace(element, namespaces) {
+  return namespaces.find((namespace) => !!element.getAttribute(namespace));
+}
+
+/**
+ * Collects all the higher priority highlight nodes
+ * when trying to focus or deserialise a portion of a highlight
+ * into a given DOM node.
+ *
+ * @param {HTMLElement} rootElement The parent element.
+ * @param {HTMLElement} node  The current node.
+ * @param {Record<string, number>} priorities The priorities for multiple highlighters.
+ * @param {string} namespaceDataAttribute The namespace data attribute for highlights for a provided text highlighter instance.
+ *
+ * @return {HTMLElement[]}
+ */
+export function findHigherPriorityHighlights(parentNode, node, priorities, namespaceDataAttribute) {
+  const ancestors = dom(node).parentsUpTo(parentNode);
+  const namespacePriority = priorities[namespaceDataAttribute];
+
+  const higherPriorityHighlights = [];
+
+  ancestors.forEach((element) => {
+    const namespace = getHighlighterNamespace(element, Object.keys(priorities));
+    if (namespace && priorities[namespace] > namespacePriority) {
+      higherPriorityHighlights.push({ element, namespacePriority: priorities[namespace] });
+    }
+  });
+  higherPriorityHighlights.sort((a, b) => {
+    return b.namespacePriority - a.namespacePriority;
+  });
+
+  return higherPriorityHighlights.map(({ element }) => element);
+}
+
+/**
+ * Determines whether the highlight with the provided unique id is the closest parent
+ * to the provided node of all the potential highlight wrappers.
+ *
+ * In the case an id is not provided it will simply check if any highlight for the given
+ * dataAttr namespace is the closest parent.
  *
  * @param {HTMLElement} node  The element we need to get parent information for.
- * @param {string} id The unique id of the collection of elements representing a highlight.
  * @param {HTMLElement} rootElement The root element of the context to stop at.
  * @param {string} dataAttr The namespace data attribute for highlights for a provided text highlighter instance.
+ * @param {string} id The unique id of the collection of elements representing a highlight.
  *
  * @return {boolean}
  */
-function isClosestHighlightParent(node, id, rootElement, dataAttr = DATA_ATTR) {
-  let isClosestHighlightParent = true;
+function isClosestHighlightParent(node, rootElement, dataAttr = DATA_ATTR, id = null) {
+  let isClosest = true;
   let currentNode = node.parentNode;
 
-  while (currentNode && currentNode !== rootElement && isClosestHighlightParent) {
-    if (isElementHighlight(currentNode, dataAttr) && !currentNode.classList.contains(id)) {
-      // The case there is a closer parent than the highlight for the provided id.
-      isClosestHighlightParent = false;
+  let nodeHighlightParentCount = 0;
+  while (currentNode && currentNode !== rootElement && isClosest) {
+    if (isElementHighlight(currentNode, dataAttr)) {
+      const isDifferentHighlight = id && !currentNode.classList.contains(id);
+      nodeHighlightParentCount += 1;
+      if (isDifferentHighlight) {
+        // The case there is a closer parent than the highlight for the provided id.
+        isClosest = false;
+      } else {
+        currentNode = currentNode.parentNode;
+      }
     } else {
       currentNode = currentNode.parentNode;
     }
   }
 
-  return isClosestHighlightParent;
+  // In the case the provided node doesn't have any highlight wrapper
+  // parents in the tree, then the provided highlight is not considered
+  // the closest parent as there aren't any.
+  return nodeHighlightParentCount === 0 ? false : isClosest;
 }
 
 /**
@@ -688,6 +746,7 @@ function isClosestHighlightParent(node, id, rootElement, dataAttr = DATA_ATTR) {
  * @param {HTMLElement} rootElement The root context element to normalise elements within.
  * @param {string} highlightedClass The class used to identify highlights.
  * @param {boolean} normalizeElements Whether or not elements should be normalised.
+ * @param {Record<string, number>} priorities Provides priorities for multiple highlighters operating in the same root node.
  * @param {string} dataAttr The namespace data attribute for highlights for a provided text highlighter instance.
  */
 export function focusHighlightNodes(
@@ -697,12 +756,22 @@ export function focusHighlightNodes(
   rootElement,
   highlightedClass,
   normalizeElements,
+  priorities,
   dataAttr = DATA_ATTR,
 ) {
   nodeInfoList.forEach((nodeInfo) => {
     const node = nodeInfo.node;
-    // Only wrap the node if the closest highlight parent isn't one with the given id.
-    if (!isClosestHighlightParent(node, id, rootElement, dataAttr)) {
+    // Only wrap the node if the closest highlight parent isn't one with the given id
+    // and if the highlighter takes priority over highlights from other highlighter instances.
+    const higherPriorityHighlights = findHigherPriorityHighlights(
+      rootElement,
+      node,
+      priorities,
+      dataAttr,
+    );
+    const isClosest = isClosestHighlightParent(node, rootElement, dataAttr, id);
+
+    if (higherPriorityHighlights.length === 0 && !isClosest) {
       // Ensure any ancestors that aren't direct parents that represent the same highlight wrapper are removed.
       const ancestors = dom(node).parentsUpTo(rootElement);
       ancestors.forEach((ancestor) => {
@@ -742,7 +811,8 @@ export function focusHighlightNodes(
 }
 
 /**
- * Validation for descriptors to ensure they are of the correct format to be used by the Independencia highlighter.
+ * Validation for descriptors to ensure they are of the correct format to be used
+ * by the Independencia highlighter.
  *
  * @param {array} descriptors  The descriptors to be validated.
  * @return {boolean} - if the descriptors are valid or not.

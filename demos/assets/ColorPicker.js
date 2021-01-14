@@ -1,53 +1,51 @@
-var ColorPicker = (function () {
-    'use strict';
+var ColorPicker = (function() {
+  "use strict";
 
-    var COLORS = [
-        '#FFFF7B',
-        '#F44336',
-        '#8BC34A',
-        '#29B6F6'
-    ];
-    var CLASS_SELECTED = 'selected';
+  var COLORS = ["#FFFF7B", "#F44336", "#8BC34A", "#29B6F6"];
+  var CLASS_SELECTED = "selected";
 
-    function ColorPicker(el) {
-        var self = this;
-        this.color = COLORS[0];
-        this.selected = null;
+  function ColorPicker(el, excludeColors = []) {
+    var self = this;
+    var finalColors = COLORS.filter((color) => !excludeColors.includes(color));
+    this.color = finalColors[0];
+    this.selected = null;
 
-        COLORS.forEach(function (color) {
-            var div = document.createElement('div');
-            div.style.backgroundColor = color;
+    finalColors.forEach(function(color) {
+      var div = document.createElement("div");
+      div.style.backgroundColor = color;
 
-            if (self.color === color) {
-                div.className = CLASS_SELECTED;
-                self.selected = div;
+      if (self.color === color) {
+        div.className = CLASS_SELECTED;
+        self.selected = div;
+      }
+
+      div.addEventListener(
+        "click",
+        function() {
+          if (color !== self.color) {
+            self.color = color;
+
+            if (self.selected) {
+              self.selected.className = "";
             }
+            self.selected = div;
+            self.selected.className = CLASS_SELECTED;
 
-            div.addEventListener('click', function () {
-                if (color !== self.color) {
-                    self.color = color;
+            if (typeof self.callback === "function") {
+              self.callback.call(self, color);
+            }
+          }
+        },
+        false,
+      );
 
-                    if (self.selected) {
-                        self.selected.className = '';
-                    }
-                    self.selected = div;
-                    self.selected.className = CLASS_SELECTED;
+      el.appendChild(div);
+    });
+  }
 
-                    if (typeof self.callback === 'function') {
-                        self.callback.call(self, color);
-                    }
-                }
-            }, false);
+  ColorPicker.prototype.onColorChange = function(callback) {
+    this.callback = callback;
+  };
 
-            el.appendChild(div);
-        });
-
-    }
-
-
-    ColorPicker.prototype.onColorChange = function (callback) {
-        this.callback = callback;
-    };
-
-    return ColorPicker;
+  return ColorPicker;
 })();
