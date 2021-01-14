@@ -8,6 +8,7 @@ import {
   getHighlightedTextRelativeToRoot,
   focusHighlightNodes,
   validateIndependenciaDescriptors,
+  findHigherPriorityHighlights,
 } from "../utils/highlights";
 import { START_OFFSET_ATTR, LENGTH_ATTR, TIMESTAMP_ATTR } from "../config";
 import dom from "../utils/dom";
@@ -57,6 +58,12 @@ class IndependenciaHighlighter {
    * @param {string} options.contextClass - class added to element to which highlighter is applied,
    *  'highlighter-context' by default.
    * @param {string} options.namespaceDataAttribute - Data attribute to identify highlights that belong to a particular highlight instance.
+   * @param {Record<string, number>} options.priorities - Defines priorities for multiple highlighters, the keys
+   *                                                      are the namespaces for highlighters and the values are the priorities
+   *                                                      where the higher number has the higher priority.
+   *                                                      For example { userHighlights: 1, staticHighlights: 2 } would mean
+   *                                                      that highlights from the "static" highlighter will always appear above highlights
+   *                                                      from the "user" highlighter.
    * @param {function} options.onRemoveHighlight - function called before highlight is removed. Highlight is
    *  passed as param. Function should return true if highlight should be removed, or false - to prevent removal.
    * @param {function} options.onBeforeHighlight - function called before highlight is created. Range object is
@@ -309,8 +316,16 @@ class IndependenciaHighlighter {
       );
 
       highlightNodes.forEach(({ node, offset: offsetWithinNode, length: lengthInNode }) => {
-        // Don't call innerText to prevent DOM layout reflow.
-        // Visible text content may be a bit of naive name but represents
+        const { priorities, namespaceDataAttribute } = self.options;
+        const higherPriorityHighlights = findHigherPriorityHighlights(
+          parentNode,
+          node,
+          priorities,
+          namespaceDataAttribute,
+        );
+        // Don't call innerText to prevent DOM layout reflow for every single node,
+        // in some cases there can be thousands of nodes subject to highlighting.
+        // Visible text content may be a bit of a naive name but represents
         // everything excluding new lines and white space.
         const visibleTextContent = node.textContent.trim().replace(/(\r\n|\n|\r)/gm, "");
 
@@ -325,7 +340,15 @@ class IndependenciaHighlighter {
           if (hlNode.previousSibling && !hlNode.previousSibling.nodeValue) {
             dom(hlNode.previousSibling).remove();
           }
+
+          // Ensure highlights from higher priority highlighters retain
+          // focus by nesting their wrappers.
+          higherPriorityHighlights.forEach((otherHighlightNode) => {
+            const otherHlNodeCopy = otherHighlightNode.cloneNode(false);
+            hlNode = dom(hlNode).wrap(otherHlNodeCopy);
+          });
           highlight = dom(hlNode).wrap(dom().fromHTML(hl.wrapper)[0]);
+
           highlights.push(highlight);
         }
       });
@@ -376,7 +399,10 @@ class IndependenciaHighlighter {
    * @memberof IndependenciaHighlighter
    */
   focusUsingId(id, descriptors) {
-    const highlightElements = this.el.querySelectorAll(`.${id}`);
+    const highlightElements = this.el.querySelectorAll(
+      `.${id}[${this.options.namespaceDataAttribute}="true"]`,
+    );
+
     let eventItems = [];
     dom(this.el).turnOffEventHandlers(eventItems);
 
@@ -403,6 +429,7 @@ class IndependenciaHighlighter {
         this.el,
         this.options.highlightedClass,
         this.options.normalizeElements,
+        this.options.priorities,
         this.options.namespaceDataAttribute,
       );
     } else if (descriptors) {

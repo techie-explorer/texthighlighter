@@ -19,10 +19,13 @@ exports.addNodesToHighlightAfterElement = addNodesToHighlightAfterElement;
 exports.getHighlightedTextForRange = getHighlightedTextForRange;
 exports.getHighlightedTextRelativeToRoot = getHighlightedTextRelativeToRoot;
 exports.createDescriptors = createDescriptors;
+exports.findHigherPriorityHighlights = findHigherPriorityHighlights;
 exports.focusHighlightNodes = focusHighlightNodes;
 exports.validateIndependenciaDescriptors = validateIndependenciaDescriptors;
 
 var _dom = _interopRequireWildcard(require("./dom"));
+
+var _priorities = require("./priorities");
 
 var _config = require("../config");
 
@@ -569,32 +572,98 @@ function createDescriptors(_ref3) {
   return [descriptor];
 }
 /**
+ * Returns the namespaces for the provided element given a list of namespaces
+ * @param {HTMLElement} element
+ * @param {Array<string>} namespaces
  *
+ * @param {string}
+ */
+
+
+function getHighlighterNamespace(element, namespaces) {
+  return namespaces.find(function (namespace) {
+    return !!element.getAttribute(namespace);
+  });
+}
+/**
+ * Collects all the higher priority highlight nodes
+ * when trying to focus or deserialise a portion of a highlight
+ * into a given DOM node.
+ *
+ * @param {HTMLElement} rootElement The parent element.
+ * @param {HTMLElement} node  The current node.
+ * @param {Record<string, number>} priorities The priorities for multiple highlighters.
+ * @param {string} namespaceDataAttribute The namespace data attribute for highlights for a provided text highlighter instance.
+ *
+ * @return {HTMLElement[]}
+ */
+
+
+function findHigherPriorityHighlights(parentNode, node, priorities, namespaceDataAttribute) {
+  var ancestors = (0, _dom["default"])(node).parentsUpTo(parentNode);
+  var namespacePriority = priorities[namespaceDataAttribute];
+  var higherPriorityHighlights = [];
+  ancestors.forEach(function (element) {
+    var namespace = getHighlighterNamespace(element, Object.keys(priorities));
+
+    if (namespace && priorities[namespace] > namespacePriority) {
+      higherPriorityHighlights.push({
+        element: element,
+        namespacePriority: priorities[namespace]
+      });
+    }
+  });
+  higherPriorityHighlights.sort(function (a, b) {
+    return b.namespacePriority - a.namespacePriority;
+  });
+  return higherPriorityHighlights.map(function (_ref4) {
+    var element = _ref4.element;
+    return element;
+  });
+}
+/**
+ * Determines whether the highlight with the provided unique id is the closest parent
+ * to the provided node of all the potential highlight wrappers.
+ *
+ * In the case an id is not provided it will simply check if any highlight for the given
+ * dataAttr namespace is the closest parent.
  *
  * @param {HTMLElement} node  The element we need to get parent information for.
- * @param {string} id The unique id of the collection of elements representing a highlight.
  * @param {HTMLElement} rootElement The root element of the context to stop at.
  * @param {string} dataAttr The namespace data attribute for highlights for a provided text highlighter instance.
+ * @param {string} id The unique id of the collection of elements representing a highlight.
  *
  * @return {boolean}
  */
 
 
-function isClosestHighlightParent(node, id, rootElement) {
-  var dataAttr = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : _config.DATA_ATTR;
-  var isClosestHighlightParent = true;
+function isClosestHighlightParent(node, rootElement) {
+  var dataAttr = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : _config.DATA_ATTR;
+  var id = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+  var isClosest = true;
   var currentNode = node.parentNode;
+  var nodeHighlightParentCount = 0;
 
-  while (currentNode && currentNode !== rootElement && isClosestHighlightParent) {
-    if (isElementHighlight(currentNode, dataAttr) && !currentNode.classList.contains(id)) {
-      // The case there is a closer parent than the highlight for the provided id.
-      isClosestHighlightParent = false;
+  while (currentNode && currentNode !== rootElement && isClosest) {
+    if (isElementHighlight(currentNode, dataAttr)) {
+      var isDifferentHighlight = id && !currentNode.classList.contains(id);
+      nodeHighlightParentCount += 1;
+
+      if (isDifferentHighlight) {
+        // The case there is a closer parent than the highlight for the provided id.
+        isClosest = false;
+      } else {
+        currentNode = currentNode.parentNode;
+      }
     } else {
       currentNode = currentNode.parentNode;
     }
-  }
+  } // In the case the provided node doesn't have any highlight wrapper
+  // parents in the tree, then the provided highlight is not considered
+  // the closest parent as there aren't any.
 
-  return isClosestHighlightParent;
+
+  return nodeHighlightParentCount === 0 ? false : isClosest;
 }
 /**
  * Focuses a set of highlight elements for a given id by ensuring if it has descendants that are highlights
@@ -650,16 +719,21 @@ function isClosestHighlightParent(node, id, rootElement) {
  * @param {HTMLElement} rootElement The root context element to normalise elements within.
  * @param {string} highlightedClass The class used to identify highlights.
  * @param {boolean} normalizeElements Whether or not elements should be normalised.
+ * @param {Record<string, number>} priorities Provides priorities for multiple highlighters operating in the same root node.
  * @param {string} dataAttr The namespace data attribute for highlights for a provided text highlighter instance.
  */
 
 
-function focusHighlightNodes(id, nodeInfoList, highlightWrapper, rootElement, highlightedClass, normalizeElements) {
-  var dataAttr = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : _config.DATA_ATTR;
+function focusHighlightNodes(id, nodeInfoList, highlightWrapper, rootElement, highlightedClass, normalizeElements, priorities) {
+  var dataAttr = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : _config.DATA_ATTR;
   nodeInfoList.forEach(function (nodeInfo) {
-    var node = nodeInfo.node; // Only wrap the node if the closest highlight parent isn't one with the given id.
+    var node = nodeInfo.node; // Only wrap the node if the closest highlight parent isn't one with the given id
+    // and if the highlighter takes priority over highlights from other highlighter instances.
 
-    if (!isClosestHighlightParent(node, id, rootElement, dataAttr)) {
+    var higherPriorityHighlights = findHigherPriorityHighlights(rootElement, node, priorities, dataAttr);
+    var isClosest = isClosestHighlightParent(node, rootElement, dataAttr, id);
+
+    if (higherPriorityHighlights.length === 0 && !isClosest) {
       // Ensure any ancestors that aren't direct parents that represent the same highlight wrapper are removed.
       var ancestors = (0, _dom["default"])(node).parentsUpTo(rootElement);
       ancestors.forEach(function (ancestor) {
@@ -697,7 +771,8 @@ function focusHighlightNodes(id, nodeInfoList, highlightWrapper, rootElement, hi
   }
 }
 /**
- * Validation for descriptors to ensure they are of the correct format to be used by the Independencia highlighter.
+ * Validation for descriptors to ensure they are of the correct format to be used
+ * by the Independencia highlighter.
  *
  * @param {array} descriptors  The descriptors to be validated.
  * @return {boolean} - if the descriptors are valid or not.

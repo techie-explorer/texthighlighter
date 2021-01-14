@@ -1,10 +1,10 @@
 import TextHighlighter from "../../../src/text-highlighter";
 
 describe("Text highlighter entrypoint class", () => {
-  let highlighter, root;
+  let highlighter, root, highlightHandlerSpy;
   beforeEach(() => {
     jest.restoreAllMocks();
-    jest.spyOn(TextHighlighter.prototype, "highlightHandler").mockImplementation(() => {});
+    highlightHandlerSpy = jest.spyOn(TextHighlighter.prototype, "highlightHandler");
     if (highlighter) {
       highlighter.destroy();
     }
@@ -21,41 +21,41 @@ describe("Text highlighter entrypoint class", () => {
     highlighter = new TextHighlighter(root, {});
     const event = new Event("mouseup");
     root.dispatchEvent(event);
-    expect(highlighter.highlightHandler).toHaveBeenCalled();
+    expect(highlightHandlerSpy).toHaveBeenCalled();
   });
 
   it("should bind to default touchend event when no useDefaultEvents option is provided", () => {
     highlighter = new TextHighlighter(root, {});
     const event = new Event("touchend");
     root.dispatchEvent(event);
-    expect(highlighter.highlightHandler).toHaveBeenCalled();
+    expect(highlightHandlerSpy).toHaveBeenCalled();
   });
 
   it("should bind events to default mouseup event when useDefaultEvents option is provided as true", () => {
     highlighter = new TextHighlighter(root, { useDefaultEvents: true });
     const event = new Event("mouseup");
     root.dispatchEvent(event);
-    expect(highlighter.highlightHandler).toHaveBeenCalled();
+    expect(highlightHandlerSpy).toHaveBeenCalled();
   });
 
   it("should bind events to default touchend event when useDefaultEvents option is provided as true", () => {
     highlighter = new TextHighlighter(root, { useDefaultEvents: true });
     const event = new Event("touchend");
     root.dispatchEvent(event);
-    expect(highlighter.highlightHandler).toHaveBeenCalled();
+    expect(highlightHandlerSpy).toHaveBeenCalled();
   });
 
   it("should not bind events by default to mouseup event when useDefaultEvents option is provided as false", () => {
     highlighter = new TextHighlighter(root, { useDefaultEvents: false });
     const event = new Event("mouseup");
     root.dispatchEvent(event);
-    expect(highlighter.highlightHandler).toHaveBeenCalledTimes(0);
+    expect(highlightHandlerSpy).toHaveBeenCalledTimes(0);
   });
 
   it("should not bind events by default to touchend when useDefaultEvents option is provided as false", () => {
     highlighter = new TextHighlighter(root, { useDefaultEvents: false });
     const event = new Event("touchend");
     root.dispatchEvent(event);
-    expect(highlighter.highlightHandler).toHaveBeenCalledTimes(0);
+    expect(highlightHandlerSpy).toHaveBeenCalledTimes(0);
   });
 });

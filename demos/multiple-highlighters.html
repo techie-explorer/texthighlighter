@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+  <meta charset="UTF-8" />
+  <title>TextHighlighter Demo | Multiple Highlighters</title>
+  <link href="http://fonts.googleapis.com/css?family=Open+Sans:700,400|Special+Elite" rel="stylesheet"
+    type="text/css" />
+  <link rel="stylesheet" type="text/css" href="assets/reset.css" />
+  <link rel="stylesheet" type="text/css" href="assets/styles.css" />
+  <link rel="stylesheet" type="text/css" href="assets/github.css" />
+  <link rel="stylesheet" type="text/css" href="assets/ColorPicker.css" />
+
+  <script type="text/javascript" src="assets/rainbow-custom.min.js"></script>
+
+  <script type="text/javascript" src="assets/ColorPicker.js"></script>
+  <script type="text/javascript" src="../build/dev/TextHighlighter.js"></script>
+</head>
+
+<body>
+  <div class="view">
+    <div class="top"></div>
+
+    <div class="side">
+      <h2>TextHighlighter Multiple Highlighters</h2>
+      <ul>
+        <li>
+          Switch between highlighters and select any text in the sandbox to highlight it.
+          Highlighter 2 has the highest priority so will retain focus no matter what.
+        </li>
+        <li>
+          Choose highlighter
+          <select id="highlight-selector" onchange="selectHighlighter()">
+            <option value="highlighter1">Highlighter 1</option>
+            <option value="highlighter2">Highlighter 2</option>
+          </select>
+        </li>
+        <li>
+          Change highlighting color:
+          <div id="color-picker-1" class="color-picker color-picker-1"></div>
+          <div id="color-picker-2" class="color-picker color-picker-2"></div>
+        </li>
+        <li>Remove all highlights: <button id="remove">Remove</button></li>
+        <li>
+          Serialize all highlights: <button id="serialize">Serialize</button>
+        </li>
+        <li>
+          Deserialize highlights:
+          <button id="deserialize">Deserialize</button>
+        </li>
+        <li>
+          Focus highlight:
+          <input type="text" id="focus-text-field" placeholder="Highlight ID" />
+          <button id="focus">Focus</button>
+        </li>
+        <li>
+          Deselect highlight:
+          <input type="text" id="deselect-text-field" placeholder="Highlight ID" />
+          <button id="deselect">Deselect</button>
+        </li>
+        <li>
+          Remove highlight:
+          <input type="text" id="remove-text-field" placeholder="Highlight ID" />
+          <button id="removeHighlight">Remove Highlight</button>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card shadow">
+      <div id="stamp">SANDBOX</div>
+      <div id="sandbox" class="content">
+        <h1>Lorem ipsum</h1>
+        <p>
+          Lorem
+          <!--comment0--> ipsum dolor sit amet, consectetur adipiscing elit. Donec
+          luctus malesuada sagittis. Morbi purus odio, blandit ac urna sed,
+          <b>interdum pharetra</b> leo.
+          <!--comment1--> Cras congue id est sit amet mattis.
+          Sed in metus et orci eleifend commodo. Phasellus at odio imperdiet,
+          efficitur augue in, pulvinar sapien. Pellentesque leo nulla, porta
+          non lectus eu, ullamcorper semper est. Nunc <i>convallis</i> risus
+          vel mauris accumsan, in rutrum odio sodales. Vestibulum
+          <b>ante ipsum</b> primis in faucibus orci luctus et ultrices posuere
+          cubilia Curae; Sed at tempus mauris. Fusce blandit felis sit amet
+          magna lacinia blandit.
+        </p>
+        <img class="shadow" src="assets/img.jpg" />
+        <img class="shadow" src="" onerror="(function(){console.log('on error called from image');})()" />
+        <p>
+          Maecenas faucibus hendrerit lectus, in auctor felis tristique at.
+          Pellentesque a felis ut nibh malesuada auctor. Ut
+          <b>egestas elit</b> ac ultrices ullamcorper. Pellentesque enim est,
+          varius ultrices velit eget, consectetur aliquam tortor. Aliquam sit
+          amet nibh id tellus sollicitudin faucibus. Nunc euismod augue
+          tempus, ornare justo interdum, consectetur lacus. Pellentesque a
+          molestie tellus, eget convallis lectus.
+        </p>
+        <!--comment2-->
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae
+          nunc sed risus blandit convallis id id risus. Morbi tortor metus,
+          imperdiet sed ipsum quis, condimentum mattis tellus. Fusce orci
+          nisi, ultricies vel hendrerit id, egestas id turpis. Proin cursus
+          diam tortor, sed ullamcorper eros commodo vitae. Aenean et maximus
+          sapien. Nam felis velit, ullamcorper eu turpis ut, hendrerit
+          accumsan augue. Nulla
+          <!--comment3-->
+          <!--comment4--> et purus sem. Ut at hendrerit purus.
+          <b>Phasellus mollis commodo</b> ante eu mollis. In nec dui vel
+          mauris lacinia vulputate id nec turpis. Aliquam vestibulum, elit sit
+          amet fringilla malesuada, quam nunc eleifend nunc, id iaculis est
+          neque pretium libero.
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Email</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>John
+                <!--comment5-->
+              </td>
+              <td>Lucius</td>
+              <td>j.lu@mail.com</td>
+            </tr>
+            <tr>
+              <td>Nikolai</td>
+              <td>Bo
+                <!--comment6--> drov
+              </td>
+              <td>niko.b@mail.com</td>
+            </tr>
+            <tr>
+              <td>Steve</td>
+              <td>Suzy</td>
+              <td>s.suzy@mail.com</td>
+            </tr>
+            <tr>
+              <td>Alex</td>
+              <td>Stirling</td>
+              <td>alexs@mail.com</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>
+          Donec sollicitudin commodo risus in consequat. Curabitur ultricies
+          sagittis mi, a dapibus nunc mollis sed. Sed ut pretium leo, quis
+          vehicula diam. Proin nisi metus, elementum ut mi porttitor, cursus
+          egestas sem. Interdum et malesuada fames ac ante ipsum primis in
+          faucibus. Phasellus mattis ipsum ut enim efficitur mollis. Vivamus
+          id mollis lectus.
+        </p>
+
+        <form action="#" method="post">
+          <div>
+            <label for="first-name">First name:</label>
+            <input type="text" id="first-name" placeholder="Enter your first name" />
+          </div>
+
+          <div>
+            <label for="last-name">Last name:</label>
+            <input type="text" id="last-name" placeholder="Enter your last name" />
+          </div>
+
+          <div>
+            <label for="gender">Gender:</label>
+            <select id="gender">
+              <option>Male</option>
+              <option>Female</option>
+            </select>
+          </div>
+
+          <input type="submit" disabled="true" value="Send" />
+        </form>
+
+        <p>
+          In est tortor, tincidunt vitae elit at, ultricies tincidunt magna.
+          Aenean suscipit ante sapien, quis sagittis felis efficitur feugiat.
+          In arcu elit, hendrerit vel varius eget, elementum vitae lectus.
+          Phasellus ut purus commodo ante iaculis molestie. Integer turpis
+          felis, pellentesque eu dignissim vel, sodales vel metus. Aliquam
+          tempus lorem odio. Sed purus arcu, auctor eget sodales ac, venenatis
+          ac velit. Praesent a quam at purus varius accumsan sit amet quis
+          magna. Praesent efficitur velit quis mi posuere, ut egestas elit
+          egestas. Etiam vulputate lacus in posuere suscipit. Fusce molestie
+          sem ipsum. Phasellus consectetur, purus quis auctor laoreet, elit
+          nisi aliquet metus, et placerat nunc tellus ac massa. Praesent
+          cursus ornare nulla eu ultrices.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div id="footer">
+    Copyright &copy; 2019 by Perlego Limited. All Rights Reserved.
+  </div>
+
+  <script type="text/javascript">
+    (function () {
+      window.selectedHighlighter = 'highlighter1';
+      function selectHighlighter() {
+        const highlighterValue = document.getElementById("highlight-selector").value;
+        window.selectedHighlighter = highlighterValue;
+        updateColorPicker();
+        if (highlighterValue == "highlighter1") {
+          window.hltrContainer1.setup();
+          window.hltrContainer2.destroy();
+        } else {
+          window.hltrContainer2.setup();
+          window.hltrContainer1.destroy();
+        }
+      }
+      window.selectHighlighter = selectHighlighter;
+
+      function updateColorPicker() {
+        if (window.selectedHighlighter === 'highlighter1') {
+          document.getElementById("color-picker-2").style.display = "none";
+          document.getElementById("color-picker-1").style.display = "block";
+          if (window.hltr1) {
+            window.hltr2.destroy();
+            window.hltr1.registerDefaultEvents();
+            window.hltr1.setColor("#FFFF7B");
+          }
+        } else {
+          document.getElementById("color-picker-1").style.display = "none";
+          document.getElementById("color-picker-2").style.display = "block";
+          if (window.hltr2) {
+            window.hltr1.destroy();
+            window.hltr2.registerDefaultEvents();
+            window.hltr2.setColor("#29B6F6");
+          }
+        }
+      }
+
+      updateColorPicker();
+    })()
+  </script>
+
+  <script type="text/javascript">
+      (function () {
+        var removeBtn = document.getElementById("remove"),
+          serializeBtn = document.getElementById("serialize"),
+          deserializeBtn = document.getElementById("deserialize");
+        var focusBtn = document.getElementById("focus");
+        var deselectBtn = document.getElementById("deselect");
+        var removeHighlightBtn = document.getElementById("removeHighlight");
+        var sandbox = document.getElementById("sandbox");
+        var highlighter1Colors = new ColorPicker(document.querySelector(".color-picker-1"), ["#29B6F6"]);
+        var highlighter2Colors = new ColorPicker(document.querySelector(".color-picker-2"), ["#FFFF7B", "#F44336", "#8BC34A"]);
+
+        const priorities = {
+          'data-highlighter-1': 1,
+          'data-highlighter-2': 2
+        }
+
+        class HighlighterContainer {
+
+          constructor(colors, priorities, namespace, highlighterPrefix = "hlt-") {
+            this.colors = colors;
+            this.serialized = {};
+            this.highlightIds = [];
+            const self = this;
+
+            const hltr = new TextHighlighter(sandbox, {
+              version: "independencia",
+              priorities,
+              namespaceDataAttribute: namespace,
+              //keepRange: true,
+              preprocessDescriptors: function (range, descriptors) {
+                var uniqueId = highlighterPrefix + Math.random()
+                  .toString(36)
+                  .substring(2, 15) +
+                  Math.random()
+                    .toString(36)
+                    .substring(2, 15);
+                self.highlightIds.push(uniqueId);
+
+                var descriptorsWithIds = descriptors.map(function (descriptor) {
+                  var wrapper = descriptor[0];
+                  var highlightedText = descriptor[1];
+                  var offset = descriptor[2];
+                  var length = descriptor[3];
+
+                  return [
+                    wrapper.replace(
+                      'class="highlighted"',
+                      "class=\"highlighted " + uniqueId + "\""
+                    ),
+                    highlightedText,
+                    offset,
+                    length
+                  ];
+                });
+                return { descriptors: descriptorsWithIds, meta: { id: uniqueId } };
+              },
+              onAfterHighlight: function (range, descriptors, timestamp, meta) { }
+            });
+            this.hltr = hltr;
+
+            this.setup = this.setup.bind(this);
+            this.destroy = this.destroy.bind(this);
+            this.removeAll = this.removeAll.bind(this);
+            this.focus = this.focus.bind(this);
+            this.deselect = this.deselect.bind(this);
+            this.serialize = this.serialize.bind(this);
+            this.deserialize = this.deserialize.bind(this);
+            this.removeHighlight = this.removeHighlight.bind(this);
+            this.setup();
+          }
+
+          setup() {
+            const self = this;
+            this.colors.onColorChange(function (color) {
+              self.hltr.setColor(color);
+            });
+
+            removeBtn.addEventListener("click", this.removeAll);
+            focusBtn.addEventListener("click", this.focus);
+            deselectBtn.addEventListener("click", this.deselect);
+            serializeBtn.addEventListener("click", this.serialize);
+            deserializeBtn.addEventListener("click", this.deserialize);
+            removeHighlightBtn.addEventListener("click", this.removeHighlight);
+          }
+
+          removeAll() {
+            this.hltr.removeHighlights();
+            this.highlightIds = [];
+          }
+
+          focus() {
+            var highlightId = document.getElementById("focus-text-field").value;
+            if (highlightId) {
+              this.hltr.focusUsingId(highlightId.trim(), this.serialized[highlightId]);
+            }
+          }
+
+          deselect() {
+            // Ensure all highlights are serialised first!
+            this.highlightIds.forEach((highlightId) => {
+              this.serialized[highlightId] = this.hltr.serializeHighlights(highlightId);
+            });
+
+            var highlightId = document.getElementById("deselect-text-field")
+              .value;
+            if (highlightId) {
+              var highlightDescriptors = Object.keys(this.serialized)
+                .filter((currentHighlightId) => { return currentHighlightId !== highlightId })
+                .map((currentHighlightId) => {
+                  return {
+                    id: currentHighlightId,
+                    serialisedDescriptor: this.serialized[currentHighlightId]
+                  };
+                });
+              this.hltr.deselectUsingId(highlightId.trim(), highlightDescriptors);
+            }
+          }
+
+          serialize() {
+            this.highlightIds.forEach((highlightId) => {
+              this.serialized[highlightId] = this.hltr.serializeHighlights(highlightId);
+            });
+            this.hltr.removeHighlights();
+          }
+
+          deserialize() {
+            this.hltr.removeHighlights();
+            this.highlightIds.forEach((highlightId) => {
+              this.hltr.deserializeHighlights(this.serialized[highlightId]);
+            });
+          }
+
+          removeHighlight() {
+            // Ensure all highlights are serialised first!
+            this.highlightIds.forEach((highlightId) => {
+              this.serialized[highlightId] = this.hltr.serializeHighlights(highlightId);
+            });
+
+            var highlightId = document.getElementById("remove-text-field")
+              .value;
+            if (highlightId) {
+              this.hltr.removeHighlights(null, highlightId);
+              this.highlightIds = this.highlightIds.filter((id) => id !== highlightId)
+            }
+          }
+
+          destroy() {
+            removeBtn.removeEventListener("click", this.removeAll);
+            focusBtn.removeEventListener("click", this.focus);
+            deselectBtn.removeEventListener("click", this.deselect);
+            serializeBtn.removeEventListener("click", this.serialize);
+            deserializeBtn.removeEventListener("click", this.deserialize);
+            removeHighlightBtn.removeEventListener("click", this.removeHighlight);
+          }
+        }
+
+        window.hltrContainer1 = new HighlighterContainer(highlighter1Colors, priorities, "data-highlighter-1", "hlt1-");
+        window.hltrContainer2 = new HighlighterContainer(highlighter2Colors, priorities, "data-highlighter-2", "hlt2-");
+        window.hltr1 = window.hltrContainer1.hltr;
+        window.hltr2 = window.hltrContainer2.hltr;
+      })();
+  </script>
+</body>
+
+</html>
