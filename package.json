@@ -1,6 +1,6 @@
 {
   "name": "@perlego/text-highlighter",
-  "version": "2.1.0-alpha.3",
+  "version": "2.1.0-alpha.4",
   "description": "TextHighlighter allows you to highlight text on web pages.",
   "dependencies": {},
   "devDependencies": {
@@ -70,7 +70,7 @@
     "build:dev": "grunt --gruntfile gruntfile.dev.js",
     "build:cjs": "grunt babel",
     "jsdoc": "grunt jsdoc",
-    "prepublishOnly": "npm run build & npm run build:cjs"
+    "prepublishOnly": "npm run build && npm run build:cjs"
   },
   "husky": {
     "hooks": {
