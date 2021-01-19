@@ -5,3 +5,4 @@ coverage
 build
 .vscode
 .DS_Store
+cjs
