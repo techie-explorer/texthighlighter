@@ -425,6 +425,36 @@ describe("highlighting utility functionality", () => {
       ]);
     });
 
+    it("should return the correct nodes excluding spaces followed by spaces", () => {
+      const parentDiv = div(
+        div("Some cat"),
+        span("    here")
+      );
+      const { nodesAndOffsets: nodes } = findNodesAndOffsets(
+        {
+          offset: 0,
+          length: 12,
+        },
+        parentDiv,
+        [],
+        true,
+      );
+      expect(prepareNodes(nodes)).toEqual([
+        {
+          length: 8,
+          nodeText: "Some cat",
+          offset: 0,
+          normalisedText: "Some cat",
+        },
+        {
+          length: 8,
+          nodeText: "    here",
+          offset: 0,
+          normalisedText: "here",
+        },
+      ]);
+    });
+
     it(
       "should correctly calculate an offset and length " +
         "excluding all carriage returns and one or more white spaces that follow a carriage return",

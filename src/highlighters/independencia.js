@@ -308,14 +308,14 @@ class IndependenciaHighlighter {
         highlight;
 
       const parentNode = self.el;
-      const { nodesAndOffsets: highlightNodes } = findNodesAndOffsets(
+      const { nodesAndOffsets } = findNodesAndOffsets(
         hl,
         parentNode,
         self.options.excludeNodes,
         self.options.excludeWhiteSpaceAndReturns,
       );
 
-      highlightNodes.forEach(({ node, offset: offsetWithinNode, length: lengthInNode }) => {
+      nodesAndOffsets.forEach(({ node, offset: offsetWithinNode, length: lengthInNode }) => {
         const { priorities, namespaceDataAttribute } = self.options;
         const higherPriorityHighlights = findHigherPriorityHighlights(
           parentNode,

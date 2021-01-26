@@ -131,12 +131,13 @@ function textContentExcludingTags(node, excludeNodeNames) {
 
 /**
  * Deals with normalising text for when carriage returns and white space
- * that directly follows should be ignored.
+ * that directly follows or when white space and white space that directly 
+ * follows should be ignored.
  *
  * @param {string} text
  */
 function normaliseText(text) {
-  return text.replace(/((\r\n|\n\r|\n|\r)\s*)/g, "");
+  return text.replace(/(((\r\n|\n\r|\n|\r)\s*)|(^\s+))/g, "");
 }
 
 /**
