@@ -1,6 +1,6 @@
 {
-  "name": "@perlego/text-highlighter",
-  "version": "2.1.0-alpha.4",
+  "name": "@perlego-oss/text-highlighter",
+  "version": "2.1.0-alpha.5",
   "description": "TextHighlighter allows you to highlight text on web pages.",
   "dependencies": {},
   "devDependencies": {
