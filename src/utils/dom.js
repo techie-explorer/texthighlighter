@@ -123,7 +123,9 @@ const dom = function(el) {
         wrapper = node.parentNode;
         dom(node).insertBefore(node.parentNode);
       });
-      dom(wrapper).remove();
+      if (wrapper) {
+        dom(wrapper).remove();
+      }
 
       return nodes;
     },
