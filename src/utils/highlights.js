@@ -131,13 +131,50 @@ function textContentExcludingTags(node, excludeNodeNames) {
 
 /**
  * Deals with normalising text for when carriage returns and white space
- * that directly follows or when white space and white space that directly 
- * follows should be ignored.
+ * that directly follows should be ignored.
  *
  * @param {string} text
  */
 function normaliseText(text) {
+  return text.replace(/((\r\n|\n\r|\n|\r)\s*)/g, "");
+}
+
+/**
+ * Deals with normalising text for when carriage returns and white space
+ * that directly follows or when white space and white space that directly
+ * follows should be ignored.
+ *
+ * @param {string} text
+ *
+ * @returns {string}
+ */
+
+function normaliseTextWithLeadingSpaces(text) {
   return text.replace(/(((\r\n|\n\r|\n|\r)\s*)|(^\s+))/g, "");
+}
+
+/**
+ * Checks whether previous siblings end with a carriage return followed by
+ * zero or more whitespaces and selects the function that should be used to
+ * normalise the text.
+ *
+ * @param {Node} node
+ * @param {Node} parentNode
+ * @param {string} text
+ *
+ * @returns {string}
+ */
+
+function normaliseBasedOnPrevSibling(node, parentNode, text) {
+  const prevNode = dom(node).previousClosestSibling(parentNode);
+  if (prevNode) {
+    const matchRegex = /((\r\n|\n\r|\n|\r)\s*)$/;
+    const matches = matchRegex.test(prevNode.textContent);
+    if (matches) {
+      return normaliseTextWithLeadingSpaces(text);
+    }
+  }
+  return normaliseText(text);
 }
 
 /**
@@ -145,7 +182,7 @@ function normaliseText(text) {
  * @param {number} offsetWithinNode
  * @param {string} text
  *
- * @return {number}
+ * @returns {number}
  */
 function normaliseOffset(offsetWithinNode, text) {
   const matchResults = text.match(/^((\r\n|\n\r|\n|\r)\s*)/g);
@@ -188,13 +225,16 @@ export function findNodesAndOffsets(
     // Ensure we ignore node types that the caller has specified should be excluded.
     if (!excludeNodeNames.includes(currentNode.nodeName)) {
       const textContent = textContentExcludingTags(currentNode, excludeNodeNames);
-      const reducedTextContent = excludeWhiteSpaceAndReturns ? normaliseText(textContent) : "";
+      const reducedTextContent = excludeWhiteSpaceAndReturns
+        ? normaliseBasedOnPrevSibling(currentNode, parentNode, textContent)
+        : "";
 
       if (currentNode == parentNode) {
         allText = excludeWhiteSpaceAndReturns ? reducedTextContent : textContent;
       }
       const textLength = textContent.length;
-      const normalisedTextLength = normaliseText(textContent).length;
+      const normalisedTextLength = normaliseBasedOnPrevSibling(currentNode, parentNode, textContent)
+        .length;
       const endOfCurrentNodeOffset = currentOffset + textLength;
       const normalisedEOCNodeOffset = excludeWhiteSpaceAndReturns
         ? currentOffset + normalisedTextLength
@@ -219,7 +259,9 @@ export function findNodesAndOffsets(
             // that may be in the middle or at the end of the node.
             const textFromNormalisedOffset = textContent.substr(normalisedOffset);
             const charactersToIgnoreInside = excludeWhiteSpaceAndReturns
-              ? textFromNormalisedOffset.length - normaliseText(textFromNormalisedOffset).length
+              ? textFromNormalisedOffset.length -
+                normaliseBasedOnPrevSibling(currentNode, parentNode, textFromNormalisedOffset)
+                  .length
               : 0;
 
             const nextNodeOffset =
@@ -246,7 +288,7 @@ export function findNodesAndOffsets(
                 offset: normalisedOffset,
                 length: normalisedLengthInHighlight,
                 normalisedText: excludeWhiteSpaceAndReturns
-                  ? normaliseText(currentNode.textContent)
+                  ? normaliseBasedOnPrevSibling(currentNode, parentNode, currentNode.textContent)
                   : currentNode.textContent,
               });
             }

@@ -425,11 +425,10 @@ describe("highlighting utility functionality", () => {
       ]);
     });
 
-    it("should return the correct nodes excluding spaces followed by spaces", () => {
-      const parentDiv = div(
-        div("Some cat"),
-        span("    here")
-      );
+    it("should return the correct nodes and exclude spaces followed by spaces when the previous node ends with a carriage return", () => {
+      const parentDiv = div(div("Some cat\n"), span("    here"));
+      const contents = div(parentDiv);
+      root.appendChild(contents);
       const { nodesAndOffsets: nodes } = findNodesAndOffsets(
         {
           offset: 0,
@@ -441,8 +440,8 @@ describe("highlighting utility functionality", () => {
       );
       expect(prepareNodes(nodes)).toEqual([
         {
-          length: 8,
-          nodeText: "Some cat",
+          length: 9,
+          nodeText: "Some cat\n",
           offset: 0,
           normalisedText: "Some cat",
         },
@@ -451,6 +450,35 @@ describe("highlighting utility functionality", () => {
           nodeText: "    here",
           offset: 0,
           normalisedText: "here",
+        },
+      ]);
+    });
+
+    it("should return the correct nodes and don't exclude spaces followed by spaces when the previous node doesn't end with a carriage return", () => {
+      const parentDiv = div(div("Some dog"), span("    here"));
+      const contents = div(parentDiv);
+      root.appendChild(contents);
+      const { nodesAndOffsets: nodes } = findNodesAndOffsets(
+        {
+          offset: 0,
+          length: 16,
+        },
+        parentDiv,
+        [],
+        true,
+      );
+      expect(prepareNodes(nodes)).toEqual([
+        {
+          length: 8,
+          nodeText: "Some dog",
+          offset: 0,
+          normalisedText: "Some dog",
+        },
+        {
+          length: 8,
+          nodeText: "    here",
+          offset: 0,
+          normalisedText: "    here",
         },
       ]);
     });
@@ -464,6 +492,8 @@ describe("highlighting utility functionality", () => {
           span(text("\n  "), i("here\n   !"), text("\n    ")),
           text("\n\n"),
         );
+        const contents = div(parentDiv);
+        root.appendChild(contents);
         const { nodesAndOffsets, allText } = findNodesAndOffsets(
           {
             offset: 0,
